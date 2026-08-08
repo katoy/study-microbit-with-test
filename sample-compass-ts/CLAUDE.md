@@ -1,17 +1,18 @@
 # CLAUDE.md - TypeScript Compass Project Guide
 
-このファイルは AI アシスタント（Claude、Copilot など）が sample-compass-ts プロジェクトで作業する際の指南書です。
+このファイルは AI アシスタント（Claude、Copilot など）が sample-compass-ts プロジェクトで作業する際のプロジェクト固有ガイドです。
+
+**プロジェクト全体のガイドは `../CLAUDE.md` を参照してください。**
 
 ## プロジェクト概要
 
 **目的**: micro:bit 用 TypeScript 方位磁石アプリケーション
 
 **特徴**:
-- 型安全な実装（TypeScript）
-- Compass クラスで方位磁石の機能を実装
-- 方位角（0-359度）から8方位（N, NE, E, SE, S, SW, W, NW）への変換
+- 型安全な TypeScript 実装
+- 方位角（0-359度）から8方位への変換
 - キャリブレーション機能
-- Jest による単体テスト + E2E テスト
+- テスト: 65個（ユニット 42 + E2E 23）
 
 ## ディレクトリ構造
 
@@ -25,49 +26,57 @@ sample-compass-ts/
 ├── jest.config.js           # Jest configuration
 ├── tsconfig.json            # TypeScript configuration
 ├── package.json             # npm dependencies & scripts
+├── CLAUDE.md                # このファイル
 ├── README.md
-└── .tool-versions           # Node version management
+└── .tool-versions           # Node version management (20.x)
 ```
 
 ## テスト実行方法
 
 ### 全テスト（ユニット + E2E）
 ```bash
-cd sample-compass-ts
 npm test
 ```
 
 ### ユニットテストのみ
 ```bash
-cd sample-compass-ts
 npm run test:unit
 ```
 
 ### E2E テストのみ
 ```bash
-cd sample-compass-ts
 npm run test:e2e
 ```
 
 ### Watch モード（ファイル変更時に自動再実行）
 ```bash
-cd sample-compass-ts
 npm run test:watch
+```
+
+### 特定のテストのみ実行
+```bash
+# テスト名パターンで実行
+npm test -- --testNamePattern="direction detection"
+
+# ファイルで実行
+npm test test/compass.test.ts
+
+# キーワードマッチ
+npm test -- -t "should handle"
 ```
 
 ### カバレッジ付き実行
 ```bash
-cd sample-compass-ts
 npm run test:coverage
+# coverage/index.html をブラウザで開く
 ```
 
 ### ビルド
 ```bash
-cd sample-compass-ts
 npm run build
 ```
 
-## コード規約
+## TypeScript コード規約
 
 ### ファイル命名規則
 - 実装ファイル: `camelCase.ts` または `snake_case.ts`
@@ -75,28 +84,27 @@ npm run build
 - E2E テスト: `*.e2e.test.ts`
 
 ### TypeScript スタイル
-- 厳密な型定義を使用
-- インターフェースで構造を定義
-- docstring は JSDoc 形式
+- **厳密な型定義を使用**
+- **インターフェースで構造を定義**
+- **JSDoc 形式の docstring**
+  ```typescript
+  /**
+   * コンパスの状態を管理するインターフェース
+   */
+  export interface CompassState {
+    heading: number;
+    direction: Direction;
+    isCalibrated: boolean;
+  }
 
-```typescript
-/**
- * コンパスの状態を管理するインターフェース
- */
-export interface CompassState {
-  heading: number;
-  direction: Direction;
-  isCalibrated: boolean;
-}
-
-/**
- * 現在の方角を取得する
- * @returns 方角（N, NE, E, SE, S, SW, W, NW）
- */
-public getDirection(): Direction {
-  return this.headingToDirection(this.heading);
-}
-```
+  /**
+   * 現在の方角を取得する
+   * @returns 方角（N, NE, E, SE, S, SW, W, NW）
+   */
+  public getDirection(): Direction {
+    return this.headingToDirection(this.heading);
+  }
+  ```
 
 ### 方位の型定義
 ```typescript
@@ -119,35 +127,36 @@ interface CompassState {
 }
 ```
 
-### `Compass` クラス
+### `Compass` クラスのメソッド
 
 | メソッド | 説明 | 戻り値 |
 |---------|------|--------|
-| `constructor()` | 初期化 | なし |
 | `calibrate()` | キャリブレーション実行 | void |
 | `getHeading()` | 現在の方位角を取得 | number |
-| `setHeading(heading: number)` | 方位角を設定（テスト用） | void |
+| `setHeading(heading)` | 方位角を設定（テスト用） | void |
 | `getDirection()` | 現在の方角を取得 | Direction |
 | `getIsCalibrated()` | キャリブレーション状態を取得 | boolean |
 | `getState()` | 現在の状態をスナップショット | CompassState |
 | `static headingToDirection(heading)` | 方位角を方角に変換 | Direction |
 
-### 方位計算ロジック
-```
-0°: N (北)
-45°: NE (北東)
-90°: E (東)
-135°: SE (南東)
-180°: S (南)
-225°: SW (南西)
-270°: W (西)
-315°: NW (北西)
-```
+## テスト戦略
 
-境界値：
-- N: 337.5° 以上 または 22.5° 未満
-- NE: 22.5° 以上 67.5° 未満
-- 以降 45° ごとに区切る
+### ユニットテスト (test/compass.test.ts) - 42個
+- 各メソッドの単体テスト
+- 型安全性の確認
+- エラーハンドリング
+- 8方位すべての判定
+- 境界値テスト（22.5°, 67.5° など）
+
+### E2E テスト (test/compass.e2e.test.ts) - 23個
+- 完全なワークフロー
+- 8方位全体の判定
+- 境界値での正確な遷移
+- ラップアラウンド（359° → 0°）
+- 連続回転シミュレーション
+- 複数インスタンスの独立動作
+- 無効な入力の拒否
+- パフォーマンステスト（10000回実行）
 
 ## よくある作業
 
@@ -158,16 +167,10 @@ interface CompassState {
 // test/compass.test.ts に追加
 describe('Compass', () => {
   test('should handle new feature', () => {
-    // arrange
     const compass = new Compass();
     compass.calibrate();
     compass.setHeading(90);
-
-    // act
-    const direction = compass.getDirection();
-
-    // assert
-    expect(direction).toBe('E');
+    expect(compass.getDirection()).toBe('E');
   });
 });
 ```
@@ -178,98 +181,47 @@ describe('Compass', () => {
 it('should handle new scenario', () => {
   compass.calibrate();
   compass.setHeading(45);
-  
   expect(compass.getDirection()).toBe('NE');
-  expect(compass.getHeading()).toBe(45);
 });
 ```
 
-### 新機能を追加する
+### 新機能を追加する（TDD）
 
-1. テストを先に書く（TDD）:
-   ```typescript
-   test('should implement new method', () => {
-     const compass = new Compass();
-     const result = compass.newMethod();
-     expect(result).toBe(expectedValue);
-   });
-   ```
+1. テストを先に書く
+2. テスト実行（失敗）
+3. 実装を追加（src/compass.ts）
+4. テスト実行（成功）
+5. ビルド確認
+6. 必要に応じてリファクタリング
 
-2. テストが失敗することを確認:
-   ```bash
-   npm test -- --testNamePattern="new method"
-   ```
+```bash
+# テスト実行
+npm test -- --testNamePattern="new feature"
 
-3. 実装を追加 (src/compass.ts):
-   ```typescript
-   public newMethod(): ReturnType {
-     /**
-      * 新しいメソッドの説明
-      */
-     return calculatedValue;
-   }
-   ```
+# 実装追加後
+npm test -- --testNamePattern="new feature"
 
-4. テストが成功することを確認:
-   ```bash
-   npm test -- --testNamePattern="new method"
-   ```
+# ビルド確認
+npm run build
+```
 
-5. ビルドでコンパイルエラーがないか確認:
-   ```bash
-   npm run build
-   ```
+## Git Hooks 連携
 
-6. リファクタリング（必要に応じて）
+### Pre-commit Hook
+コミット前に自動実行：
+```bash
+npm test
+```
 
-## テスト戦略
+### Pre-push Hook
+プッシュ前に全テスト実行
 
-### ユニットテスト (test/compass.test.ts)
-- **42 個のテスト**
-- 各メソッドの単体テスト
-- 型安全性の確認
-- エラーハンドリング
+詳細は `../.husky/` を参照。
 
-テストカバレッジ:
-- `constructor()`: 初期化状態の確認
-- `calibrate()`: キャリブレーション状態の更新
-- `getHeading()`: 方位角の取得
-- `setHeading()`: 方位角の設定と検証
-- `getDirection()`: 8方位すべてについて検証
-- `getIsCalibrated()`: キャリブレーション状態の確認
-- `getState()`: 状態スナップショット
-- 静的メソッド: `headingToDirection()`
-- 境界値: 22.5°, 67.5°, 112.5°, 157.5°, 202.5°, 247.5°, 292.5°, 337.5°
-- エラーハンドリング: 無効な方位角
-
-### E2E テスト (test/compass.e2e.test.ts)
-- **23 個の統合テスト**
-- 実際のユースケースに基づいたシナリオテスト
-- ワークフロー全体の検証
-- パフォーマンステスト
-
-テストシナリオ:
-1. 初期化と基本的なヘッディング確認
-2. キャリブレーションと状態保持
-3. ヘッディング更新と方角変更
-4. 8方位全体の方向検出
-5. 各境界条件での判定
-6. ラップアラウンド（359° → 0°）
-7. 連続ヘッディング更新（360°回転）
-8. 連続クエリの一貫性
-9. 複数インスタンスの独立動作
-10. 無効な入力の拒否
-11. キャリブレーション状態の永続性
-12. 完全な状態スナップショット
-13. パフォーマンス（10000回の高速実行）
-14. 1000回のクエリ一貫性確認
-15. 包括的なワークフロー検証
-
-## よくある問題とトラブルシューティング
+## トラブルシューティング
 
 ### npm dependencies のエラー
 ```bash
-cd sample-compass-ts
 rm -rf node_modules package-lock.json
 npm install
 npm test
@@ -291,11 +243,10 @@ npx tsc --noEmit
 ls -la test/*.test.ts
 ```
 
-### カバレッジレポートが生成されない
+### カバレッジレポートが表示されない
 ```bash
 npm run test:coverage
-# coverage/ ディレクトリが生成される
-# coverage/index.html をブラウザで開く
+# coverage/lcov-report/index.html をブラウザで開く
 ```
 
 ### 特定のテストだけを実行したい
@@ -320,76 +271,7 @@ npm run test:watch
 # q キーで終了
 ```
 
-## Git Hooks との連携
-
-### Pre-commit Hook
-コミット前に自動的に以下が実行されます：
-```bash
-npm test
-```
-
-### Pre-push Hook
-プッシュ前に全テストが実行されます：
-```bash
-npm test
-```
-
-## GitHub Actions での実行
-
-`.github/workflows/typescript-tests.yml` で自動実行：
-- Node 20.x（最新 LTS）
-- push と PR トリガー
-- TypeScript ビルド確認
-- Jest でユニット + E2E テスト
-- カバレッジレポートを codecov に送信
-
-## 推奨される変更ワークフロー
-
-1. ブランチを作成:
-   ```bash
-   git checkout -b feature/add-new-direction
-   ```
-
-2. 新しいテストを書く:
-   ```bash
-   # test/compass.test.ts または test/compass.e2e.test.ts に追加
-   ```
-
-3. テストが失敗することを確認:
-   ```bash
-   npm test
-   ```
-
-4. 実装を追加 (src/compass.ts):
-   ```typescript
-   public newMethod(): Type {
-     // 実装
-   }
-   ```
-
-5. すべてのテストが成功することを確認:
-   ```bash
-   npm test
-   ```
-
-6. ビルドでコンパイルエラーがないか確認:
-   ```bash
-   npm run build
-   ```
-
-7. コミット（hooks が自動実行）:
-   ```bash
-   git commit -m "Add new feature"
-   ```
-
-8. プッシュ（hooks が全テスト実行）:
-   ```bash
-   git push origin feature/add-new-direction
-   ```
-
-9. PR を作成（GitHub Actions が自動実行）
-
-## 開発環境セットアップ
+## 環境設定
 
 ### 必須ツール
 - Node.js 20.x（最新 LTS）
@@ -397,7 +279,6 @@ npm test
 
 ### 初期セットアップ
 ```bash
-cd sample-compass-ts
 npm install
 npm run build
 npm test
@@ -409,30 +290,6 @@ asdf install nodejs 20.x.x
 asdf local nodejs 20.x.x
 node --version  # v20.x.x であることを確認
 ```
-
-## ファイル構成
-
-### src/compass.ts
-- `Direction` 型定義
-- `CompassState` インターフェース
-- `Compass` クラス実装
-- `main()` 関数（エントリーポイント）
-
-### test/compass.test.ts
-- ユニットテスト（42個）
-- 各メソッド・各境界値のテスト
-
-### test/compass.e2e.test.ts
-- E2E テスト（23個）
-- 統合シナリオテスト
-- パフォーマンステスト
-
-## 外部リソース
-
-- [Jest Documentation](https://jestjs.io/)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [TypeScript JSDoc Reference](https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html)
-- [micro:bit TypeScript API](https://makecode.microbit.org/)
 
 ## npm Scripts 一覧
 
@@ -446,7 +303,43 @@ node --version  # v20.x.x であることを確認
 | `npm run test:e2e` | E2E テストのみ |
 | `npm run clean` | ビルド成果物を削除 |
 
-## 質問や改善提案
+## CI/CD
 
-このファイルは継続的に改善されています。
-プロジェクトのベストプラクティスを発見したら、このファイルを更新してください。
+### GitHub Actions
+`.github/workflows/typescript-tests.yml` で自動実行：
+- Node 20.x でテスト
+- push と PR トリガー
+- TypeScript ビルド確認
+- Jest でユニット + E2E テスト
+- カバレッジレポートを codecov に送信
+
+### ローカルテスト
+```bash
+# すべてのテストを実行
+npm test -- --coverage
+```
+
+## 方位計算ロジック
+
+```
+0°: N (北)
+45°: NE (北東)
+90°: E (東)
+135°: SE (南東)
+180°: S (南)
+225°: SW (南西)
+270°: W (西)
+315°: NW (北西)
+```
+
+### 境界値
+- N: 337.5° 以上 または 22.5° 未満
+- NE: 22.5° 以上 67.5° 未満
+- 以降 45° ごとに区切る
+
+## 外部リソース
+
+- [Jest Documentation](https://jestjs.io/)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+- [TypeScript JSDoc Reference](https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html)
+- [micro:bit TypeScript API](https://makecode.microbit.org/)

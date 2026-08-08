@@ -7,158 +7,270 @@
 **目的**: micro:bit 用の方位磁石アプリケーション学習プロジェクト
 
 **構成**:
-- Python 実装（sample-compass）
-- TypeScript 実装（sample-compass-ts）
-- MakeCode 実装（sample-compass-makecode）
+- **Python 実装** (`sample-compass/`) - pytest + E2E テスト
+- **TypeScript 実装** (`sample-compass-ts/`) - Jest + E2E テスト
+- **MakeCode 実装** (`sample-compass-makecode/`) - 別プロジェクト
 
-## ディレクトリ構造の理解
+**テスト総数**: 90個（Python: 25個、TypeScript: 65個）
+
+## ディレクトリ構造
 
 ```
 study-microbit-with-test/
-├── .github/workflows/     # GitHub Actions CI/CD 設定
-├── sample-compass/        # Python プロジェクト
-│   ├── compass.py        # main implementation
-│   └── test_compass.py   # pytest tests
-├── sample-compass-ts/    # TypeScript プロジェクト
-│   ├── src/              # TypeScript source
-│   ├── test/             # Jest tests
-│   ├── package.json      # npm dependencies & scripts
-│   └── jest.config.js    # Jest configuration
-└── sample-compass-makecode/  # MakeCode project
+├── .github/workflows/        # GitHub Actions CI/CD
+│   ├── python-tests.yml      # Python 3.11
+│   ├── typescript-tests.yml  # Node 20.x
+│   └── e2e-tests.yml         # 統合E2E
+├── .husky/                   # Git Hooks
+│   ├── pre-commit            # コミット前テスト
+│   └── pre-push              # プッシュ前テスト
+├── sample-compass/           # Python プロジェクト
+│   ├── CLAUDE.md            # Python 開発ガイド
+│   ├── compass.py
+│   ├── test_compass.py      # ユニットテスト (13)
+│   └── e2e_test_compass.py  # E2E テスト (12)
+├── sample-compass-ts/       # TypeScript プロジェクト
+│   ├── CLAUDE.md            # TypeScript 開発ガイド
+│   ├── src/compass.ts
+│   └── test/
+│       ├── compass.test.ts      # ユニットテスト (42)
+│       └── compass.e2e.test.ts  # E2E テスト (23)
+└── sample-compass-makecode/  # MakeCode プロジェクト
 ```
 
-## テスト実行方法
+## クイックスタート
 
-### Python テスト
+### プロジェクト別ガイド
+各プロジェクトの詳細な開発ガイド：
+- **Python**: `sample-compass/CLAUDE.md` を参照
+- **TypeScript**: `sample-compass-ts/CLAUDE.md` を参照
+
+### 全テスト実行
 ```bash
+# ルートディレクトリから
+npm run test:all
+```
+
+### E2E テスト実行
+```bash
+# ルートディレクトリから
+npm run e2e
+```
+
+### 特定プロジェクトのテスト
+```bash
+# Python
 cd sample-compass
-pytest test_compass.py -v
-# またはカバレッジ付き
-pytest test_compass.py --cov=compass
-```
+python3 -m pytest -v
 
-### TypeScript テスト
-```bash
+# TypeScript
 cd sample-compass-ts
 npm test
-# またはカバレッジ付き
-npm run test:coverage
 ```
 
-## コード規約
+## ワークフロー概要
 
-### Python (sample-compass)
-- PEP 8 に準拠
-- docstring は Google スタイル
-- テストは pytest を使用
-- ファイル名: snake_case
+### 開発フロー
+```
+git checkout -b feature/xxx
+    ↓
+コード編集
+    ↓
+git commit
+    └→ pre-commit hook で自動テスト実行
+    └→ テスト成功でコミット完了
+    ↓
+git push
+    └→ pre-push hook で全テスト実行
+    └→ テスト成功でプッシュ完了
+    ↓
+GitHub Actions で CI/CD実行
+    └→ Python 3.11, Node 20.x でテスト
+    └→ カバレッジレポート生成
+```
 
-### TypeScript (sample-compass-ts)
-- ESLint 設定を確認してから編集
-- テストは Jest を使用
-- ファイル名: camelCase または snake_case
-- 型定義は明示的に記述
+## Git Hooks
+
+### Pre-commit Hook
+各プロジェクトの変更に対してコミット前に自動実行：
+- Python: `pytest test_compass.py` + `pytest e2e_test_compass.py`
+- TypeScript: `npm test`
+
+### Pre-push Hook
+プッシュ前に変更ファイルを検出して全テスト実行
+
+詳細は `.husky/` ディレクトリを参照。
+
+## GitHub Actions CI/CD
+
+### ワークフロー一覧
+
+| Workflow | トリガー | 実行内容 |
+|----------|---------|---------|
+| `python-tests.yml` | push/PR (sample-compass) | Python 3.11 でテスト |
+| `typescript-tests.yml` | push/PR (sample-compass-ts) | Node 20.x でテスト |
+| `e2e-tests.yml` | push/PR (両方) | 統合E2Eテスト |
+
+### 実行環境
+- **Python**: 3.11（最新安定版）
+- **Node.js**: 20.x（最新 LTS）
+- **実行環境**: Ubuntu latest
+
+## TDD ワークフロー
+
+推奨される開発手順（Test-Driven Development）：
+
+```bash
+# 1. ブランチ作成
+git checkout -b feature/new-feature
+
+# 2. テストを先に書く
+# test_compass.py または compass.test.ts に追加
+
+# 3. テスト実行（失敗する）
+pytest -v  # または npm test
+
+# 4. 実装を追加
+# compass.py または src/compass.ts を編集
+
+# 5. テスト実行（成功する）
+pytest -v  # または npm test
+
+# 6. リファクタリング（必要に応じて）
+
+# 7. コミット（hooks が自動実行）
+git commit -m "Add new feature"
+
+# 8. プッシュ（hooks が全テスト実行）
+git push origin feature/new-feature
+
+# 9. PR 作成（GitHub Actions が自動実行）
+```
 
 ## よくある作業
 
-### 新しいテストを追加する
+### テストを実行する
+```bash
+# 全テスト
+npm run test:all
 
-**Python の場合**:
-```python
-# test_compass.py に追加
-def test_new_feature():
-    """新機能のテスト"""
-    # arrange
-    compass = MockCompass()
-    # act
-    result = compass.some_method()
-    # assert
-    assert result == expected_value
+# Python のみ
+npm run test:python
+
+# TypeScript のみ
+npm run test:ts
+
+# E2E のみ
+npm run e2e
+
+# カバレッジ付き
+npm run test:coverage
 ```
 
-**TypeScript の場合**:
-```typescript
-// test/compass.test.ts に追加
-describe('Compass', () => {
-  test('should handle new feature', () => {
-    // arrange
-    const compass = new Compass();
-    // act
-    const result = compass.someMethod();
-    // assert
-    expect(result).toBe(expectedValue);
-  });
-});
+### 特定の環境でテストする
+```bash
+# Python E2E テスト
+cd sample-compass && python3 -m pytest e2e_test_compass.py -v
+
+# TypeScript E2E テスト
+cd sample-compass-ts && npm run test:e2e
 ```
 
-### 新機能を追加する
-
-1. テストを先に書く（TDD）
-2. テストが失敗することを確認
-3. 最小限の実装を行う
-4. テストが成功することを確認
-5. リファクタリング
-
-### CI/CD パイプラインをテストする
-
-ローカルで GitHub Actions をシミュレート：
+### CI/CD をローカルでシミュレートする
 ```bash
 # docker が必要
-act -l  # 使用可能なワークフローを表示
-act     # すべてのワークフローを実行
+act -l                    # 使用可能なワークフローを表示
+act --list                # 詳細表示
+act -j test               # 特定のジョブ実行
 ```
 
-## よくある問題とトラブルシューティング
+## 重要な npm スクリプト（ルート）
 
-### pytest が見つからない
-```bash
-pip install pytest pytest-cov
-```
+| コマンド | 説明 |
+|---------|------|
+| `npm run test:python` | Python テスト実行 |
+| `npm run e2e:python` | Python E2E テスト実行 |
+| `npm run test:ts` | TypeScript テスト実行 |
+| `npm run e2e:ts` | TypeScript E2E テスト実行 |
+| `npm run test:all` | 全テスト実行 |
+| `npm run e2e` | 全E2Eテスト実行 |
 
-### npm dependencies のエラー
+詳細は各プロジェクトの CLAUDE.md を参照。
+
+## 開発規約
+
+### 共通ルール
+- **VCS**: Git
+- **コミットメッセージ**: 英語、明確で簡潔
+- **ブランチ戦略**: フィーチャーブランチ（`feature/xxx`）
+- **テスト**: 全変更に対してテストを必須
+
+### 言語別規約
+詳細は各プロジェクトの CLAUDE.md を参照：
+- **Python**: `sample-compass/CLAUDE.md`
+- **TypeScript**: `sample-compass-ts/CLAUDE.md`
+
+## トラブルシューティング
+
+### テスト実行時のエラー
 ```bash
+# 依存関係を再インストール
+npm install
+
+# Python の場合
+python3 -m pip install pytest pytest-cov
+
+# TypeScript の場合
 cd sample-compass-ts
 rm -rf node_modules package-lock.json
 npm install
-npm test
 ```
 
-### TypeScript のビルドエラー
+### Git Hooks が実行されない
 ```bash
-cd sample-compass-ts
-npm run build
-# エラーメッセージから型の問題を修正
+# husky を再インストール
+npm run prepare
+
+# hooks の実行権限を確認
+chmod +x .husky/pre-commit
+chmod +x .husky/pre-push
 ```
 
-### テストファイルが検出されない
-- Python: テストファイルは `test_*.py` または `*_test.py` として命名
-- TypeScript: テストファイルは `*.test.ts` または `*.spec.ts` として命名
+### GitHub Actions が失敗する
+1. ローカルでテストが成功することを確認
+2. GitHub Actions ログを確認
+3. キャッシュをクリア（GitHub UI）
 
-## 推奨される変更ワークフロー
-
-1. ブランチを作成: `git checkout -b feature/your-feature`
-2. 変更を加える
-3. ローカルでテスト実行: `pytest` または `npm test`
-4. テストが全て成功することを確認
-5. コミット: `git commit -am "Add your feature"`
-6. PR を作成（GitHub Actions が自動的に実行される）
-
-## CI/CD 設定
-
-`.github/workflows/` に以下が含まれています：
-- Python テスト: pytest を使用して `sample-compass/` をテスト
-- TypeScript テスト: Jest を使用して `sample-compass-ts/` をテスト
-
-全てのプッシュと PR に対して自動実行されます。
+詳細なトラブルシューティングは各プロジェクトの CLAUDE.md を参照。
 
 ## 外部リソース
 
+### 全般
+- [Git Documentation](https://git-scm.com/doc)
+- [micro:bit Documentation](https://microbit.org/guide/)
+
+### Python
 - [micro:bit MicroPython API](https://microbit-micropython.readthedocs.io/)
-- [Jest Documentation](https://jestjs.io/)
 - [pytest Documentation](https://docs.pytest.org/)
+- [PEP 8 - Python Style Guide](https://www.python.org/dev/peps/pep-0008/)
+
+### TypeScript
+- [Jest Documentation](https://jestjs.io/)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+- [micro:bit TypeScript API](https://makecode.microbit.org/)
+
+### GitHub Actions
+- [GitHub Actions Documentation](https://docs.github.com/en/actions)
+- [Using actions/checkout](https://github.com/actions/checkout)
+- [Using actions/setup-python](https://github.com/actions/setup-python)
+- [Using actions/setup-node](https://github.com/actions/setup-node)
 
 ## 質問や改善提案
 
-このファイルは継続的に改善されています。
-プロジェクトのベストプラクティスを発見したら、このファイルを更新してください。
+このプロジェクトの開発ガイドは継続的に改善されています。
+改善提案やベストプラクティスの発見があれば、このファイルを更新してください。
+
+### CLAUDE.md ファイル構成
+- **./CLAUDE.md** （このファイル）: プロジェクト全体の概要とワークフロー
+- **sample-compass/CLAUDE.md**: Python プロジェクト固有ガイド
+- **sample-compass-ts/CLAUDE.md**: TypeScript プロジェクト固有ガイド

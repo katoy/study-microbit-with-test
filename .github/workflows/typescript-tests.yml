@@ -33,9 +33,14 @@ jobs:
       working-directory: ./sample-compass-ts
       run: npm run build
 
-    - name: Run unit and E2E tests with Jest
+    - name: Run tests with coverage
       working-directory: ./sample-compass-ts
-      run: npm test -- --coverage
+      run: npm run test:coverage
+
+    - name: Verify coverage meets 100% threshold
+      working-directory: ./sample-compass-ts
+      run: |
+        npm test -- --coverage --coverageThreshold='{"global":{"branches":100,"functions":100,"lines":100,"statements":100}}'
 
     - name: Upload coverage reports
       uses: codecov/codecov-action@v3
@@ -43,3 +48,4 @@ jobs:
         files: ./sample-compass-ts/coverage/coverage-final.json
         flags: typescript
         name: typescript-coverage
+

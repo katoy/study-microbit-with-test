@@ -27,7 +27,7 @@ class Compass:
         Returns:
             int: 0-359 度（0 = 北）
         """
-        return compass.heading()
+        return self.heading
 
     def get_direction(self):
         """

@@ -242,4 +242,45 @@ describe('Compass E2E Test Suite', () => {
       });
     });
   });
+
+  describe('Main function', () => {
+    it('should execute main function without errors', () => {
+      // Import main after Compass is defined
+      const { main } = require('../src/compass');
+
+      // Arrange & Act
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+      // Act
+      main();
+
+      // Assert
+      expect(consoleSpy).toHaveBeenCalled();
+      const callArgs = consoleSpy.mock.calls[0][0];
+      expect(callArgs).toMatch(/方角/);
+      expect(callArgs).toMatch(/度数/);
+
+      // Cleanup
+      consoleSpy.mockRestore();
+    });
+
+    it('should initialize compass and get state in main', () => {
+      // Import main after Compass is defined
+      const { main } = require('../src/compass');
+
+      // Arrange
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+      // Act
+      main();
+
+      // Assert
+      expect(consoleSpy).toHaveBeenCalledTimes(1);
+      const output = consoleSpy.mock.calls[0][0];
+      expect(output).toContain('N');  // Initial direction should be N
+
+      // Cleanup
+      consoleSpy.mockRestore();
+    });
+  });
 });

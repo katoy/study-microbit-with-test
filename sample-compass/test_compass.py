@@ -5,66 +5,7 @@ compass.py のユニットテスト
 """
 
 import pytest
-
-
-# compass.py の Compass クラスをモック化してインポート
-class MockCompass:
-    """テスト用の Compass クラス（micro:bit API に依存しない）"""
-
-    def __init__(self):
-        """コンパスを初期化する"""
-        self.heading = 0
-        self.calibrated = False
-
-    def calibrate(self):
-        """コンパスをキャリブレーションする"""
-        self.calibrated = True
-
-    def get_heading(self):
-        """
-        現在の方位角を取得する
-        
-        Returns:
-            int: 0-359 度（0 = 北）
-        """
-        return self.heading
-
-    def get_direction(self):
-        """
-        現在の方角を取得する
-        
-        Returns:
-            str: 'N'（北）、'S'（南）、'E'（東）、'W'（西）、'NE'、'NW'、'SE'、'SW'
-        """
-        return self._heading_to_direction(self.heading)
-
-    @staticmethod
-    def _heading_to_direction(heading):
-        """
-        方位角を方向文字列に変換する
-        
-        Args:
-            heading (int): 0-359 度
-            
-        Returns:
-            str: 方向を示す文字列
-        """
-        if heading < 22.5 or heading >= 337.5:
-            return 'N'
-        elif heading < 67.5:
-            return 'NE'
-        elif heading < 112.5:
-            return 'E'
-        elif heading < 157.5:
-            return 'SE'
-        elif heading < 202.5:
-            return 'S'
-        elif heading < 247.5:
-            return 'SW'
-        elif heading < 292.5:
-            return 'W'
-        else:
-            return 'NW'
+from compass import Compass
 
 
 class TestCompass:
@@ -72,26 +13,26 @@ class TestCompass:
 
     def test_compass_init(self):
         """初期化テスト"""
-        compass = MockCompass()
+        compass = Compass()
         assert compass.heading == 0
         assert compass.calibrated is False
 
     def test_calibrate(self):
         """キャリブレーション機能のテスト"""
-        compass = MockCompass()
+        compass = Compass()
         assert compass.calibrated is False
         compass.calibrate()
         assert compass.calibrated is True
 
     def test_get_heading(self):
         """方位角取得のテスト"""
-        compass = MockCompass()
+        compass = Compass()
         compass.heading = 45
         assert compass.get_heading() == 45
 
     def test_get_direction_north(self):
         """北方向の判定テスト"""
-        compass = MockCompass()
+        compass = Compass()
         
         # 北（0 度）
         compass.heading = 0
@@ -107,66 +48,81 @@ class TestCompass:
 
     def test_get_direction_northeast(self):
         """北東方向の判定テスト"""
-        compass = MockCompass()
+        compass = Compass()
         compass.heading = 45
         assert compass.get_direction() == 'NE'
 
     def test_get_direction_east(self):
         """東方向の判定テスト"""
-        compass = MockCompass()
+        compass = Compass()
         compass.heading = 90
         assert compass.get_direction() == 'E'
 
     def test_get_direction_southeast(self):
         """南東方向の判定テスト"""
-        compass = MockCompass()
+        compass = Compass()
         compass.heading = 135
         assert compass.get_direction() == 'SE'
 
     def test_get_direction_south(self):
         """南方向の判定テスト"""
-        compass = MockCompass()
+        compass = Compass()
         compass.heading = 180
         assert compass.get_direction() == 'S'
 
     def test_get_direction_southwest(self):
         """南西方向の判定テスト"""
-        compass = MockCompass()
+        compass = Compass()
         compass.heading = 225
         assert compass.get_direction() == 'SW'
 
     def test_get_direction_west(self):
         """西方向の判定テスト"""
-        compass = MockCompass()
+        compass = Compass()
         compass.heading = 270
         assert compass.get_direction() == 'W'
 
     def test_get_direction_northwest(self):
         """北西方向の判定テスト"""
-        compass = MockCompass()
+        compass = Compass()
         compass.heading = 315
         assert compass.get_direction() == 'NW'
 
     def test_heading_to_direction_boundaries(self):
         """境界値テスト"""
         # 北東と東の境界（67.5 度）
-        assert MockCompass._heading_to_direction(67.4) == 'NE'
-        assert MockCompass._heading_to_direction(67.5) == 'E'
+        assert Compass._heading_to_direction(67.4) == 'NE'
+        assert Compass._heading_to_direction(67.5) == 'E'
         
         # 南と南西の境界（202.5 度）
-        assert MockCompass._heading_to_direction(202.4) == 'S'
-        assert MockCompass._heading_to_direction(202.5) == 'SW'
+        assert Compass._heading_to_direction(202.4) == 'S'
+        assert Compass._heading_to_direction(202.5) == 'SW'
 
     def test_heading_to_direction_edge_cases(self):
         """エッジケーステスト"""
         # 0 度（北）
-        assert MockCompass._heading_to_direction(0) == 'N'
+        assert Compass._heading_to_direction(0) == 'N'
         
         # 359 度（北に近い）
-        assert MockCompass._heading_to_direction(359) == 'N'
+        assert Compass._heading_to_direction(359) == 'N'
         
         # 360 度相当（0 度に相当）
-        assert MockCompass._heading_to_direction(360 % 360) == 'N'
+        assert Compass._heading_to_direction(360 % 360) == 'N'
+
+    def test_display_direction(self):
+        """ディスプレイに方向を表示するテスト"""
+        compass = Compass()
+        compass.heading = 90
+        
+        # display_direction() を呼び出し（display.scroll() がモックされている）
+        compass.display_direction()
+        
+        # モックの display.scroll() が呼ばれたことを確認
+        from microbit import display
+        display.scroll.assert_called_once()
+        # 呼び出し時の引数に "E 90" が含まれていることを確認
+        call_args = display.scroll.call_args[0][0]
+        assert "E" in call_args and "90" in call_args
 
 
 if __name__ == '__main__':

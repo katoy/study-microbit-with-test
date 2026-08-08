@@ -29,15 +29,15 @@ jobs:
         python -m pip install --upgrade pip
         pip install pytest pytest-cov
 
-    - name: Run unit tests with pytest
+    - name: Run all tests with coverage
       working-directory: ./sample-compass
       run: |
-        pytest test_compass.py -v --cov=compass --cov-report=xml
+        pytest test_compass.py e2e_test_compass.py -v --cov=compass --cov-report=xml --cov-report=term-missing
 
-    - name: Run E2E tests with pytest
+    - name: Verify coverage meets 100% threshold
       working-directory: ./sample-compass
       run: |
-        pytest e2e_test_compass.py -v
+        pytest test_compass.py e2e_test_compass.py --cov=compass --cov-fail-under=100
 
     - name: Upload coverage reports
       uses: codecov/codecov-action@v3

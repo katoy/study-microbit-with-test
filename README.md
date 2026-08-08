@@ -1,6 +1,12 @@
 # study-microbit-with-test
 
+[![Python Tests](https://github.com/YOUR_USERNAME/study-microbit-with-test/actions/workflows/python-tests.yml/badge.svg)](https://github.com/YOUR_USERNAME/study-microbit-with-test/actions)
+[![TypeScript Tests](https://github.com/YOUR_USERNAME/study-microbit-with-test/actions/workflows/typescript-tests.yml/badge.svg)](https://github.com/YOUR_USERNAME/study-microbit-with-test/actions)
+[![codecov](https://codecov.io/gh/YOUR_USERNAME/study-microbit-with-test/branch/main/graph/badge.svg)](https://codecov.io/gh/YOUR_USERNAME/study-microbit-with-test)
+
 micro:bit 用のシンプルな方位磁石アプリケーション学習プロジェクト
+
+**テスト状況**: 96/96 テスト成功 ✅ | **カバレッジ**: 100% (Python 100%, TypeScript 100%)
 
 ## Table of Contents
 

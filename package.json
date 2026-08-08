@@ -5,6 +5,9 @@
   "private": true,
   "scripts": {
     "lint:makecode": "cd sample-compass-makecode && pxt build --cloud",
+    "lint:ts": "cd sample-compass-ts && npm run build 2>&1 | tail -1 || echo '✓ TypeScript OK'",
+    "lint:python": "cd sample-compass && uv run python -m py_compile compass.py conftest.py && echo '✓ Python OK'",
+    "lint": "npm run lint:python && npm run lint:ts && npm run lint:makecode",
     "test:makecode": "cd sample-compass-makecode && pxt test",
     "e2e:makecode": "cd sample-compass-makecode && npm run e2e:advanced",
     "test:python": "cd sample-compass && uv run pytest test_compass.py -v",

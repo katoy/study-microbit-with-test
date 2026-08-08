@@ -136,6 +136,28 @@ sample-compass-ts/dist/hex/compass.hex
 
 詳細は [HEX_BUILD_GUIDE.md](./HEX_BUILD_GUIDE.md) を参照してください。
 
+## Code Quality & Linting
+
+### すべてのプロジェクトをチェック
+
+```bash
+# Python、TypeScript、MakeCode のすべてをチェック
+npm run lint
+```
+
+実行内容：
+- **Python**: `py_compile` で構文チェック
+- **TypeScript**: `tsc` コンパイル確認
+- **MakeCode**: `pxt build` でビルド検証
+
+### 個別プロジェクトのリント
+
+```bash
+npm run lint:python   # Python 構文チェック
+npm run lint:ts       # TypeScript ビルド確認
+npm run lint:makecode # MakeCode ビルド検証
+```
+
 ## CI/CD
 
 このプロジェクトは GitHub Actions を使用して自動的にテストを実行します。
@@ -146,12 +168,16 @@ sample-compass-ts/dist/hex/compass.hex
 
 詳細は `.github/workflows/` を参照してください。
 
-## npm Scripts リファレンス
+### npm Scripts リファレンス
 
-### テスト
+#### テスト
 
 | コマンド | 説明 |
 |---------|------|
+| `npm run lint` | 全プロジェクトのコード品質チェック |
+| `npm run lint:python` | Python 構文チェック |
+| `npm run lint:ts` | TypeScript ビルド確認 |
+| `npm run lint:makecode` | MakeCode ビルド検証 |
 | `npm run test:python` | Python ユニットテスト |
 | `npm run e2e:python` | Python E2E テスト |
 | `npm run test:ts` | TypeScript テスト |
@@ -160,7 +186,7 @@ sample-compass-ts/dist/hex/compass.hex
 | `npm run e2e` | 全 E2E テスト |
 | `npm run test:all` | 全テスト（ユニット + E2E） |
 
-### ビルド
+#### ビルド
 
 | コマンド | 説明 |
 |---------|------|

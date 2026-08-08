@@ -1,0 +1,49 @@
+name: TypeScript Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'sample-compass-ts/**'
+      - '.github/workflows/typescript-tests.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'sample-compass-ts/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: ['16.x', '18.x', '20.x']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: sample-compass-ts/package-lock.json
+
+    - name: Install dependencies
+      working-directory: ./sample-compass-ts
+      run: npm ci
+
+    - name: Build TypeScript
+      working-directory: ./sample-compass-ts
+      run: npm run build
+
+    - name: Run unit and E2E tests with Jest
+      working-directory: ./sample-compass-ts
+      run: npm test -- --coverage
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./sample-compass-ts/coverage/coverage-final.json
+        flags: typescript
+        name: typescript-coverage

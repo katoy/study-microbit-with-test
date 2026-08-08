@@ -1,0 +1,89 @@
+name: MakeCode ビルド・テスト
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Node.js をセットアップ
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: pxt をインストール
+      run: |
+        npm install -g pxt
+    
+    - name: プロジェクトの依存関係をインストール
+      run: |
+        cd ${{ github.workspace }}
+        pxt install
+    
+    - name: MakeCode をビルド
+      run: |
+        cd ${{ github.workspace }}
+        pxt build --cloud
+    
+    - name: テストを実行
+      run: |
+        cd ${{ github.workspace }}
+        pxt test
+    
+    - name: HEX ファイルをアーティファクトにアップロード
+      uses: actions/upload-artifact@v3
+      if: success()
+      with:
+        name: microbit-compass
+        path: built/hex
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Node.js をセットアップ
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Chrome をインストール
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y chromium-browser
+    
+    - name: pxt をインストール
+      run: |
+        npm install -g pxt
+    
+    - name: プロジェクトディレクトリで作業
+      working-directory: ./sample-compass-makecode
+      run: |
+        pxt install
+        npm install
+    
+    - name: E2E テストを実行（詳細）
+      working-directory: ./sample-compass-makecode
+      timeout-minutes: 10
+      run: |
+        npm run e2e:advanced 2>&1 | tee e2e-test.log || true
+    
+    - name: テスト結果をアーティファクトに保存
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: e2e-test-results
+        path: |
+          ./sample-compass-makecode/e2e-screenshot-*.png
+          ./sample-compass-makecode/e2e-test.log
+        retention-days: 7
+

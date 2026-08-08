@@ -1,0 +1,31 @@
+{
+  "name": "study-microbit-with-test",
+  "version": "1.0.0",
+  "description": "micro:bit 学習プロジェクト",
+  "private": true,
+  "scripts": {
+    "lint:makecode": "cd sample-compass-makecode && pxt build --cloud",
+    "test:makecode": "cd sample-compass-makecode && pxt test",
+    "e2e:makecode": "cd sample-compass-makecode && npm run e2e:advanced",
+    "test:python": "cd sample-compass && pytest test_compass.py -v",
+    "e2e:python": "cd sample-compass && pytest e2e_test_compass.py -v",
+    "test:ts": "cd sample-compass-ts && npm test",
+    "e2e:ts": "cd sample-compass-ts && npm test -- --testPathPattern='e2e'",
+    "test": "npm run test:python && npm run test:ts",
+    "e2e": "npm run e2e:python && npm run e2e:ts",
+    "test:all": "npm run test && npm run e2e",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "lint-staged": "^14.0.1"
+  },
+  "lint-staged": {
+    "sample-compass-makecode/**/*.ts": [
+      "cd sample-compass-makecode && pxt build --cloud"
+    ]
+  },
+  "keywords": ["microbit", "compass", "test"],
+  "license": "MIT"
+}
+

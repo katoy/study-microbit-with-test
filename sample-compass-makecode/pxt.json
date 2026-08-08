@@ -1,0 +1,19 @@
+{
+  "name": "sample-compass-makecode",
+  "description": "micro:bit 用方位磁石アプリケーション（MakeCode 版）",
+  "dependencies": {
+    "core": "*"
+  },
+  "files": [
+    "main.ts",
+    "compass.ts",
+    "test.ts"
+  ],
+  "testFiles": [
+    "test.ts"
+  ],
+  "public": true,
+  "preferredEditor": "tsprj",
+  "installedVersion": "1.0.0",
+  "version": "1.0.0"
+}

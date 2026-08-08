@@ -1,0 +1,51 @@
+name: Python Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'sample-compass/**'
+      - '.github/workflows/python-tests.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'sample-compass/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      working-directory: ./sample-compass
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov
+
+    - name: Run unit tests with pytest
+      working-directory: ./sample-compass
+      run: |
+        pytest test_compass.py -v --cov=compass --cov-report=xml
+
+    - name: Run E2E tests with pytest
+      working-directory: ./sample-compass
+      run: |
+        pytest e2e_test_compass.py -v
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./sample-compass/coverage.xml
+        flags: python
+        name: python-coverage

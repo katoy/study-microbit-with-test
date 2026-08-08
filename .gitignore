@@ -1,0 +1,37 @@
+# 依存関係
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# MakeCode
+built/
+pxt_modules/
+*.hex
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# テストスクリーンショット
+e2e-screenshot-*.png
+
+# ログファイル
+e2e-test.log
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+
+# TypeScript
+*.tsbuildinfo

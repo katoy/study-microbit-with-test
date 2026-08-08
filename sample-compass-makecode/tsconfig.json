@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "commonjs",
+    "lib": ["es2015"],
+    "declaration": true,
+    "outDir": "./built",
+    "rootDir": ".",
+    "strict": false,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true
+  },
+  "exclude": ["pxt_modules/**/*", "built/**/*"],
+  "include": ["*.ts"]
+}

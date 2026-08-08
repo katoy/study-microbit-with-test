@@ -1,0 +1,32 @@
+{
+  "name": "sample-compass-makecode",
+  "version": "1.0.0",
+  "description": "micro:bit 用方位磁石アプリケーション（MakeCode 版）",
+  "main": "main.ts",
+  "scripts": {
+    "build": "pxt build",
+    "test": "pxt test",
+    "serve": "pxt serve",
+    "e2e": "node e2e.test.js",
+    "e2e:advanced": "node e2e-advanced.test.js",
+    "lint": "pxt install && pxt build --cloud",
+    "install-deps": "pxt install"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "puppeteer": "^19.0.0"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "pxt build --cloud"
+    ]
+  },
+  "keywords": [
+    "microbit",
+    "compass",
+    "makecode"
+  ],
+  "author": "",
+  "license": "MIT"
+}
+

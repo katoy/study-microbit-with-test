@@ -1,0 +1,40 @@
+name: TypeScript テストとビルド
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ['16.x', '18.x', '20.x']
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Node.js ${{ matrix.node-version }} をセットアップ
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: 依存パッケージをインストール
+      run: npm ci
+    
+    - name: TypeScript をコンパイル
+      run: npm run build
+    
+    - name: Jest でテスト実行
+      run: npm test -- --coverage
+    
+    - name: カバレッジレポートをアップロード
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./coverage/coverage-final.json
+        flags: unittests
+        name: codecov-umbrella
+      if: always()

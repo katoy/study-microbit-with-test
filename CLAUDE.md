@@ -13,30 +13,6 @@
 
 **テスト総数**: 90個（Python: 25個、TypeScript: 65個）
 
-## ディレクトリ構造
-
-```
-study-microbit-with-test/
-├── .github/workflows/        # GitHub Actions CI/CD
-│   ├── python-tests.yml      # Python 3.11
-│   ├── typescript-tests.yml  # Node 20.x
-│   └── e2e-tests.yml         # 統合E2E
-├── .husky/                   # Git Hooks
-│   ├── pre-commit            # コミット前テスト
-│   └── pre-push              # プッシュ前テスト
-├── sample-compass/           # Python プロジェクト
-│   ├── CLAUDE.md            # Python 開発ガイド
-│   ├── compass.py
-│   ├── test_compass.py      # ユニットテスト (13)
-│   └── e2e_test_compass.py  # E2E テスト (12)
-├── sample-compass-ts/       # TypeScript プロジェクト
-│   ├── CLAUDE.md            # TypeScript 開発ガイド
-│   ├── src/compass.ts
-│   └── test/
-│       ├── compass.test.ts      # ユニットテスト (42)
-│       └── compass.e2e.test.ts  # E2E テスト (23)
-└── sample-compass-makecode/  # MakeCode プロジェクト
-```
 
 ## クイックスタート
 
@@ -61,7 +37,7 @@ npm run e2e
 ```bash
 # Python
 cd sample-compass
-python3 -m pytest -v
+uv run pytest
 
 # TypeScript
 cd sample-compass-ts
@@ -103,18 +79,7 @@ GitHub Actions で CI/CD実行
 
 ## GitHub Actions CI/CD
 
-### ワークフロー一覧
-
-| Workflow | トリガー | 実行内容 |
-|----------|---------|---------|
-| `python-tests.yml` | push/PR (sample-compass) | Python 3.11 でテスト |
-| `typescript-tests.yml` | push/PR (sample-compass-ts) | Node 20.x でテスト |
-| `e2e-tests.yml` | push/PR (両方) | 統合E2Eテスト |
-
-### 実行環境
-- **Python**: 3.11（最新安定版）
-- **Node.js**: 20.x（最新 LTS）
-- **実行環境**: Ubuntu latest
+CI/CD ワークフローは `.github/workflows/` に定義されています。詳細は各ワークフロー定義ファイルを参照してください。
 
 ## TDD ワークフロー
 
@@ -170,7 +135,7 @@ npm run test:coverage
 ### 特定の環境でテストする
 ```bash
 # Python E2E テスト
-cd sample-compass && python3 -m pytest e2e_test_compass.py -v
+cd sample-compass && uv run pytest e2e_test_compass.py -v
 
 # TypeScript E2E テスト
 cd sample-compass-ts && npm run test:e2e
@@ -184,18 +149,9 @@ act --list                # 詳細表示
 act -j test               # 特定のジョブ実行
 ```
 
-## 重要な npm スクリプト（ルート）
+## 重要な npm スクリプト
 
-| コマンド | 説明 |
-|---------|------|
-| `npm run test:python` | Python テスト実行 |
-| `npm run e2e:python` | Python E2E テスト実行 |
-| `npm run test:ts` | TypeScript テスト実行 |
-| `npm run e2e:ts` | TypeScript E2E テスト実行 |
-| `npm run test:all` | 全テスト実行 |
-| `npm run e2e` | 全E2Eテスト実行 |
-
-詳細は各プロジェクトの CLAUDE.md を参照。
+利用可能なスクリプトは `npm run` で確認してください。詳細は `package.json` と各プロジェクトの CLAUDE.md を参照。
 
 ## 開発規約
 
@@ -212,36 +168,7 @@ act -j test               # 特定のジョブ実行
 
 ## トラブルシューティング
 
-### テスト実行時のエラー
-```bash
-# 依存関係を再インストール
-npm install
-
-# Python の場合
-python3 -m pip install pytest pytest-cov
-
-# TypeScript の場合
-cd sample-compass-ts
-rm -rf node_modules package-lock.json
-npm install
-```
-
-### Git Hooks が実行されない
-```bash
-# husky を再インストール
-npm run prepare
-
-# hooks の実行権限を確認
-chmod +x .husky/pre-commit
-chmod +x .husky/pre-push
-```
-
-### GitHub Actions が失敗する
-1. ローカルでテストが成功することを確認
-2. GitHub Actions ログを確認
-3. キャッシュをクリア（GitHub UI）
-
-詳細なトラブルシューティングは各プロジェクトの CLAUDE.md を参照。
+詳細な問題解決ガイドは各プロジェクトの CLAUDE.md を参照してください。
 
 ## 外部リソース
 

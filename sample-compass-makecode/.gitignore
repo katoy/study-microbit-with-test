@@ -2,6 +2,11 @@
 built/
 pxt_modules/
 *.hex
+*.uf2
+
+# ビルド成果物
+dist/
+build/
 
 # Node.js
 node_modules/
@@ -27,3 +32,8 @@ Thumbs.db
 # Environment
 .env
 .env.local
+
+# その他
+*.log
+.cache/
+

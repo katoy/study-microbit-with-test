@@ -10,7 +10,7 @@ if git diff origin/$(git rev-parse --abbrev-ref HEAD)..HEAD --name-only 2>/dev/n
   
   echo ""
   echo "🧪 Python ユニットテスト実行..."
-  if ! pytest test_compass.py -v; then
+  if ! uv run pytest test_compass.py -v; then
     echo "❌ Python ユニットテスト失敗！push をキャンセルしました。"
     exit 1
   fi
@@ -18,7 +18,7 @@ if git diff origin/$(git rev-parse --abbrev-ref HEAD)..HEAD --name-only 2>/dev/n
   
   echo ""
   echo "🌐 Python E2E テスト実行..."
-  if ! pytest e2e_test_compass.py -v; then
+  if ! uv run pytest e2e_test_compass.py -v; then
     echo "❌ Python E2E テスト失敗！push をキャンセルしました。"
     exit 1
   fi

@@ -124,6 +124,49 @@ class TestCompass:
         call_args = display.scroll.call_args[0][0]
         assert "E" in call_args and "90" in call_args
 
+    def test_get_heading_with_exception(self):
+        """compass.heading() が例外を発生させる場合のテスト"""
+        compass = Compass()
+        compass.heading = 42
+        
+        # compass.heading() が例外を発生させるようにモック
+        from microbit import compass as compass_module
+        original_heading = compass_module.heading
+        
+        def mock_heading_with_exception():
+            raise RuntimeError("Device error")
+        
+        compass_module.heading = mock_heading_with_exception
+        
+        try:
+            # 例外が発生しても、前の値を返すべき
+            result = compass.get_heading()
+            assert result == 42
+        finally:
+            # モックを復元
+            compass_module.heading = original_heading
+
+    def test_get_heading_with_numeric_value(self):
+        """compass.heading() が数値を返す場合のテスト"""
+        compass = Compass()
+        
+        from microbit import compass as compass_module
+        original_heading = compass_module.heading
+        
+        def mock_heading_with_number():
+            return 123
+        
+        compass_module.heading = mock_heading_with_number
+        
+        try:
+            # 数値が返されると self.heading が更新される
+            result = compass.get_heading()
+            assert result == 123
+            assert compass.heading == 123
+        finally:
+            # モックを復元
+            compass_module.heading = original_heading
+
 
 if __name__ == '__main__':
     pytest.main([__file__, '-v'])

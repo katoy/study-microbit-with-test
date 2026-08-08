@@ -3,10 +3,15 @@ node_modules/
 npm-debug.log
 yarn-error.log
 
+# ビルド成果物
+dist/
+build/
+*.hex
+*.uf2
+
 # MakeCode
 built/
 pxt_modules/
-*.hex
 
 # IDE
 .vscode/
@@ -32,6 +37,17 @@ __pycache__/
 *$py.class
 .pytest_cache/
 .coverage
+htmlcov/
 
 # TypeScript
 *.tsbuildinfo
+.nyc_output/
+
+# 環境設定
+.env
+.env.local
+.env.*.local
+
+# その他
+.cache/
+.jest_cache/

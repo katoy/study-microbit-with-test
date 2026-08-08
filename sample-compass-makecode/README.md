@@ -2,6 +2,21 @@
 
 micro:bit 用の方位磁石アプリケーション（MakeCode/PXT 版）
 
+## Table of Contents
+
+- [機能](#機能)
+- [操作方法](#操作方法)
+- [MakeCode エディターで開く](#makecode-エディターで開く)
+- [ローカルでビルド・テスト](#ローカルでビルドテスト)
+- [ファイル構成](#ファイル構成)
+- [API リファレンス](#api-リファレンス)
+- [テストについて](#テストについて)
+- [Cleanup](#cleanup)
+- [CI/CD](#cicd)
+- [トラブルシューティング](#トラブルシューティング)
+- [ライセンス](#ライセンス)
+- [参考資料](#参考資料)
+
 ## 機能
 
 - 🧭 **方位磁石機能**: micro:bit の内蔵コンパスを活用
@@ -155,6 +170,24 @@ Compass.showState()
 - **境界値テスト**: 方位の境界値での正確な判定確認
 
 テストは自動で起動時に実行され、シリアルコンソールに結果が出力されます。
+
+## Cleanup
+
+中間ファイルやキャッシュを削除：
+
+```bash
+# プロジェクト全体から実行
+../scripts/clean.sh sample-compass-makecode
+
+# またはルートディレクトリから
+./scripts/clean.sh sample-compass-makecode
+```
+
+削除されるファイル：
+- `built/` - MakeCode ビルド出力
+- `node_modules/`, `package-lock.json/` - Node.js 依存関係
+- `.pxt/` - PXT キャッシュ
+- `coverage/`, `.jest-cache/` - テストキャッシュ
 
 ## CI/CD
 

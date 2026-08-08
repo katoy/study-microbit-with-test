@@ -12,7 +12,9 @@
     "lint": "pxt install && pxt build --cloud",
     "install-deps": "pxt install"
   },
-  "dependencies": {},
+  "dependencies": {
+    "pxt-microbit": "^9.1.1"
+  },
   "devDependencies": {
     "puppeteer": "^19.0.0"
   },
@@ -29,4 +31,3 @@
   "author": "",
   "license": "MIT"
 }
-

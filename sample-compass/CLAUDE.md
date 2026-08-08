@@ -20,6 +20,7 @@ sample-compass/
 ├── compass.py           # Main implementation
 ├── test_compass.py      # Unit tests (13 tests)
 ├── e2e_test_compass.py  # E2E tests (12 tests)
+├── pyproject.toml       # uv project configuration
 ├── CLAUDE.md            # このファイル
 ├── README.md
 └── .tool-versions       # Python version management (3.11.5)
@@ -29,34 +30,34 @@ sample-compass/
 
 ### ユニットテスト
 ```bash
-python3 -m pytest test_compass.py -v
+uv run pytest test_compass.py -v
 ```
 
 ### E2E テスト
 ```bash
-python3 -m pytest e2e_test_compass.py -v
+uv run pytest e2e_test_compass.py -v
 ```
 
 ### 全テスト
 ```bash
-python3 -m pytest -v
+uv run pytest -v
 ```
 
 ### 特定のテストのみ実行
 ```bash
 # テスト関数を指定
-python3 -m pytest test_compass.py::test_compass_init -v
+uv run pytest test_compass.py::test_compass_init -v
 
 # クラスとメソッド
-python3 -m pytest test_compass.py::TestCompass::test_calibrate -v
+uv run pytest test_compass.py::TestCompass::test_calibrate -v
 
 # パターンマッチ
-python3 -m pytest test_compass.py -k "direction" -v
+uv run pytest test_compass.py -k "direction" -v
 ```
 
 ### カバレッジ付き実行
 ```bash
-python3 -m pytest --cov=compass --cov-report=html
+uv run pytest --cov=compass --cov-report=html
 ```
 
 ## Python コード規約
@@ -145,19 +146,19 @@ def test_new_scenario(self, compass):
 
 ```bash
 # テスト実行
-python3 -m pytest test_compass.py::test_new_method -v
+uv run pytest test_compass.py::test_new_method -v
 
 # 実装追加後
-python3 -m pytest test_compass.py::test_new_method -v
+uv run pytest test_compass.py::test_new_method -v
 ```
 
-## Git Hooks 連携
+### Git Hooks 連携
 
 ### Pre-commit Hook
 コミット前に自動実行：
 ```bash
-python3 -m pytest test_compass.py -v
-python3 -m pytest e2e_test_compass.py -v
+uv run pytest test_compass.py -v
+uv run pytest e2e_test_compass.py -v
 ```
 
 ### Pre-push Hook
@@ -169,7 +170,7 @@ python3 -m pytest e2e_test_compass.py -v
 
 ### pytest が見つからない
 ```bash
-python3 -m pip install pytest pytest-cov
+uv sync
 ```
 
 ### テストが検出されない
@@ -182,15 +183,15 @@ ls -la test_*.py e2e_*.py
 ### 特定のテストだけを実行したい
 ```bash
 # テスト関数を指定
-python3 -m pytest test_compass.py::TestCompass::test_calibrate -v
+uv run pytest test_compass.py::TestCompass::test_calibrate -v
 
 # キーワードで実行
-python3 -m pytest -k "direction" -v
+uv run pytest -k "direction" -v
 ```
 
 ### カバレッジレポートが表示されない
 ```bash
-python3 -m pytest --cov=compass --cov-report=html
+uv run pytest --cov=compass --cov-report=html
 # htmlcov/index.html をブラウザで開く
 ```
 
@@ -198,7 +199,7 @@ python3 -m pytest --cov=compass --cov-report=html
 
 ### 必須パッケージ
 ```bash
-python3 -m pip install pytest pytest-cov
+uv sync
 ```
 
 ### Python バージョン
@@ -222,7 +223,7 @@ asdf local python 3.11.5
 ### ローカルテスト
 ```bash
 # すべてのテストを実行
-python3 -m pytest -v --cov=compass
+uv run pytest -v --cov=compass
 ```
 
 ## 方位計算ロジック

@@ -6,14 +6,14 @@
 /**
  * 方角を表す型定義
  */
-type Direction = 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'NW';
+type CompassDirection = 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'NW';
 
 /**
  * コンパスの状態を管理するインターフェース
  */
 interface CompassState {
   heading: number;
-  direction: Direction;
+  direction: CompassDirection;
   isCalibrated: boolean;
 }
 
@@ -29,7 +29,7 @@ namespace Compass {
    * %block="コンパスをキャリブレーション"
    */
   export function calibrate(): void {
-    compass.calibrate();
+    input.calibrateCompass();
     _isCalibrated = true;
   }
 
@@ -38,7 +38,7 @@ namespace Compass {
    * %block="コンパスの度数 (度)"
    */
   export function getHeading(): number {
-    _heading = compass.heading();
+    _heading = input.compassHeading();
     return _heading;
   }
 

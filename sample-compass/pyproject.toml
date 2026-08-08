@@ -1,0 +1,35 @@
+[project]
+name = "sample-compass"
+version = "1.0.0"
+description = "micro:bit compass application for learning"
+requires-python = ">=3.11"
+dependencies = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["compass"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["test_compass.py", "e2e_test_compass.py"]
+addopts = "-v"
+
+[tool.coverage.run]
+source = ["compass"]
+omit = []
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
+

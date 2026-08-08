@@ -1,5 +1,10 @@
-# micro:bit のバイナリ
+# micro:bit のバイナリ（生成された hex ファイル）
 *.hex
+*.uf2
+
+# ビルド成果物
+dist/
+build/
 
 # Python
 __pycache__/
@@ -12,7 +17,6 @@ venv/
 ENV/
 build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
@@ -42,3 +46,11 @@ coverage.xml
 # OS
 .DS_Store
 Thumbs.db
+
+# 環境設定
+.env
+.env.local
+
+# ログ
+*.log
+

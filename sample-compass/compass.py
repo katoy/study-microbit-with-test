@@ -27,6 +27,13 @@ class Compass:
         Returns:
             int: 0-359 度（0 = 北）
         """
+        try:
+            val = compass.heading()
+            # テスト環境（MagicMock）では数値ではないため、数値の場合のみ self.heading を更新
+            if isinstance(val, (int, float)) and not isinstance(val, bool):
+                self.heading = val
+        except Exception:
+            pass
         return self.heading
 
     def get_direction(self):

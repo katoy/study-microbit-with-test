@@ -9,7 +9,7 @@ if git diff --cached --name-only | grep -q "sample-compass"; then
   cd sample-compass
   
   echo "🔨 Python テストを実行中..."
-  if python3 -m pytest test_compass.py -v && python3 -m pytest e2e_test_compass.py -v; then
+  if uv run pytest test_compass.py -v && uv run pytest e2e_test_compass.py -v; then
     echo "✅ Python テスト成功！"
   else
     echo "❌ Python テスト失敗！commit をキャンセルしました。"

@@ -6,6 +6,19 @@ async function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function getBlocksHexOutputPaths(rootDirectory) {
+  return {
+    python: path.join(
+      rootDirectory,
+      'sample-compass/dist/hex/binary.hex'
+    ),
+    makecode: path.join(
+      rootDirectory,
+      'sample-compass-makecode/built/binary.hex'
+    )
+  };
+}
+
 function evaluateBlocksConversionStatus({
   errorDialogCount,
   greyBlockCount,
@@ -179,13 +192,13 @@ async function buildBlocksHexForProject(language, sourceCode, outputPath) {
 
 async function main() {
   const rootDir = path.join(__dirname, '..');
+  const outputPaths = getBlocksHexOutputPaths(rootDir);
   
   // 1. Python 版 (MakeCode 互換)
   const pythonPath = path.join(rootDir, 'sample-compass/compass_makecode.py');
-  const pythonOutputPath = path.join(rootDir, 'sample-compass/dist/hex/compass_makecode_blocks.hex');
   if (fs.existsSync(pythonPath)) {
     const pythonCode = fs.readFileSync(pythonPath, 'utf8');
-    await buildBlocksHexForProject('Python', pythonCode, pythonOutputPath);
+    await buildBlocksHexForProject('Python', pythonCode, outputPaths.python);
   } else {
     console.warn(`Python source not found at: ${pythonPath}`);
   }
@@ -193,7 +206,6 @@ async function main() {
   // 2. TypeScript/MakeCode 版
   const makecodeCompassPath = path.join(rootDir, 'sample-compass-makecode/compass.ts');
   const makecodeMainPath = path.join(rootDir, 'sample-compass-makecode/main.ts');
-  const makecodeOutputPath = path.join(rootDir, 'sample-compass-makecode/built/binary_blocks.hex');
   
   if (fs.existsSync(makecodeCompassPath) && fs.existsSync(makecodeMainPath)) {
     const compassCode = fs.readFileSync(makecodeCompassPath, 'utf8');
@@ -201,13 +213,7 @@ async function main() {
     
     // 2つのコードを綺麗に結合する
     const tsCode = `// ==========================================\n// compass.ts\n// ==========================================\n${compassCode}\n\n// ==========================================\n// main.ts\n// ==========================================\n${mainCode}`;
-    await buildBlocksHexForProject('TypeScript', tsCode, makecodeOutputPath);
-    
-    // 通常の binary.hex にもコピーする
-    const standardOutputPath = path.join(rootDir, 'sample-compass-makecode/built/binary.hex');
-    fs.mkdirSync(path.dirname(standardOutputPath), { recursive: true });
-    fs.copyFileSync(makecodeOutputPath, standardOutputPath);
-    console.log(`✓ Copied to standard output path: ${standardOutputPath}`);
+    await buildBlocksHexForProject('TypeScript', tsCode, outputPaths.makecode);
   } else {
     console.warn('MakeCode TS sources not found.');
   }
@@ -223,5 +229,6 @@ if (require.main === module) {
 module.exports = {
   buildBlocksHexForProject,
   evaluateBlocksConversionStatus,
+  getBlocksHexOutputPaths,
   verifyBlocksConversion
 };

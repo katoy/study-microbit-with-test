@@ -16,8 +16,10 @@ node ./scripts/generate-blocks-hex.js
 ```
 
 ### 生成される出力ファイル
-- **Python 版**: `sample-compass/dist/hex/compass_makecode_blocks.hex`
-- **TypeScript / MakeCode 版**: `sample-compass-makecode/built/binary_blocks.hex` (および `binary.hex` にコピー)
+- **Python 版**: `sample-compass/dist/hex/binary.hex`
+- **TypeScript / MakeCode 版**: `sample-compass-makecode/built/binary.hex`
+
+どちらもプログラム名に依存しない固定ファイル名 `binary.hex` へ直接出力し、既存ファイルがあれば上書きします。
 
 ## ライフサイクルフックによる自動実行
 このスキルはグローバルのライフサイクルフック (`hooks.json`) に登録されています。

@@ -59,9 +59,9 @@ npm run verify:blocks
 
 ## 10〜30分: MakeCode
 
-1. [`sample-compass-makecode/main.ts`](./sample-compass-makecode/main.ts) を開く
+1. [`sample-compass-makecode/src/main.ts`](./sample-compass-makecode/src/main.ts) を開く
 2. ボタンA、ボタンB、`basic.forever` の3つを探す
-3. [`compass.ts`](./sample-compass-makecode/compass.ts) で `input.compassHeading()` を探す
+3. [`compass.ts`](./sample-compass-makecode/src/compass.ts) で `input.compassHeading()` を探す
 4. `input.acceleration(Dimension.X)` が方位角の代用にならない理由を話す
 
 実行:
@@ -76,7 +76,7 @@ npm --prefix sample-compass-makecode test
 
 ## 30〜50分: Python
 
-1. [`sample-compass/test_compass.py`](./sample-compass/test_compass.py) を開く
+1. `sample-compass/test_compass.py` を開く
 2. `test_heading_to_direction_boundaries` に次を追加する
 
 ```python
@@ -92,7 +92,7 @@ uv run pytest test_compass.py -v
 cd ..
 ```
 
-4. [`compass.py`](./sample-compass/compass.py) の `heading < 22.5 or heading >= 337.5` と対応させる
+4. `compass.py` の `heading < 22.5 or heading >= 337.5` と対応させる
 
 早く終わった学習者は、公式 API の範囲外である `-1` をあえて与えるテストを読み、あり得ない値でも最後の有効な heading を維持する防御的プログラミングの狙いを考えます。
 

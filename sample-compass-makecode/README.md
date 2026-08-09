@@ -80,9 +80,9 @@ PlaywrightがMakeCode WebでTypeScriptをブロックへ切り替え、変換エ
 
 ## ファイル
 
-- [`main.ts`](./main.ts) — ボタンイベントと表示ループ
-- [`compass.ts`](./compass.ts) — 状態、実機API、8方位変換
-- [`test.ts`](./test.ts) — PXTシミュレーター内テスト
+- [`main.ts`](./src/main.ts) — ボタンイベントと表示ループ
+- [`compass.ts`](./src/compass.ts) — 状態、実機API、8方位変換
+- [`test.ts`](./test/test.ts) — PXTシミュレーター内テスト
 - [`simulator-test-runner.cjs`](./simulator-test-runner.cjs) — シミュレーター起動と結果検査
 - [`pxt.json`](./pxt.json) — MakeCodeプロジェクト定義
 

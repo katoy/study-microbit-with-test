@@ -30,7 +30,7 @@ micro:bit の方位磁石を題材に、ブロック、Python、TypeScript、自
 最初の 5 分はセットアップをせず、ブラウザーだけで MakeCode Python 版を動かします。
 
 1. <https://makecode.microbit.org/> で新しいプロジェクトを作る
-2. Python へ切り替え、[`sample-compass/compass_makecode.py`](./sample-compass/compass_makecode.py) の内容を貼り付ける
+2. Python へ切り替え、[`sample-compass/src/compass_makecode.py`](./sample-compass/src/compass_makecode.py) の内容を貼り付ける
 3. シミュレーターの A ボタンで校正し、LED の方位表示を確認する
 4. 実機があればダウンロードした HEX を転送する
 
@@ -70,6 +70,7 @@ npm run test:all
 |---|---|
 | `npm run test:all` | ローカルの完全な品質ゲート |
 | `npm run test:config` | 文書・CI・安全スクリプトなどリポジトリ設定のテスト |
+| `npm run test:simulator:playwright` | Playwright を使用した MakeCode シミュレータ動作テスト（45度回転・8方位LED判定） |
 | `npm run test:python` | Pythonユニット／HEX検証テスト |
 | `npm run integration:python` | モックを使うPython統合テスト |
 | `npm run test:ts` | TypeScriptユニットテスト |
@@ -94,6 +95,18 @@ npm run build:hex
 HEXをmicro:bitのUSBドライブへコピーします。初回や周囲の磁場が変わった場合は校正してください。詳細は [HEX_BUILD_GUIDE.md](./HEX_BUILD_GUIDE.md) を参照してください。
 
 ブロック互換性を含めて確認する場合は `npm run verify:blocks` を実行します。この検査はMakeCode WebとPlaywrightを使うため、ネットワーク接続が必要です。成功条件は、ソース注入、ブロックワークスペース表示、変換エラー0、グレーブロック0です。ブロック表示対応HEXは `sample-compass/dist/hex/blocks.hex` と `sample-compass-makecode/built/blocks.hex` に生成され、通常ビルドの成果物を上書きしません。
+
+### MakeCode シミュレーター動作テスト（Playwright）
+
+MakeCodeのWebエディターのシミュレーター機能を利用し、PC上で自動的に方位センサーを回転させてLED表示パターンを検証する Playwright 統合テストです。
+
+```bash
+npm run test:simulator:playwright
+```
+
+- **検証対象**: `sample-compass/compass_makecode.py` (Python) および `sample-compass-makecode` (TypeScript)
+- **テスト仕様**: シミュレーター上の micro:bit を 45度ずつ回転させ、各角度（`0°`, `45°`, `90°`, `135°`, `180°`, `225°`, `270°`, `315°`）における5x5 LED マトリクスの点灯・消灯状態が期待通り（N, E, S, W マークおよびスクロール消去時の消灯）かアサーションします。
+- **最適化処理**: テスト実行を高速・安定化するため、テスト中のコード注入時に起動時や方位変更時の文字列スクロール表示を一時的に `clearScreen()` に置換してバイパスし、アノテーション等の無駄なメタデータを自動クリーンアップして読み込ませています。テスト結果のシミュレーター画面は `dist/rotation-test-py.png` / `dist/rotation-test-ts.png` にスクリーンショットとして保存されます。
 
 ## MakeCode Webとの行き来
 

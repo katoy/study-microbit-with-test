@@ -68,11 +68,11 @@ async function runSimulatorTests(projectDirectory = __dirname) {
 
   try {
     fs.copyFileSync(
-      path.join(projectDirectory, 'compass.ts'),
+      path.join(projectDirectory, 'src/compass.ts'),
       path.join(testDirectory, 'compass.ts')
     );
     fs.copyFileSync(
-      path.join(projectDirectory, 'test.ts'),
+      path.join(projectDirectory, 'test/test.ts'),
       path.join(testDirectory, 'test.ts')
     );
     fs.writeFileSync(

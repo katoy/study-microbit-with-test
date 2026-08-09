@@ -39,8 +39,8 @@ graph TD
 * **テクノロジースタック**: Python 3.12 (uv), `pytest`, `unittest.mock`, `uflash`
 * **環境教材としての価値**:
   * **実機開発ワークフローの王道**: Web ブラウザを介さず、ローカルの CLI ターミナルから `uflash` 経由で直接 HEX ファイルを書き込む「ファームウェア開発」の基本的なフローを体験できます。
-  * **Static Python (MakeCode Python) への配慮**: 標準の MicroPython 用コード（[`compass.py`](../sample-compass/compass.py)）だけでなく、MakeCode の Python モード向けStatic Pythonコード（[`compass_makecode.py`](../sample-compass/compass_makecode.py)）が用意されています。
-  * **モック化によるテスト**: [`conftest.py`](../sample-compass/conftest.py) を使って `sys.modules['microbit']` に `MagicMock` を差し込むことで、PC単体でロジックを検査できます。
+  * **Static Python (MakeCode Python) への配慮**: 標準の MicroPython 用コード（`compass.py`）だけでなく、MakeCode の Python モード向けStatic Pythonコード（[`compass_makecode.py`](../sample-compass/compass_makecode.py)）が用意されています。
+  * **モック化によるテスト**: `conftest.py` を使って `sys.modules['microbit']` に `MagicMock` を差し込むことで、PC単体でロジックを検査できます。
 
 ### ② TypeScript 環境 ([`sample-compass-ts`](../sample-compass-ts/))
 * **テクノロジースタック**: Node.js, TypeScript (`tsc`), `Jest`

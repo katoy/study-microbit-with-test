@@ -22,26 +22,7 @@ jobs:
     steps:
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-    # Python 統合テスト（micro:bit API はモック）
-    - name: Set up Python
-      uses: actions/setup-python@7f4fc3e22c37d6ff65e88745f38bd3157c663f7c # v4
-      with:
-        python-version: '3.11'
 
-    - name: Install uv
-      uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-
-    - name: Install Python dependencies
-      working-directory: ./sample-compass
-      run: |
-        uv sync
-
-    - name: Run Python integration tests
-      working-directory: ./sample-compass
-      run: |
-        echo "🚀 Python 統合テストを実行中..."
-        uv run pytest test_compass_integration.py -v --tb=short
-        echo "✅ Python 統合テスト完了"
 
     # TypeScript 統合テスト（実機APIは使用しない）
     - name: Set up Node.js

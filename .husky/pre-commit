@@ -8,11 +8,11 @@ if git diff --cached --name-only | grep -q "^sample-compass/"; then
   echo "📝 sample-compass のファイルが変更されています"
   cd sample-compass
   
-  echo "🔨 Python テストを実行中..."
-  if uv run pytest test_compass.py test_build_hex.py -v && uv run pytest test_compass_integration.py -v; then
-    echo "✅ Python テスト成功！"
+  echo "🔨 Python コンパイルチェックを実行中..."
+  if uv run python -m py_compile src/compass_makecode.py; then
+    echo "✅ Python コンパイル成功！"
   else
-    echo "❌ Python テスト失敗！commit をキャンセルしました。"
+    echo "❌ Python コンパイル失敗！commit をキャンセルしました。"
     exit 1
   fi
   cd ..

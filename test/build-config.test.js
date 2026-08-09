@@ -14,9 +14,8 @@ const makeCodePackage = require(path.join(
   'sample-compass-makecode/package.json'
 ));
 
-test('device HEX builds use only the Python and MakeCode toolchains', () => {
-  assert.match(rootPackage.scripts['build:hex'], /build:hex:python/);
-  assert.match(rootPackage.scripts['build:hex'], /build:hex:makecode/);
+test('device HEX builds use only the MakeCode toolchain', () => {
+  assert.equal(rootPackage.scripts['build:hex'], 'npm run build:hex:makecode');
   assert.ok(!Object.hasOwn(rootPackage.scripts, 'build:hex:ts'));
   assert.ok(!Object.hasOwn(typeScriptPackage.scripts, 'build:hex'));
   assert.equal(makeCodePackage.scripts['build:hex'], 'npm run build');
@@ -40,7 +39,7 @@ test('MakeCode tests execute in the simulator from root scripts and CI', () => {
 
 test('MakeCode exposes no test-only block parameter or unused microphone dependency', () => {
   const compassSource = fs.readFileSync(
-    path.join(projectRoot, 'sample-compass-makecode/compass.ts'),
+    path.join(projectRoot, 'sample-compass-makecode/src/compass.ts'),
     'utf8'
   );
   const simulatorRunner = fs.readFileSync(
@@ -74,60 +73,9 @@ test('TypeScript lint preserves the compiler exit code', () => {
   );
 });
 
-test('Python README documents only implemented Compass methods', () => {
-  const readme = fs.readFileSync(
-    path.join(projectRoot, 'sample-compass/README.md'),
-    'utf8'
-  );
 
-  for (const method of [
-    'calibrate',
-    'is_calibrated',
-    'get_heading',
-    'get_direction',
-    'display_direction'
-  ]) {
-    assert.match(readme, new RegExp(`\\b${method}\\(`));
-  }
-  for (const missingMethod of ['set_heading', 'get_calibrated', 'get_state']) {
-    assert.doesNotMatch(readme, new RegExp(`\\b${missingMethod}\\(`));
-  }
-});
-
-test('Python compass uses real API state and latched button presses', () => {
-  const source = fs.readFileSync(
-    path.join(projectRoot, 'sample-compass/compass.py'),
-    'utf8'
-  );
-  const conftest = fs.readFileSync(
-    path.join(projectRoot, 'sample-compass/conftest.py'),
-    'utf8'
-  );
-
-  assert.match(source, /compass\.is_calibrated\(\)/);
-  assert.match(source, /button_a\.was_pressed\(\)/);
-  assert.match(source, /'N': Image\.ARROW_N/);
-  assert.match(source, /display\.show\(DIRECTION_IMAGES\[direction\]\)/);
-  assert.doesNotMatch(source, /self\.calibrated/);
-  assert.doesNotMatch(source, /isinstance\(val/);
-  assert.match(conftest, /microbit\.compass\.heading\.return_value = 0/);
-});
-
-test('Python coverage configuration has one authoritative source setting', () => {
-  assert.equal(fs.existsSync(path.join(projectRoot, 'sample-compass/.coveragerc')), false);
-
-  const pyproject = fs.readFileSync(
-    path.join(projectRoot, 'sample-compass/pyproject.toml'),
-    'utf8'
-  );
-  assert.match(pyproject, /\[tool\.coverage\.run\][\s\S]*source = \["compass"\]/);
-});
 
 test('mocked workflows are named integration tests rather than end-to-end tests', () => {
-  assert.equal(
-    rootPackage.scripts['integration:python'],
-    'cd sample-compass && uv run pytest test_compass_integration.py -v'
-  );
   assert.equal(
     rootPackage.scripts['integration:ts'],
     'cd sample-compass-ts && npm run test:integration'
@@ -139,7 +87,6 @@ test('mocked workflows are named integration tests rather than end-to-end tests'
   assert.ok(!Object.keys(rootPackage.scripts).some((name) => name.includes('e2e')));
   assert.ok(!Object.keys(typeScriptPackage.scripts).some((name) => name.includes('e2e')));
 
-  assert.ok(fs.existsSync(path.join(projectRoot, 'sample-compass/test_compass_integration.py')));
   assert.ok(fs.existsSync(path.join(
     projectRoot,
     'sample-compass-ts/test/compass.integration.test.ts'
@@ -153,15 +100,10 @@ test('canonical READMEs use executable checks instead of frozen test totals', ()
     path.join(projectRoot, 'sample-compass-ts/README.md'),
     'utf8'
   );
-  const pythonReadme = fs.readFileSync(
-    path.join(projectRoot, 'sample-compass/README.md'),
-    'utf8'
-  );
 
   assert.match(rootReadme, /npm run test:all/);
   assert.match(typeScriptReadme, /npm test/);
-  assert.match(pythonReadme, /uv run pytest/);
-  for (const readme of [rootReadme, typeScriptReadme, pythonReadme]) {
+  for (const readme of [rootReadme, typeScriptReadme]) {
     assert.doesNotMatch(readme, /\b\d+\/\d+\s+(PASS|成功)/);
   }
 });

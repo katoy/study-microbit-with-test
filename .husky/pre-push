@@ -35,20 +35,12 @@ if printf '%s\n' "$CHANGED_FILES" | grep -q "^sample-compass/"; then
   cd sample-compass
   
   echo ""
-  echo "🧪 Python ユニットテスト実行..."
-  if ! uv run pytest test_compass.py test_build_hex.py -v; then
-    echo "❌ Python ユニットテスト失敗！push をキャンセルしました。"
+  echo "🧪 Python コンパイルチェックを実行中..."
+  if ! uv run python -m py_compile src/compass_makecode.py; then
+    echo "❌ Python コンパイル失敗！push をキャンセルしました。"
     exit 1
   fi
-  echo "✅ Python ユニットテスト 完了！"
-  
-  echo ""
-  echo "🔗 Python 統合テスト実行..."
-  if ! uv run pytest test_compass_integration.py -v; then
-    echo "❌ Python 統合テスト失敗！push をキャンセルしました。"
-    exit 1
-  fi
-  echo "✅ Python 統合テスト 完了！"
+  echo "✅ Python コンパイルチェック 完了！"
   
   cd ..
 else

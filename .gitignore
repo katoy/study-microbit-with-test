@@ -29,6 +29,8 @@ Thumbs.db
 
 # テストスクリーンショット
 e2e-screenshot-*.png
+error-rotation-*.png
+test-results/
 
 # ログファイル
 e2e-test.log
@@ -45,6 +47,7 @@ __pycache__/
 .tox/
 .coverage
 htmlcov/
+*.egg-info/
 
 # TypeScript
 *.tsbuildinfo

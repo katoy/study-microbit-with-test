@@ -6,11 +6,11 @@
         "core": "*"
     },
     "files": [
-        "main.ts",
-        "compass.ts"
+        "src/main.ts",
+        "src/compass.ts"
     ],
     "testFiles": [
-        "test.ts"
+        "test/test.ts"
     ],
     "public": true,
     "targetVersions": {

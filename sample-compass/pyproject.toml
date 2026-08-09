@@ -4,6 +4,7 @@ version = "1.0.0"
 description = "micro:bit compass application for learning"
 requires-python = ">=3.11"
 dependencies = [
+    "playwright>=1.62.0",
     "pytest>=7.0",
     "pytest-cov>=4.0",
     "uflash==2.0.0",

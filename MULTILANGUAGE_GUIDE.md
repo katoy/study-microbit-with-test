@@ -47,7 +47,7 @@ npm --prefix sample-compass-makecode test
 
 ### ミニ課題
 
-[`sample-compass-makecode/test.ts`](./sample-compass-makecode/test.ts) で、`337.5` が `N` になるテストを探してください。次に、その直前の値が `NW` になる理由を範囲表で説明します。
+[`sample-compass-makecode/test/test.ts`](./sample-compass-makecode/test/test.ts) で、`337.5` が `N` になるテストを探してください。次に、その直前の値が `NW` になる理由を範囲表で説明します。
 
 ## 2. Python: ハードウェアをモックしてテストする
 
@@ -66,7 +66,7 @@ MicroPython版では実機の値を次で取得します。
 value = compass.heading()
 ```
 
-PCには `microbit` モジュールがないため、[`conftest.py`](./sample-compass/conftest.py) がテスト中だけモックを提供します。方位変換は `_heading_to_direction()` に分離され、センサーなしで境界値を高速に検査できます。
+PCには `microbit` モジュールがないため、`conftest.py` がテスト中だけモックを提供します。方位変換は `_heading_to_direction()` に分離され、センサーなしで境界値を高速に検査できます。
 
 ```bash
 cd sample-compass

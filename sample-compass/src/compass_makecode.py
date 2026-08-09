@@ -46,27 +46,19 @@ def get_direction_string(heading: number) -> str:
         return "NW"
 
 def on_button_pressed_a():
-    calibrate_compass()
-input.on_button_pressed(Button.A, on_button_pressed_a)
-
-def on_button_pressed_b():
-    # ボタン B を押して現在の角度と方位を表示
+    # ボタン A でログに時間と角度と方向名を出力
     global is_calibrated
     if not is_calibrated:
-        basic.show_string("CAL?")
+        calibrate_compass()
     else:
         heading = input.compass_heading()
-        if heading < 0:
-            basic.show_string("ERR")
-        else:
-            direction = get_direction_string(heading)
-            basic.show_string(direction)
-            basic.show_number(heading)
-input.on_button_pressed(Button.B, on_button_pressed_b)
+        direction = get_direction_string(heading)
+        console.log("Time: " + str(input.running_time()) + "ms, Heading: " + str(heading) + ", Dir: " + direction)
+input.on_button_pressed(Button.A, on_button_pressed_a)
 
 # 起動時の指示
 basic.show_string("COMPASS")
-basic.show_string("A:CAL B:CHK")
+basic.show_string("A:LOG")
 
 def on_forever():
     global is_calibrated
@@ -81,41 +73,23 @@ def on_forever():
             basic.pause(1000)
         else:
             direction = get_direction_string(heading)
-            # LED スクリーンに主要方角の簡易マークを表示
+            # 8方向の矢印で表示
             if direction == "N":
-                basic.show_leds("""
-                    . . # . .
-                    . # # # .
-                    # . # . #
-                    . . . . .
-                    . . . . .
-                """)
+                basic.show_arrow(ArrowNames.NORTH)
+            elif direction == "NE":
+                basic.show_arrow(ArrowNames.NORTH_EAST)
             elif direction == "E":
-                basic.show_leds("""
-                    . . # . .
-                    . . # # .
-                    . . # . .
-                    . . # # .
-                    . . # . .
-                """)
+                basic.show_arrow(ArrowNames.EAST)
+            elif direction == "SE":
+                basic.show_arrow(ArrowNames.SOUTH_EAST)
             elif direction == "S":
-                basic.show_leds("""
-                    . . # . .
-                    . . . . .
-                    # . # . #
-                    . # # # .
-                    . . # . .
-                """)
+                basic.show_arrow(ArrowNames.SOUTH)
+            elif direction == "SW":
+                basic.show_arrow(ArrowNames.SOUTH_WEST)
             elif direction == "W":
-                basic.show_leds("""
-                    . . # . .
-                    . # # . .
-                    . . # . .
-                    . # # . .
-                    . . # . .
-                """)
-            else:
-                basic.show_string(direction)
+                basic.show_arrow(ArrowNames.WEST)
+            elif direction == "NW":
+                basic.show_arrow(ArrowNames.NORTH_WEST)
             basic.pause(500)
 
 basic.forever(on_forever)

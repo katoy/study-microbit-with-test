@@ -7,7 +7,7 @@
 **目的**: micro:bit 用の方位磁石アプリケーション学習プロジェクト
 
 **構成**:
-- **Python 実装** (`sample-compass/`) - pytestユニット・統合テスト
+- **Python 実装** (`sample-compass/`) - 静的コンパイルチェック
 - **TypeScript 実装** (`sample-compass-ts/`) - Jestユニット・統合テスト
 - **MakeCode 実装** (`sample-compass-makecode/`) - PXTコンパイル・シミュレーターテスト
 
@@ -51,9 +51,9 @@ npm run integration
 
 ### 特定プロジェクトのテスト
 ```bash
-# Python
+# Python (コンパイルチェック)
 cd sample-compass
-uv run pytest
+uv run python -m py_compile compass_makecode.py
 
 # TypeScript
 cd sample-compass-ts
@@ -85,7 +85,7 @@ GitHub Actions で CI/CD実行
 
 ### Pre-commit Hook
 各プロジェクトの変更に対してコミット前に自動実行：
-- Python: `pytest test_compass.py` + `pytest test_compass_integration.py`
+- Python: `py_compile compass_makecode.py`
 - TypeScript: `npm test`
 
 ### Pre-push Hook
@@ -106,16 +106,16 @@ CI/CD ワークフローは `.github/workflows/` に定義されています。�
 git checkout -b feature/new-feature
 
 # 2. テストを先に書く
-# test_compass.py または compass.test.ts に追加
+# compass.test.ts に追加
 
 # 3. テスト実行（失敗する）
-pytest -v  # または npm test
+npm test
 
 # 4. 実装を追加
-# compass.py または src/compass.ts を編集
+# src/compass.ts を編集
 
 # 5. テスト実行（成功する）
-pytest -v  # または npm test
+npm test
 
 # 6. リファクタリング（必要に応じて）
 
@@ -135,8 +135,8 @@ git push origin feature/new-feature
 # 全テスト
 npm run test:all
 
-# Python のみ
-npm run test:python
+# Python のみ (コンパイルチェック)
+npm run lint:python
 
 # TypeScript のみ
 npm run test:ts
@@ -150,8 +150,7 @@ npm run test:coverage
 
 ### 特定の環境でテストする
 ```bash
-# Python 統合テスト
-cd sample-compass && uv run pytest test_compass_integration.py -v
+
 
 # TypeScript 統合テスト
 cd sample-compass-ts && npm run test:integration
@@ -176,6 +175,7 @@ act -j test               # 特定のジョブ実行
 - **コミットメッセージ**: 英語、明確で簡潔
 - **ブランチ戦略**: フィーチャーブランチ（`feature/xxx`）
 - **テスト**: 全変更に対してテストを必須
+- **コード配置**: アプリケーションコードは `src/` に保存、テストコードは `test/` に保存する
 
 ### 言語別規約
 詳細は各プロジェクトの CLAUDE.md を参照：

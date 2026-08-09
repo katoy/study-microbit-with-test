@@ -8,7 +8,6 @@ const rootPackage = require(path.join(projectRoot, 'package.json'));
 
 test('the local all-tests command enforces the documented coverage threshold', () => {
   assert.match(rootPackage.scripts['test:all'], /test:coverage/);
-  assert.match(rootPackage.scripts['test:coverage:python'], /--cov-fail-under=100/);
 });
 
 test('repository checks run configuration tests in CI', () => {

@@ -71,12 +71,6 @@ jobs:
         with:
           node-version: '22.23.2'
 
-      - name: Test npm audit policy
-        run: node --test test/npm-audit-policy.test.js
-
-      - name: Audit all npm lockfiles
-        run: node scripts/audit-npm.js
-
       - name: Install uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
 

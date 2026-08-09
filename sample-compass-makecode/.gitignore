@@ -1,6 +1,7 @@
 # MakeCode/PXT
 built/
 pxt_modules/
+.pxt/
 *.hex
 *.uf2
 
@@ -16,7 +17,11 @@ yarn-error.log*
 
 # TypeScript
 *.tsbuildinfo
-*.js
+
+# test coverage and caches
+coverage/
+.jest-cache/
+.nyc_output/
 
 # IDE
 .vscode/
@@ -31,9 +36,9 @@ Thumbs.db
 
 # Environment
 .env
-.env.local
+.env.*
+!.env.example
 
 # その他
 *.log
 .cache/
-

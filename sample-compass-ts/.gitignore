@@ -12,7 +12,6 @@ build/
 
 # TypeScript
 *.tsbuildinfo
-*.js
 
 # test coverage
 coverage/
@@ -29,11 +28,10 @@ coverage/
 
 # Environment
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
 
 # misc
 .cache/
-.jest_cache/
+.jest-cache/
 *.log
-

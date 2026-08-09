@@ -32,8 +32,8 @@ class Compass:
             # テスト環境（MagicMock）では数値ではないため、数値の場合のみ self.heading を更新
             if isinstance(val, (int, float)) and not isinstance(val, bool):
                 self.heading = val
-        except Exception:
-            pass
+        except (OSError, RuntimeError):
+            return self.heading
         return self.heading
 
     def get_direction(self):

@@ -22,7 +22,7 @@ micro:bit 用の方位磁石アプリケーション（MakeCode/PXT 版）
 - 🧭 **方位磁石機能**: micro:bit の内蔵コンパスを活用
 - 🗺️ **8 方位判定**: 北（N）、北東（NE）、東（E）、南東（SE）、南（S）、南西（SW）、西（W）、北西（NW）
 - ⚙️ **キャリブレーション**: ボタン A でコンパスをキャリブレーション
-- 🧪 **組み込みテスト**: シリアルコンソールでテスト実行可能
+- 🧪 **実行テスト**: PXT 内蔵シミュレーターで方位判定テストを実行
 - ✅ **GitHub Actions CI/CD**: 自動ビルドとテスト
 
 ## 操作方法
@@ -43,66 +43,39 @@ micro:bit 用の方位磁石アプリケーション（MakeCode/PXT 版）
 ## ローカルでビルド・テスト
 
 ### 必要なツール
-- Node.js 14+
-- `pxt` CLI
+- Node.js 22+
 
 ### インストール
 
 ```bash
-npm install -g pxt
+npm ci
 ```
 
 ### ビルド
 
 ```bash
-pxt install
-pxt build
+npm run build
 ```
 
 ### テスト実行
 
-#### ユニットテスト（MakeCode テスト）
+#### コンパイル・シミュレーターテスト
 
 ```bash
-pxt test
+npm test
 ```
 
-テスト結果がシリアルコンソールに出力されます。
-
-#### E2E テスト（pxt serve + Puppeteer）
-
-基本的な E2E テストを実行：
-
-```bash
-npm install
-npm run e2e
-```
-
-より詳細な E2E テストを実行（UI要素・コンソール・ネットワーク監視）：
-
-```bash
-npm install
-npm run e2e:advanced
-```
-
-**E2E テストの内容:**
-- ✅ ページ読み込み確認
-- ✅ シミュレーター UI 表示確認
-- ✅ JavaScript エラー監視
-- ✅ コンソール出力確認
-- ✅ ボタン要素検出
-- ✅ ネットワークリクエスト監視
-- 📸 スクリーンショット自動取得
-
-**注意:** E2E テストを実行するには Node.js 14+ と Puppeteer がインストールされている必要があります。
+このコマンドはランナー自身の判定テスト、`pxt test` のコンパイル確認、PXT 内蔵シミュレーターでの28件の方位判定を順に実行します。1件でも失敗した場合や結果が出力されなかった場合は非ゼロ終了します。
 
 ### デバッグ用シミュレーター実行
 
 ```bash
-pxt serve
+npm run serve
 ```
 
-ブラウザで http://localhost:3232 を開くとシミュレーターが起動します。
+開発サーバーが表示するURLをブラウザで開いて手動確認します。この操作は自動テストには含まれません。
+
+自動テストの保証範囲は [SIMULATOR_TEST_GUIDE.md](./SIMULATOR_TEST_GUIDE.md)、CIでの実行範囲は [GITHUB_ACTIONS_TESTS.md](./GITHUB_ACTIONS_TESTS.md) を参照してください。
 
 ## ファイル構成
 
@@ -112,9 +85,12 @@ sample-compass-makecode/
 ├── main.ts                  # メインプログラム
 ├── compass.ts               # コンパス機能の実装
 ├── test.ts                  # テストコード
+├── simulator-test-runner.cjs # PXT シミュレーターテストランナー
+├── simulator-test-runner.test.cjs # ランナーの判定テスト
+├── configure-pxt.cjs        # ローカル PXT CLI 設定
 ├── tsconfig.json            # TypeScript コンパイラ設定
-├── .github/workflows/
-│   └── test.yml             # GitHub Actions ワークフロー
+├── SIMULATOR_TEST_GUIDE.md  # 自動シミュレーターテストの範囲
+├── GITHUB_ACTIONS_TESTS.md  # CIでのテスト範囲
 ├── built/                   # コンパイル出力
 ├── pxt_modules/             # MakeCode 標準パッケージ
 ├── README.md                # このファイル
@@ -165,11 +141,10 @@ Compass.showState()
 
 このプロジェクトには組み込みテストスイートが含まれています：
 
-- **初期化テスト**: 初期状態の確認
 - **8 方位テスト**: 各方位（北、北東、東...）の判定確認
 - **境界値テスト**: 方位の境界値での正確な判定確認
 
-テストは自動で起動時に実行され、シリアルコンソールに結果が出力されます。
+テストは製品プログラムの起動時には実行されません。`npm test` がテスト専用の一時 MakeCode プロジェクトを作り、テスト結果を検証した後に削除します。
 
 ## Cleanup
 
@@ -183,20 +158,21 @@ Compass.showState()
 ./scripts/clean.sh sample-compass-makecode
 ```
 
-削除されるファイル：
+削除されるファイル（Git追跡中のパスは保持されます）：
 - `built/` - MakeCode ビルド出力
-- `node_modules/`, `package-lock.json/` - Node.js 依存関係
+- `node_modules/`, `pxt_modules/` - Node.js / PXT 依存関係
 - `.pxt/` - PXT キャッシュ
-- `coverage/`, `.jest-cache/` - テストキャッシュ
+- `coverage/`, `.jest-cache/`, `.nyc_output/`, `.cache/` - テスト・ツールキャッシュ
+
+`package-lock.json` は削除されません。
 
 ## CI/CD
 
 GitHub Actions で以下が自動実行されます：
 
-- ✅ `pxt install` で依存関係をインストール
-- ✅ `pxt build` で TypeScript をコンパイル
-- ✅ `pxt test` でテストを実行
-- ✅ ビルド成功時に HEX ファイルをアーティファクトにアップロード
+- ✅ `npm ci` で固定済みの依存関係をインストール
+- ✅ `pxt test` で TypeScript をコンパイル
+- ✅ `pxt run` で28件のテストを実行し、失敗時は CI を停止
 
 ## トラブルシューティング
 
@@ -210,9 +186,9 @@ GitHub Actions で以下が自動実行されます：
 
 ### ビルドエラー
 ```bash
-pxt install
-pxt clean
-pxt build
+npm run install-deps
+npx pxt clean
+npm run build
 ```
 
 ## ライセンス

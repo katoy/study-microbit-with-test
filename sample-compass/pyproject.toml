@@ -6,6 +6,7 @@ requires-python = ">=3.11"
 dependencies = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
+    "uflash==2.0.0",
 ]
 
 [build-system]
@@ -17,7 +18,7 @@ py-modules = ["compass"]
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-testpaths = ["test_compass.py", "e2e_test_compass.py"]
+testpaths = ["test_compass.py", "test_build_hex.py", "test_compass_integration.py"]
 addopts = "-v"
 
 [tool.coverage.run]
@@ -32,4 +33,3 @@ exclude_lines = [
     "raise NotImplementedError",
     "if __name__ == .__main__.:",
 ]
-

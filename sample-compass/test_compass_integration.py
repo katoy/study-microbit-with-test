@@ -1,5 +1,5 @@
 """
-Compass アプリケーション E2E テスト
+Compass アプリケーション統合テスト
 
 実際のユースケースに基づいた統合テストを実施する
 """
@@ -8,8 +8,8 @@ import pytest
 from compass import Compass
 
 
-class TestCompassE2E:
-    """E2E テスト：Compass アプリケーション統合テスト"""
+class TestCompassIntegration:
+    """モック化した micro:bit API と Compass の統合テスト"""
 
     @pytest.fixture
     def compass(self):

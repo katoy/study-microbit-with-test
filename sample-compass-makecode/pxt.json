@@ -8,8 +8,7 @@
     },
     "files": [
         "main.ts",
-        "compass.ts",
-        "test.ts"
+        "compass.ts"
     ],
     "testFiles": [
         "test.ts"

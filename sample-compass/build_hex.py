@@ -1,161 +1,125 @@
 #!/usr/bin/env python3
-"""
-micro:bit HEX ファイル生成スクリプト
-Python コードを micro:bit HEX 形式に変換 (uflash 使用)
-"""
+"""Generate a flashable Universal Hex file for the BBC micro:bit."""
 
-import os
 import sys
-import subprocess
 from pathlib import Path
-from datetime import datetime
-
-# ディレクトリ設定
-project_root = Path(__file__).parent.absolute()
-dist_dir = project_root / "dist"
-hex_dir = dist_dir / "hex"
-py_file = project_root / "compass.py"
-
-# HEX ファイル出力パス
-hex_output_path = hex_dir / "compass.hex"
-
-def create_hex_from_python():
-    """Python コードから HEX ファイルを生成"""
-    
-    print("🔨 Generating micro:bit HEX file from Python...")
-    print(f"  Input: {py_file}")
-    print(f"  Output: {hex_output_path}")
-    
-    # dist/hex ディレクトリを作成
-    hex_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Python ファイルが存在するか確認
-    if not py_file.exists():
-        print(f"❌ Error: {py_file} not found.")
-        sys.exit(1)
-    
-    # uflash CLI コマンドを使用
-    if use_uflash_command(py_file, hex_output_path):
-        print_success_message()
-        return
-    
-    # uflash Python モジュール を試す
-    if use_uflash_module(py_file, hex_output_path):
-        print_success_message()
-        return
-    
-    # フォールバック
-    print("⚠️  uflash not found, generating fallback HEX...")
-    create_fallback_hex(py_file, hex_output_path)
-    print_success_message()
 
 
-def use_uflash_command(py_file: Path, hex_output_path: Path) -> bool:
-    """uflash コマンドを使用して HEX を生成"""
+PROJECT_ROOT = Path(__file__).parent.resolve()
+DIST_DIR = PROJECT_ROOT / "dist"
+HEX_DIR = DIST_DIR / "hex"
+PY_FILE = PROJECT_ROOT / "compass.py"
+HEX_OUTPUT_PATH = HEX_DIR / "compass.hex"
+
+
+def _load_uflash():
+    """Load the compiler dependency with an actionable error message."""
     try:
-        result = subprocess.run(
-            ["uflash", str(py_file), "-o", str(hex_output_path)],
-            capture_output=True,
-            text=True,
-            timeout=30
-        )
-        
-        if result.returncode == 0:
-            print("✅ HEX file generated using uflash command!")
-            return True
-        else:
-            return False
-    except FileNotFoundError:
-        return False
-    except Exception as e:
-        return False
+        import uflash
+    except ImportError as exc:  # pragma: no cover - uv sync installs it
+        raise RuntimeError(
+            "uflash is required to generate a flashable HEX file; run `uv sync`."
+        ) from exc
+    return uflash
 
 
-def use_uflash_module(py_file: Path, hex_output_path: Path) -> bool:
-    """uflash Python モジュールを使用して HEX を生成"""
+def validate_microbit_hex(hex_path: Path) -> None:
+    """Reject malformed HEX files and metadata-only placeholder artifacts."""
+    if not hex_path.is_file():
+        raise ValueError(f"HEX compiler did not create {hex_path}")
+
+    data_record_count = 0
+    has_end_of_file = False
+
     try:
-        # uflash コマンドラインインターフェースを試す
-        result = subprocess.run(
-            [sys.executable, "-m", "uflash", str(py_file), "-o", str(hex_output_path)],
-            capture_output=True,
-            text=True,
-            timeout=30
+        lines = hex_path.read_text(encoding="ascii").splitlines()
+    except (OSError, UnicodeError) as exc:
+        raise ValueError(f"Unable to read HEX output: {hex_path}") from exc
+
+    for line_number, line in enumerate(lines, start=1):
+        if not line:
+            continue
+        if not line.startswith(":"):
+            raise ValueError(f"Invalid Intel HEX record at line {line_number}")
+
+        try:
+            record = bytes.fromhex(line[1:])
+        except ValueError as exc:
+            raise ValueError(f"Invalid hexadecimal data at line {line_number}") from exc
+
+        if len(record) < 5 or len(record) != record[0] + 5:
+            raise ValueError(f"Invalid Intel HEX length at line {line_number}")
+        if sum(record) & 0xFF:
+            raise ValueError(f"Invalid Intel HEX checksum at line {line_number}")
+
+        record_type = record[3]
+        if record_type == 0x00 and record[0] > 0:
+            data_record_count += 1
+        elif record_type == 0x01:
+            has_end_of_file = True
+
+    if data_record_count == 0:
+        raise ValueError("HEX output contains no firmware data records")
+    if not has_end_of_file:
+        raise ValueError("HEX output has no end-of-file record")
+
+
+def create_hex_from_python(
+    source_path: Path = PY_FILE,
+    output_path: Path = HEX_OUTPUT_PATH,
+) -> Path:
+    """Compile a Python program into a validated Universal Hex artifact."""
+    source_path = Path(source_path)
+    output_path = Path(output_path)
+
+    print("🔨 Generating a flashable micro:bit HEX file from Python...")
+    print(f"  Input: {source_path}")
+    print(f"  Output: {output_path}")
+
+    if not source_path.is_file():
+        raise FileNotFoundError(f"Python source not found: {source_path}")
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.unlink(missing_ok=True)
+
+    generated_path = output_path.parent / f"{source_path.stem}.hex"
+    try:
+        uflash = _load_uflash()
+        uflash.flash(
+            path_to_python=str(source_path),
+            paths_to_microbits=[str(output_path.parent)],
+            keepname=True,
         )
-        
-        if result.returncode == 0:
-            print("✅ HEX file generated using uflash module!")
-            return True
-        else:
-            return False
+
+        if generated_path != output_path:
+            generated_path.replace(output_path)
+
+        validate_microbit_hex(output_path)
     except Exception:
-        return False
+        output_path.unlink(missing_ok=True)
+        if generated_path != output_path:
+            generated_path.unlink(missing_ok=True)
+        raise
+
+    print_success_message(output_path)
+    return output_path
 
 
-def create_fallback_hex(py_file: Path, hex_output_path: Path):
-    """
-    フォールバック：簡易版 HEX ファイルを生成
-    実際の HEX コンパイルには uflash や MakeCode が必要
-    """
-    
+def print_success_message(output_path: Path) -> None:
+    """Report the validated build artifact."""
+    file_size = output_path.stat().st_size
+    print("✅ Flashable HEX file generated successfully!")
+    print(f"   {output_path}")
+    print(f"   File size: {file_size} bytes")
+
+
+def main() -> None:
     try:
-        with open(py_file, 'r', encoding='utf-8') as f:
-            py_code = f.read()
-    except Exception as e:
-        print(f"❌ Error reading Python file: {e}")
-        sys.exit(1)
-    
-    timestamp = datetime.now().isoformat()
-    
-    # Intel HEX フォーマットのヘッダー
-    hex_content = f"""; micro:bit HEX file (Python implementation)
-; Generated: {timestamp}
-; Source: compass.py
-;
-; This is a simplified HEX wrapper for the micro:bit.
-; For actual micro:bit deployment, install uflash:
-;   pip install uflash
-; Then run:
-;   uflash compass.py
-;
-; Python Source (first 20 lines):
-"""
-    
-    # Python コードをコメント化して含める
-    lines = py_code.split('\n')[:20]
-    for line in lines:
-        hex_content += f"; {line}\n"
-    
-    hex_content += "\n"
-    
-    # Intel HEX フォーマット（終了レコード）
-    hex_content += """:020000040000FA
-:00000001FF
-"""
-    
-    try:
-        with open(hex_output_path, 'w', encoding='utf-8') as f:
-            f.write(hex_content)
-    except Exception as e:
-        print(f"❌ Error writing HEX file: {e}")
-        sys.exit(1)
-
-
-def print_success_message():
-    """成功メッセージを表示"""
-    if hex_output_path.exists():
-        file_size = hex_output_path.stat().st_size
-        print(f"   {hex_output_path}")
-        print(f"   File size: {file_size} bytes")
-    
-    # dist/hex ディレクトリの生成ファイルを表示
-    print(f"\n📦 Generated files in {hex_dir}:")
-    for file in sorted(hex_dir.iterdir()):
-        if file.is_file():
-            size = file.stat().st_size
-            print(f"   - {file.name} ({size} bytes)")
+        create_hex_from_python()
+    except Exception as exc:
+        print(f"❌ HEX generation failed: {exc}", file=sys.stderr)
+        raise SystemExit(1) from exc
 
 
 if __name__ == "__main__":
-    create_hex_from_python()
-
-
+    main()

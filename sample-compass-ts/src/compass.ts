@@ -49,9 +49,7 @@ export class Compass {
    * 方位角を設定する（テスト用）
    */
   public setHeading(heading: number): void {
-    if (heading < 0 || heading >= 360) {
-      throw new Error('方位角は 0-359 度である必要があります');
-    }
+    Compass.validateHeading(heading);
     this.heading = heading;
   }
 
@@ -86,6 +84,8 @@ export class Compass {
    * @returns 方角（N, NE, E, SE, S, SW, W, NW）
    */
   public static headingToDirection(heading: number): Direction {
+    Compass.validateHeading(heading);
+
     if (heading < 22.5 || heading >= 337.5) {
       return 'N';
     } else if (heading < 67.5) {
@@ -110,6 +110,12 @@ export class Compass {
    */
   private headingToDirection(heading: number): Direction {
     return Compass.headingToDirection(heading);
+  }
+
+  private static validateHeading(heading: number): void {
+    if (!Number.isFinite(heading) || heading < 0 || heading >= 360) {
+      throw new Error('方位角は 0-359 度である必要があります');
+    }
   }
 }
 

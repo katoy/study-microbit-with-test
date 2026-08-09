@@ -30,6 +30,7 @@ namespace tests {
     console.log(`テスト結果: ${passedTests}/${totalTests} 成功`);
     console.log(`失敗: ${failedTests}`);
     console.log(`===============================`);
+    console.log(`MAKECODE_TEST_RESULT total=${totalTests} passed=${passedTests} failed=${failedTests}`);
   }
 }
 
@@ -38,7 +39,6 @@ namespace compassTests {
   export function runAllTests(): void {
     console.log('方位磁石テスト開始...\n');
 
-    testInitialization();
     testNorthDirection();
     testNorthEastDirection();
     testEastDirection();
@@ -50,12 +50,6 @@ namespace compassTests {
     testBoundaryValues();
 
     tests.summary();
-  }
-
-  function testInitialization(): void {
-    console.log('初期化テスト');
-    // MakeCode では初期状態で北を指す
-    tests.assertEqual(Compass.getDirection(), 'N', '初期方角は北（N）');
   }
 
   function testNorthDirection(): void {

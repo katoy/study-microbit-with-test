@@ -4,19 +4,28 @@
   "description": "micro:bit 用方位磁石アプリケーション（MakeCode 版）",
   "main": "main.ts",
   "scripts": {
-    "build": "pxt build",
-    "test": "pxt test",
-    "serve": "pxt serve",
-    "e2e": "node e2e.test.js",
-    "e2e:advanced": "node e2e-advanced.test.js",
-    "lint": "pxt install && pxt build --cloud",
-    "install-deps": "pxt install"
-  },
-  "dependencies": {
-    "pxt-microbit": "^9.1.1"
+    "postinstall": "node configure-pxt.cjs",
+    "pxt:setup": "node configure-pxt.cjs",
+    "build": "npm run pxt:setup && pxt install && pxt build",
+    "build:hex": "npm run build",
+    "test": "npm run test:runner && npm run test:compile && npm run test:simulator",
+    "test:runner": "node --test simulator-test-runner.test.cjs",
+    "test:compile": "npm run pxt:setup && pxt install && pxt test",
+    "test:simulator": "node simulator-test-runner.cjs",
+    "serve": "npm run pxt:setup && pxt serve",
+    "lint": "npm run pxt:setup && pxt install && pxt build --cloud",
+    "install-deps": "npm run pxt:setup && pxt install"
   },
   "devDependencies": {
-    "puppeteer": "^19.0.0"
+    "pxt": "0.5.1",
+    "pxt-microbit": "9.1.1"
+  },
+  "overrides": {
+    "adm-zip": "0.6.0",
+    "dompurify": "3.4.13",
+    "postcss": "8.5.26",
+    "sanitize-html": "2.17.5",
+    "serialize-javascript": "7.0.5"
   },
   "lint-staged": {
     "*.ts": [

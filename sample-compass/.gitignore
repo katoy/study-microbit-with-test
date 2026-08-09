@@ -12,6 +12,7 @@ __pycache__/
 *$py.class
 *.so
 .Python
+.venv/
 env/
 venv/
 ENV/
@@ -29,6 +30,9 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+.ruff_cache/
+.mypy_cache/
+.tox/
 
 # テストとカバレッジ
 .pytest_cache/
@@ -49,8 +53,8 @@ Thumbs.db
 
 # 環境設定
 .env
-.env.local
+.env.*
+!.env.example
 
 # ログ
 *.log
-

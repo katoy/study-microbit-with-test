@@ -8,7 +8,7 @@ micro:bit 用の TypeScript 実装による方位磁石アプリケーション
 - [技術スタック](#技術スタック)
 - [インストール](#インストール)
 - [ビルド](#ビルド)
-- [HEX ファイル生成](#hex-ファイル生成)
+- [実機用 HEX](#実機用-hex)
 - [テスト](#テスト)
 - [使用例](#使用例)
 - [プロジェクト構成](#プロジェクト構成)
@@ -27,14 +27,13 @@ micro:bit 用の TypeScript 実装による方位磁石アプリケーション
 - 🧭 **型安全な方位磁石クラス**: TypeScript の型定義を活用した堅牢な実装
 - 🗺️ **8 方位判定**: 北（N）、北東（NE）、東（E）、南東（SE）、南（S）、南西（SW）、西（W）、北西（NW）
 - 🔄 **キャリブレーション管理**: キャリブレーション状態を管理
-- ✅ **包括的なテスト**: Jest による 65 テストケース（ユニット 42 + E2E 23）
-- 📦 **HEX ファイル生成**: micro:bit 転送用の HEX ファイルを自動生成
+- ✅ **包括的なテスト**: Jest によるユニットテストと統合テスト
 
 ## 技術スタック
 
 - **言語**: TypeScript 5.2+
 - **テストフレームワーク**: Jest 29+
-- **ノードバージョン**: 20.x（推奨）
+- **ノードバージョン**: 22.x（推奨）
 
 ## インストール
 
@@ -57,19 +56,18 @@ npm run build
 ls -l dist/
 ```
 
-## HEX ファイル生成
+## 実機用 HEX
 
-micro:bit に転送可能な HEX ファイルを生成できます。
+このディレクトリはNode.js上で方位ロジックを学習・テストするための通常のTypeScript実装です。
+MakeCode/PXTのターゲット情報を持たないため、ここからmicro:bit用HEXは生成しません。
 
 ```bash
-# HEX ファイルを生成
+cd ../sample-compass-makecode
 npm run build:hex
-
-# 生成されたファイルを確認
-ls -lh dist/hex/compass.hex
 ```
 
-生成された HEX ファイルは `dist/hex/compass.hex` に保存されます。
+実機向けTypeScriptは `sample-compass-makecode` を使用してください。生成物は
+`sample-compass-makecode/built/binary.hex` です。
 
 詳細は [HEX_BUILD_GUIDE.md](../HEX_BUILD_GUIDE.md) を参照してください。
 
@@ -82,8 +80,8 @@ npm test
 # ユニットテストのみ
 npm run test:unit
 
-# E2E テストのみ
-npm run test:e2e
+# 統合テストのみ
+npm run test:integration
 
 # テストカバレッジを表示
 npm run test:coverage
@@ -114,14 +112,11 @@ sample-compass-ts/
 ├── src/
 │   └── compass.ts              # メインの Compass クラス
 ├── test/
-│   ├── compass.test.ts         # ユニットテスト（42 個）
-│   └── compass.e2e.test.ts     # E2E テスト（23 個）
-├── scripts/
-│   └── generate-hex.js         # HEX ファイル生成スクリプト
+│   ├── compass.test.ts         # ユニットテスト（47 個）
+│   └── compass.integration.test.ts # Node.js上の統合テスト
 ├── dist/                       # コンパイル済み JavaScript
 │   ├── compass.js
 │   ├── compass.d.ts            # 型定義
-│   └── hex/                    # 生成された HEX ファイル
 ├── coverage/                   # テストカバレッジレポート
 ├── package.json                # npm プロジェクト設定
 ├── tsconfig.json               # TypeScript コンパイラ設定
@@ -143,14 +138,13 @@ sample-compass-ts/
 
 | ファイル | 説明 | テスト数 |
 |---------|------|---------|
-| `test/compass.test.ts` | ユニットテスト | 42 |
-| `test/compass.e2e.test.ts` | E2E テスト | 23 |
+| `test/compass.test.ts` | ユニットテスト | 47 |
+| `test/compass.integration.test.ts` | Node.js上の統合テスト | 25 |
 
 ### ビルド・スクリプト
 
 | ファイル | 説明 |
 |---------|------|
-| `scripts/generate-hex.js` | HEX ファイル生成スクリプト |
 | `jest.config.js` | Jest テストランナー設定 |
 | `tsconfig.json` | TypeScript コンパイラ設定 |
 | `package.json` | npm プロジェクト設定 |
@@ -174,7 +168,6 @@ sample-compass-ts/
 | ディレクトリ | 説明 | .gitignore |
 |-----------|------|-----------|
 | `dist/` | ビルド出力ディレクトリ | ✅ 除外 |
-| `dist/hex/` | 生成された HEX ファイル | ✅ 除外 |
 | `coverage/` | テストカバレッジレポート | ✅ 除外 |
 
 ## CI/CD
@@ -182,10 +175,10 @@ sample-compass-ts/
 GitHub Actions で自動的に以下が実行されます:
 
 - ✅ TypeScript のコンパイル
-- ✅ Jest でのユニットテスト（42 テストケース）
-- ✅ E2E テスト（23 テストケース）
+- ✅ Jest でのユニットテスト（47 テストケース）
+- ✅ Node.js上の統合テスト
 - ✅ テストカバレッジの計測
-- ✅ 複数のノードバージョン（20.x）で検証
+- ✅ Node.js 22.x で検証
 
 詳細は `.github/workflows/typescript-tests.yml` を参照してください。
 
@@ -237,10 +230,9 @@ interface CompassState {
 | コマンド | 説明 |
 |---------|------|
 | `npm run build` | TypeScript をコンパイル |
-| `npm run build:hex` | HEX ファイルを生成 |
 | `npm test` | 全テスト実行 |
 | `npm run test:unit` | ユニットテストのみ |
-| `npm run test:e2e` | E2E テストのみ |
+| `npm run test:integration` | 統合テストのみ |
 | `npm run test:coverage` | カバレッジレポート付き |
 | `npm run test:watch` | ウォッチモード |
 | `npm run clean` | ビルド成果物を削除 |
@@ -257,18 +249,19 @@ interface CompassState {
 ./scripts/clean.sh sample-compass-ts
 ```
 
-削除されるファイル：
-- `node_modules/`, `package-lock.json/`
+削除されるファイル（Git追跡中のパスは保持されます）：
+- `node_modules/`
 - `dist/`, `build/`
-- `coverage/`, `.jest-cache/`
+- `coverage/`, `.jest-cache/`, `.nyc_output/`, `.cache/`
+
+`package-lock.json` は削除されません。
 
 ## トラブルシューティング
 
 ### npm install が失敗する
 
 ```bash
-rm -rf node_modules package-lock.json
-npm install
+npm ci
 ```
 
 ### TypeScript コンパイルエラー
@@ -286,12 +279,10 @@ npx tsc --noEmit
 ls -la test/*.test.ts
 ```
 
-### HEX ファイルが生成されない
+### 実機用 HEX が必要
 
 ```bash
-# ビルドが成功しているか確認
-npm run build
-# HEX スクリプトを実行
+cd ../sample-compass-makecode
 npm run build:hex
 ```
 

@@ -1,7 +1,7 @@
 # Git Hooks セットアップ完了
 
 ✅ `git commit` 時に **Lint** が走るように設定しました  
-✅ `git push` 時に **Lint + ユニットテスト + E2E テスト** が走るように設定しました
+✅ `git push` 時に **MakeCode ビルド + コンパイル・シミュレーターテスト** が走るように設定しました
 
 ## 🚀 クイックスタート
 
@@ -44,7 +44,7 @@ commit コマンド
   ↓
 sample-compass-makecode が変更されているか確認
   ↓
-pxt build --cloud （Lint）
+npm test （コンパイル・シミュレーターテスト）
   ↓
 ✅ 成功 → commit 続行
 ❌ 失敗 → commit キャンセル
@@ -59,10 +59,9 @@ push コマンド
   ↓
 sample-compass-makecode が変更されているか確認
   ↓
-3 つのテストを順に実行：
-  1. pxt build --cloud （Lint）
-  2. pxt test （ユニットテスト）
-  3. npm run e2e:advanced （E2E テスト）
+2 つのチェックを順に実行：
+  1. npm run build （MakeCode ビルド）
+  2. npm test （コンパイル・シミュレーターテスト）
   ↓
 ✅ すべて成功 → push 続行
 ❌ 1 つでも失敗 → push キャンセル
@@ -78,7 +77,7 @@ sample-compass-makecode が変更されているか確認
 ├── package.json          ← husky & lint-staged 設定
 ├── GIT_HOOKS_GUIDE.md    ← 詳細ドキュメント
 └── sample-compass-makecode/
-    └── package.json      ← E2E テスト依存関係
+    └── package.json      ← MakeCode ビルド・テスト依存関係
 ```
 
 ## 🛠️ トラブルシューティング
@@ -113,8 +112,8 @@ git push --no-verify
 | 環境 | 実行タイミング | テスト |
 |------|--------------|-------|
 | **ローカル（Pre-commit）** | `git commit` | Lint |
-| **ローカル（Pre-push）** | `git push` | Lint + Unit + E2E |
-| **GitHub Actions** | Push 後 | Build + Unit + E2E |
+| **ローカル（Pre-push）** | `git push` | MakeCodeビルド + コンパイル・シミュレーター |
+| **GitHub Actions** | Push 後 | ユニット + 統合 + MakeCodeシミュレーター |
 
 ## ✨ メリット
 

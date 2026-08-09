@@ -28,10 +28,6 @@ basic.showString('COMPASS');
 basic.showString('A: CAL');
 basic.showString('B: CHK');
 
-// テストを実行（シリアルコンソール出力）
-basic.showString('TEST');
-compassTests.runAllTests();
-
 // メインループ：継続的に方向を更新
 basic.forever(function () {
   const direction = Compass.getDirection();

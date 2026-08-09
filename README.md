@@ -6,7 +6,7 @@
 
 micro:bit 用のシンプルな方位磁石アプリケーション学習プロジェクト
 
-**テスト状況**: 96/96 テスト成功 ✅ | **カバレッジ**: 100% (Python 100%, TypeScript 100%)
+**品質ゲート**: `npm run test:all` | **カバレッジ目標**: Python・TypeScriptともに100%
 
 ## Table of Contents
 
@@ -64,6 +64,15 @@ cd sample-compass-ts
 npm install
 ```
 
+### MakeCode 環境（sample-compass-makecode）
+
+```bash
+cd sample-compass-makecode
+npm ci
+```
+
+MakeCode CLI はプロジェクトの開発依存関係としてインストールされるため、グローバルインストールは不要です。
+
 ## テスト実行
 
 ### すべてのテスト実行
@@ -73,7 +82,7 @@ npm install
 npm run test:all
 
 # または個別に
-npm run test:python && npm run test:ts
+npm run test:python && npm run test:ts && npm run test:makecode
 ```
 
 ### Python テスト
@@ -81,7 +90,7 @@ npm run test:python && npm run test:ts
 ```bash
 cd sample-compass
 uv run pytest test_compass.py -v           # ユニットテスト
-uv run pytest e2e_test_compass.py -v       # E2E テスト
+uv run pytest test_compass_integration.py -v # 統合テスト（micro:bit API はモック）
 uv run pytest -v                           # 全テスト
 ```
 
@@ -91,10 +100,19 @@ uv run pytest -v                           # 全テスト
 cd sample-compass-ts
 npm test                            # 全テスト
 npm run test:unit                   # ユニットテストのみ
-npm run test:e2e                    # E2E テストのみ
+npm run test:integration            # 統合テストのみ
 npm run test:coverage               # カバレッジレポート付き
 npm run test:watch                  # ウォッチモード
 ```
+
+### MakeCode テスト
+
+```bash
+cd sample-compass-makecode
+npm test
+```
+
+`pxt test` によるコンパイル確認に加え、28件の方位判定テストを PXT の内蔵シミュレーターで実行します。失敗・結果欠落・件数不整合はいずれも非ゼロ終了になります。
 
 ## ビルド
 
@@ -107,9 +125,9 @@ npm run build
 
 ## HEX ファイル生成
 
-micro:bit に転送可能な HEX ファイルを生成できます。
+MicroPython 版と MakeCode 版から、micro:bit に転送可能な HEX ファイルを生成できます。
 
-### すべてのプロジェクトから HEX を生成
+### 対応する実装から HEX を生成
 
 ```bash
 npm run build:hex
@@ -118,8 +136,8 @@ npm run build:hex
 ### 個別プロジェクトから HEX を生成
 
 ```bash
-# TypeScript
-cd sample-compass-ts
+# MakeCode
+cd sample-compass-makecode
 npm run build:hex
 
 # Python
@@ -127,12 +145,15 @@ cd sample-compass
 uv run python build_hex.py
 ```
 
-生成された HEX ファイルは各プロジェクトの `dist/hex/` ディレクトリに保存されます：
+生成された HEX ファイル：
 
 ```
 sample-compass/dist/hex/compass.hex
-sample-compass-ts/dist/hex/compass.hex
+sample-compass-makecode/built/binary.hex
 ```
+
+`sample-compass-ts` はNode.js上で方位ロジックを学習・テストするための実装であり、
+micro:bit用HEXは生成しません。実機向けTypeScriptにはMakeCode版を使用してください。
 
 詳細は [HEX_BUILD_GUIDE.md](./HEX_BUILD_GUIDE.md) を参照してください。
 
@@ -164,7 +185,10 @@ npm run lint:makecode # MakeCode ビルド検証
 
 - **Python テスト**: `sample-compass/` のテストが実行されます
 - **TypeScript テスト**: `sample-compass-ts/` のテストが実行されます
-- **E2E テスト**: 全プロジェクトの統合テストが実行されます
+- **統合・シミュレーターテスト**: Python・TypeScript の統合テストと MakeCode のPXTシミュレーターテストが実行されます
+- **セキュリティ**: Bandit、Trivy、全npm lockfile、`uv.lock` 由来のPython依存を監査します
+
+ローカルで全npm lockfileの high/critical 脆弱性を確認するには `npm run audit:npm` を実行します。修正版がないビルド時依存だけは [`security/npm-audit-allowlist.json`](./security/npm-audit-allowlist.json) で対象パッケージと見直し期限を限定しています。
 
 詳細は `.github/workflows/` を参照してください。
 
@@ -179,20 +203,22 @@ npm run lint:makecode # MakeCode ビルド検証
 | `npm run lint:ts` | TypeScript ビルド確認 |
 | `npm run lint:makecode` | MakeCode ビルド検証 |
 | `npm run test:python` | Python ユニットテスト |
-| `npm run e2e:python` | Python E2E テスト |
-| `npm run test:ts` | TypeScript テスト |
-| `npm run e2e:ts` | TypeScript E2E テスト |
+| `npm run integration:python` | Python 統合テスト（micro:bit API はモック） |
+| `npm run test:ts` | TypeScript ユニットテスト |
+| `npm run test:makecode` | MakeCode コンパイル・シミュレーターテスト |
+| `npm run integration:ts` | TypeScript 統合テスト |
 | `npm run test` | 全ユニットテスト |
-| `npm run e2e` | 全 E2E テスト |
-| `npm run test:all` | 全テスト（ユニット + E2E） |
+| `npm run integration` | Python・TypeScript 統合テスト |
+| `npm run test:all` | 全テスト（ユニット + 統合 + MakeCodeシミュレーター） |
+| `npm run audit:npm` | 全npm lockfileの high/critical 脆弱性監査 |
 
 #### ビルド
 
 | コマンド | 説明 |
 |---------|------|
-| `npm run build:hex` | 全プロジェクトの HEX ファイルを生成 |
+| `npm run build:hex` | Python版とMakeCode版の HEX ファイルを生成 |
 | `npm run build:hex:python` | Python HEX ファイルを生成 |
-| `npm run build:hex:ts` | TypeScript HEX ファイルを生成 |
+| `npm run build:hex:makecode` | MakeCode HEX ファイルを生成 |
 
 ## Cleanup Scripts
 
@@ -208,25 +234,26 @@ npm run lint:makecode # MakeCode ビルド検証
 ./scripts/clean.sh sample-compass-makecode
 ```
 
-削除されるファイル：
-- **Python**: `__pycache__/`, `.pytest_cache/`, `.coverage/`, `htmlcov/`, `.venv/`
-- **Node.js**: `node_modules/`, `package-lock.json/`
-- **ビルド**: `dist/`, `build/`
-- **キャッシュ**: Jest キャッシュ、PXT キャッシュ、coverage/
-- **IDE**: `.vscode/`, `.idea/`, `.DS_Store`
-- **その他**: `uv.lock`
+削除されるファイル（Git追跡中のパスは常に保持されます）：
+- **Python**: `__pycache__/`, `.pytest_cache/`, `.ruff_cache/`, `.mypy_cache/`, `.coverage`, `coverage.xml`, `htmlcov/`, `.venv/`
+- **Node.js / PXT**: `node_modules/`, `pxt_modules/`
+- **ビルド**: `dist/`, `build/`, `built/`
+- **キャッシュ**: `.jest-cache/`, `.pxt/`, `.nyc_output/`, `.cache/`, `coverage/`
+- **IDE**: `.vscode/`, `.idea/`, `.DS_Store`（プロジェクト指定時のみ）
+
+`package-lock.json`、`pnpm-lock.yaml`、`uv.lock` は再現可能なビルドに必要なため削除しません。事前確認には `./scripts/clean.sh --dry-run` を使えます。
 
 ## プログラム概要
 
 ### sample-compass（Python 実装）
 - **言語**: Python
-- **テスト**: pytest（ユニットテスト 13個 + E2E テスト 12個）
+- **テスト**: pytest（ユニットテスト + モック環境での統合テスト）
 - **特徴**: micro:bit MicroPython API を使用した方位磁石実装
 - 詳細は [sample-compass/CLAUDE.md](./sample-compass/CLAUDE.md) を参照
 
 ### sample-compass-ts（TypeScript 実装）
 - **言語**: TypeScript
-- **テスト**: Jest（ユニットテスト 42個 + E2E テスト 23個）
+- **テスト**: Jest（ユニットテスト + Node.js上の統合テスト）
 - **ビルド**: npm run build で JavaScript に変換
 - **特徴**: 型安全な実装、豊富なテストカバレッジ
 - 詳細は [sample-compass-ts/CLAUDE.md](./sample-compass-ts/CLAUDE.md) を参照

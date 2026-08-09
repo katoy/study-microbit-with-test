@@ -7,11 +7,11 @@
 **目的**: micro:bit 用の方位磁石アプリケーション学習プロジェクト
 
 **構成**:
-- **Python 実装** (`sample-compass/`) - pytest + E2E テスト
-- **TypeScript 実装** (`sample-compass-ts/`) - Jest + E2E テスト
-- **MakeCode 実装** (`sample-compass-makecode/`) - 別プロジェクト
+- **Python 実装** (`sample-compass/`) - pytestユニット・統合テスト
+- **TypeScript 実装** (`sample-compass-ts/`) - Jestユニット・統合テスト
+- **MakeCode 実装** (`sample-compass-makecode/`) - PXTコンパイル・シミュレーターテスト
 
-**テスト総数**: 90個（Python: 25個、TypeScript: 65個）
+テスト件数は各テストランナーの出力を正とします。
 
 
 ## クイックスタート
@@ -27,10 +27,10 @@
 npm run test:all
 ```
 
-### E2E テスト実行
+### 統合テスト実行
 ```bash
 # ルートディレクトリから
-npm run e2e
+npm run integration
 ```
 
 ### 特定プロジェクトのテスト
@@ -61,7 +61,7 @@ git push
     └→ テスト成功でプッシュ完了
     ↓
 GitHub Actions で CI/CD実行
-    └→ Python 3.11, Node 20.x でテスト
+    └→ Python 3.11, Node 22.x でテスト
     └→ カバレッジレポート生成
 ```
 
@@ -69,7 +69,7 @@ GitHub Actions で CI/CD実行
 
 ### Pre-commit Hook
 各プロジェクトの変更に対してコミット前に自動実行：
-- Python: `pytest test_compass.py` + `pytest e2e_test_compass.py`
+- Python: `pytest test_compass.py` + `pytest test_compass_integration.py`
 - TypeScript: `npm test`
 
 ### Pre-push Hook
@@ -125,8 +125,8 @@ npm run test:python
 # TypeScript のみ
 npm run test:ts
 
-# E2E のみ
-npm run e2e
+# 統合テストのみ
+npm run integration
 
 # カバレッジ付き
 npm run test:coverage
@@ -134,11 +134,11 @@ npm run test:coverage
 
 ### 特定の環境でテストする
 ```bash
-# Python E2E テスト
-cd sample-compass && uv run pytest e2e_test_compass.py -v
+# Python 統合テスト
+cd sample-compass && uv run pytest test_compass_integration.py -v
 
-# TypeScript E2E テスト
-cd sample-compass-ts && npm run test:e2e
+# TypeScript 統合テスト
+cd sample-compass-ts && npm run test:integration
 ```
 
 ### CI/CD をローカルでシミュレートする

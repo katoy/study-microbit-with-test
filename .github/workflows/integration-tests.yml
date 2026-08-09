@@ -1,0 +1,88 @@
+name: Integration and Simulator Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'sample-compass/**'
+      - 'sample-compass-ts/**'
+      - 'sample-compass-makecode/**'
+      - '.github/workflows/integration-tests.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'sample-compass/**'
+      - 'sample-compass-ts/**'
+      - 'sample-compass-makecode/**'
+
+jobs:
+  integration-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+    # Python 統合テスト（micro:bit API はモック）
+    - name: Set up Python
+      uses: actions/setup-python@7f4fc3e22c37d6ff65e88745f38bd3157c663f7c # v4
+      with:
+        python-version: '3.11'
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+
+    - name: Install Python dependencies
+      working-directory: ./sample-compass
+      run: |
+        uv sync
+
+    - name: Run Python integration tests
+      working-directory: ./sample-compass
+      run: |
+        echo "🚀 Python 統合テストを実行中..."
+        uv run pytest test_compass_integration.py -v --tb=short
+        echo "✅ Python 統合テスト完了"
+
+    # TypeScript 統合テスト（実機APIは使用しない）
+    - name: Set up Node.js
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+        cache-dependency-path: sample-compass-ts/package-lock.json
+
+    - name: Install TypeScript dependencies
+      working-directory: ./sample-compass-ts
+      run: npm ci
+
+    - name: Build TypeScript
+      working-directory: ./sample-compass-ts
+      run: npm run build
+
+    - name: Run TypeScript integration tests
+      working-directory: ./sample-compass-ts
+      run: |
+        echo "🚀 TypeScript 統合テストを実行中..."
+        npm run test:integration -- -v
+        echo "✅ TypeScript 統合テスト完了"
+
+    # MakeCode コンパイル・シミュレーターテスト
+    - name: Set up Node.js for MakeCode
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+        cache-dependency-path: sample-compass-makecode/package-lock.json
+
+    - name: Run MakeCode tests
+      working-directory: ./sample-compass-makecode
+      run: |
+        npm ci
+        npm test
+
+    # 統合テスト結果のレポート
+    - name: Integration test summary
+      if: always()
+      run: |
+        echo "📊 統合・シミュレーターテスト実行完了"
+        echo "ジョブ結果: ${{ job.status }}"

@@ -48,6 +48,12 @@ describe('Compass クラス', () => {
         '方位角は 0-359 度である必要があります'
       );
     });
+
+    test('setHeading() で NaN がエラーになる', () => {
+      expect(() => compass.setHeading(Number.NaN)).toThrow(
+        '方位角は 0-359 度である必要があります'
+      );
+    });
   });
 
   describe('北方向（N）の判定', () => {
@@ -241,6 +247,15 @@ describe('Compass クラス', () => {
       const direction = Compass.headingToDirection(270);
       expect(direction).toBe('W');
     });
+
+    test.each([Number.NaN, Number.POSITIVE_INFINITY, -1, 360])(
+      '無効な方位角 %s はエラーになる',
+      (heading) => {
+        expect(() => Compass.headingToDirection(heading)).toThrow(
+          '方位角は 0-359 度である必要があります'
+        );
+      }
+    );
   });
 
   describe('状態取得メソッド', () => {

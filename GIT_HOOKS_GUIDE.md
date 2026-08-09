@@ -42,8 +42,8 @@ pxt build --cloud （Lint）
 $ git commit -m "Add compass feature"
 🔍 Git commit 前の lint チェック...
 📝 sample-compass-makecode のファイルが変更されています
-🔨 pxt build を実行中...
-✅ Build 成功！
+🔨 MakeCode コンパイル・シミュレーターテストを実行中...
+✅ MakeCode テスト成功！
 ✅ Pre-commit チェック完了！
 [main abc1234] Add compass feature
 ```
@@ -54,11 +54,9 @@ $ git commit -m "Add compass feature"
 ```
 変更ファイルが sample-compass-makecode に含まれる
   ↓
-ステップ 1/3: pxt build --cloud （Lint）
+ステップ 1/2: npm run build （MakeCode ビルド）
   ↓
-ステップ 2/3: pxt test （ユニットテスト）
-  ↓
-ステップ 3/3: npm run e2e:advanced （E2E テスト）
+ステップ 2/2: npm test （コンパイル・シミュレーターテスト）
   ↓
 ✅ すべて成功 → push を続行
 ❌ 1つでも失敗 → push をキャンセル
@@ -70,18 +68,12 @@ $ git push origin main
 🚀 Git push 前のテスト実行...
 📦 sample-compass-makecode のファイルが変更されています
 
-🔨 ステップ 1/3: Lint チェック (pxt build)...
-✅ Lint 完了！
+🔨 ステップ 1/2: MakeCode ビルド...
+✅ Build 完了！
 
-🧪 ステップ 2/3: ユニットテスト実行 (pxt test)...
-✓ テスト成功
-✅ ユニットテスト 完了！
-
-🌐 ステップ 3/3: E2E テスト実行...
-✅ Build 成功！
-✅ シミュレーターが表示されます
-...
-✅ E2E テスト 完了！
+🧪 ステップ 2/2: MakeCode テスト実行...
+MakeCode simulator tests passed: 28/28
+✅ MakeCode テスト 完了！
 
 🎉 すべてのテストに成功しました！Push を続行します。
 ```
@@ -141,9 +133,9 @@ npm install -g pxt
 npx pxt build --cloud
 ```
 
-### E2E テストがタイムアウト
+### シミュレーターテストがタイムアウト
 
-**問題:** Pre-push hook で E2E テストがタイムアウト
+**問題:** Pre-push hook でMakeCodeシミュレーターテストがタイムアウト
 
 **解決方法:**
 
@@ -151,7 +143,7 @@ npx pxt build --cloud
 # 1. Hooks をスキップして push
 git push --no-verify
 
-# 2. または、E2E テストの timeout を増やす
+# 2. または、シミュレーターテストの timeout を増やす
 # .husky/pre-push 内の timeout を調整
 ```
 
@@ -187,9 +179,8 @@ git push --no-verify
 #!/bin/sh
 # 1. Origin ブランチからのコミット差分をチェック
 # 2. sample-compass-makecode が変更されていれば以下を実行：
-#    - pxt build --cloud （Lint）
-#    - pxt test （ユニットテスト）
-#    - npm run e2e:advanced （E2E テスト）
+#    - npm run build （MakeCode ビルド）
+#    - npm test （コンパイル・シミュレーターテスト）
 # 3. 1つでも失敗すると push をキャンセル
 ```
 
@@ -213,8 +204,7 @@ npm install
 {
   "scripts": {
     "lint:makecode": "cd sample-compass-makecode && pxt build --cloud",
-    "test:makecode": "cd sample-compass-makecode && pxt test",
-    "e2e:makecode": "cd sample-compass-makecode && npm run e2e:advanced"
+    "test:makecode": "cd sample-compass-makecode && npm test"
   }
 }
 ```
@@ -223,17 +213,16 @@ npm install
 
 ```bash
 npm run lint:makecode   # Lint のみ
-npm run test:makecode   # ユニットテストのみ
-npm run e2e:makecode    # E2E テストのみ
+npm run test:makecode   # コンパイル・シミュレーターテスト
 ```
 
 ## GitHub Actions との関係
 
 | 実行環境 | 実行タイミング | テスト内容 |
 |---------|--------------|----------|
-| **ローカル（Pre-commit）** | `git commit` 時 | Lint のみ |
-| **ローカル（Pre-push）** | `git push` 時 | Lint + Unit + E2E |
-| **GitHub Actions（CI/CD）** | push 後（自動） | Build + Unit + E2E |
+| **ローカル（Pre-commit）** | `git commit` 時 | 変更プロジェクトのテスト |
+| **ローカル（Pre-push）** | `git push` 時 | Build + コンパイル + シミュレーター |
+| **GitHub Actions（CI/CD）** | push 後（自動） | Build + コンパイル + シミュレーター |
 
 ## ベストプラクティス
 

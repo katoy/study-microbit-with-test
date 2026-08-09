@@ -22,7 +22,7 @@ micro:bit 用のシンプルな方位磁石アプリケーション（Python 実
 - 🧭 **方位角検出**: 0-359 度の方位角を取得
 - 🗺️ **8 方位判定**: 北（N）、北東（NE）、東（E）、南東（SE）、南（S）、南西（SW）、西（W）、北西（NW）
 - 🔄 **キャリブレーション**: ボタンA でコンパスをキャリブレーション
-- 📦 **HEX ファイル生成**: micro:bit 転送用の HEX ファイルを自動生成
+- 📦 **HEX ファイル生成**: uflash でV1/V2対応のUniversal Hexを生成
 
 ## インストール
 
@@ -68,11 +68,13 @@ uflash compass.py
 uv run pytest test_compass.py -v
 ```
 
-### E2E テスト
+### 統合テスト
 
 ```bash
-uv run pytest e2e_test_compass.py -v
+uv run pytest test_compass_integration.py -v
 ```
+
+micro:bit APIをモック化したプロセス内テストです。実機のセンサーやUSB転送までは検証しません。
 
 ### 全テスト実行
 
@@ -103,23 +105,24 @@ uv run python build_hex.py
 ls -lh dist/hex/
 ```
 
-### オプション：uflash のインストール
+### uflash
 
-より正式な HEX ファイルを生成するには uflash をインストール：
+`uflash==2.0.0` はプロジェクト依存関係に固定されています。通常は次のセットアップだけで導入されます：
 
 ```bash
-uv pip install uflash
+uv sync
 ```
 
-その後、スクリプトが uflash を自動検出して使用します。
+コンパイラが利用できない場合や出力が不正な場合、ビルドは失敗し、代替のダミーHEXは生成しません。
 
 ## プロジェクト構成
 
 ```
 sample-compass/
 ├── compass.py               # メイン実装（方位磁石ロジック）
-├── test_compass.py          # ユニットテスト（13 個）
-├── e2e_test_compass.py      # E2E テスト（12 個）
+├── test_compass.py          # ユニットテスト（16 個）
+├── test_build_hex.py        # HEX生成テスト（4 個）
+├── test_compass_integration.py # モック環境での統合テスト
 ├── build_hex.py             # HEX ファイル生成スクリプト
 ├── conftest.py              # pytest 設定
 ├── pyproject.toml           # uv プロジェクト設定
@@ -142,8 +145,9 @@ sample-compass/
 
 | ファイル | 説明 | テスト数 |
 |---------|------|---------|
-| `test_compass.py` | ユニットテスト | 13 |
-| `e2e_test_compass.py` | E2E テスト | 12 |
+| `test_compass.py` | ユニットテスト | 16 |
+| `test_build_hex.py` | HEX生成テスト | 4 |
+| `test_compass_integration.py` | モック環境での統合テスト | 13 |
 
 ### ビルド・設定
 
@@ -175,24 +179,21 @@ sample-compass/
 
 - `calibrate()` - コンパスをキャリブレーション
 - `get_heading()` - 方位角を取得（0-359 度）
-- `set_heading(heading)` - 方位角を設定（テスト用）
 - `get_direction()` - 方角を取得（N, NE, E, SE, S, SW, W, NW）
-- `get_calibrated()` - キャリブレーション状態を取得
-- `get_state()` - 現在の状態を取得
-- `_heading_to_direction(heading)` - 方位角を方角に変換
+- `display_direction()` - 現在の方角と方位角を LED ディスプレイにスクロール表示
+- `_heading_to_direction(heading)` - 方位角を方角に変換する内部ヘルパー
 
 #### 使用例
 
 ```python
 from compass import Compass
 
-compass = Compass()
-compass.calibrate()
-compass.set_heading(90)
+compass_app = Compass()
+compass_app.calibrate()
 
-print(compass.get_direction())  # 'E'
-print(compass.get_heading())    # 90
-print(compass.get_state())      # {'heading': 90, 'direction': 'E', 'calibrated': True}
+print(compass_app.get_heading())
+print(compass_app.get_direction())
+compass_app.display_direction()
 ```
 
 ## CI/CD
@@ -200,7 +201,7 @@ print(compass.get_state())      # {'heading': 90, 'direction': 'E', 'calibrated'
 GitHub Actions で自動的に以下が実行されます:
 
 - ✅ pytest でのユニットテスト（Python 3.11）
-- ✅ E2E テスト
+- ✅ モック環境での統合テスト
 - ✅ テストカバレッジの計測
 - ✅ Codecov へのアップロード
 
@@ -234,11 +235,12 @@ uv run pytest --cov=compass --cov-report=html
 ./scripts/clean.sh sample-compass
 ```
 
-削除されるファイル：
-- `__pycache__/`, `.pytest_cache/`, `.coverage/`, `htmlcov/`
+削除されるファイル（Git追跡中のパスは保持されます）：
+- `__pycache__/`, `.pytest_cache/`, `.ruff_cache/`, `.mypy_cache/`, `.coverage`, `coverage.xml`, `htmlcov/`
 - `.venv/`, `.egg-info/`
 - `dist/`, `build/`
-- `uv.lock`
+
+`uv.lock` は削除されません。
 
 ## ライセンス
 

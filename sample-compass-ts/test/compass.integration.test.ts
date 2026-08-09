@@ -1,12 +1,12 @@
 /**
- * E2E テスト: Compass アプリケーション統合テスト
+ * 統合テスト: Compass アプリケーションの複数APIを組み合わせて検証する
  * 
  * 実際のユースケースに基づいたテストを実施する
  */
 
 import { Compass, Direction, CompassState } from '../src/compass';
 
-describe('Compass E2E Test Suite', () => {
+describe('Compass Integration Test Suite', () => {
   let compass: Compass;
 
   beforeEach(() => {

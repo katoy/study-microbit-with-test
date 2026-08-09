@@ -11,15 +11,16 @@
 **特徴**:
 - シンプルな Compass クラスで方位磁石の機能を実装
 - 方位角（0-359度）から8方位への変換
-- テスト: 25個（ユニット 13 + E2E 12）
+- テスト: ユニット、HEX生成、モック環境での統合テスト
 
 ## ディレクトリ構造
 
 ```
 sample-compass/
 ├── compass.py           # Main implementation
-├── test_compass.py      # Unit tests (13 tests)
-├── e2e_test_compass.py  # E2E tests (12 tests)
+├── test_compass.py      # Unit tests
+├── test_build_hex.py    # HEX build tests
+├── test_compass_integration.py # Integration tests with mocked micro:bit APIs
 ├── pyproject.toml       # uv project configuration
 ├── CLAUDE.md            # このファイル
 ├── README.md
@@ -33,9 +34,9 @@ sample-compass/
 uv run pytest test_compass.py -v
 ```
 
-### E2E テスト
+### 統合テスト
 ```bash
-uv run pytest e2e_test_compass.py -v
+uv run pytest test_compass_integration.py -v
 ```
 
 ### 全テスト
@@ -65,7 +66,7 @@ uv run pytest --cov=compass --cov-report=html
 ### ファイル命名規則
 - 実装ファイル: `snake_case.py` （例: `compass.py`）
 - テストファイル: `test_*.py` または `*_test.py`
-- E2E テスト: `e2e_*.py`
+- 統合テスト: `test_*_integration.py`
 
 ### Python スタイル
 - **PEP 8** に厳密に準拠
@@ -102,7 +103,7 @@ uv run pytest --cov=compass --cov-report=html
 - 8方位すべての判定
 - 境界値テスト（22.5°, 67.5°, 112.5° など）
 
-### E2E テスト (e2e_test_compass.py) - 12個
+### 統合テスト (test_compass_integration.py)
 - 完全なワークフロー（初期化→キャリブレーション→方角確認）
 - 8方位全体の判定
 - 境界値での正確な遷移
@@ -126,13 +127,13 @@ def test_new_direction():
     assert compass.get_direction() == 'NE'
 ```
 
-**E2E テスト**:
+**統合テスト**:
 ```python
-# e2e_test_compass.py の TestCompassE2E クラスに追加
+# test_compass_integration.py の TestCompassIntegration クラスに追加
 def test_new_scenario(self, compass):
     """新しいシナリオのテスト"""
     compass.calibrate()
-    compass.set_heading(90)
+    compass.heading = 90
     assert compass.get_direction() == 'E'
 ```
 
@@ -158,7 +159,7 @@ uv run pytest test_compass.py::test_new_method -v
 コミット前に自動実行：
 ```bash
 uv run pytest test_compass.py -v
-uv run pytest e2e_test_compass.py -v
+uv run pytest test_compass_integration.py -v
 ```
 
 ### Pre-push Hook
@@ -177,7 +178,7 @@ uv sync
 ```bash
 # テストファイル名を確認
 # test_*.py または *_test.py である必要があります
-ls -la test_*.py e2e_*.py
+ls -la test_*.py
 ```
 
 ### 特定のテストだけを実行したい

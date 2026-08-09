@@ -12,7 +12,7 @@
 - 型安全な TypeScript 実装
 - 方位角（0-359度）から8方位への変換
 - キャリブレーション機能
-- テスト: 65個（ユニット 42 + E2E 23）
+- テスト: JestによるユニットテストとNode.js上の統合テスト
 
 ## ディレクトリ構造
 
@@ -21,19 +21,19 @@ sample-compass-ts/
 ├── src/
 │   └── compass.ts           # Main implementation
 ├── test/
-│   ├── compass.test.ts      # Unit tests (42 tests)
-│   └── compass.e2e.test.ts  # E2E tests (23 tests)
+│   ├── compass.test.ts      # Unit tests
+│   └── compass.integration.test.ts # Integration tests
 ├── jest.config.js           # Jest configuration
 ├── tsconfig.json            # TypeScript configuration
 ├── package.json             # npm dependencies & scripts
 ├── CLAUDE.md                # このファイル
 ├── README.md
-└── .tool-versions           # Node version management (20.x)
+└── .tool-versions           # Node version management (22.23.2)
 ```
 
 ## テスト実行方法
 
-### 全テスト（ユニット + E2E）
+### 全テスト（ユニット + 統合）
 ```bash
 npm test
 ```
@@ -43,9 +43,9 @@ npm test
 npm run test:unit
 ```
 
-### E2E テストのみ
+### 統合テストのみ
 ```bash
-npm run test:e2e
+npm run test:integration
 ```
 
 ### Watch モード（ファイル変更時に自動再実行）
@@ -81,7 +81,7 @@ npm run build
 ### ファイル命名規則
 - 実装ファイル: `camelCase.ts` または `snake_case.ts`
 - テストファイル: `*.test.ts` または `*.spec.ts`
-- E2E テスト: `*.e2e.test.ts`
+- 統合テスト: `*.integration.test.ts`
 
 ### TypeScript スタイル
 - **厳密な型定義を使用**
@@ -141,14 +141,14 @@ interface CompassState {
 
 ## テスト戦略
 
-### ユニットテスト (test/compass.test.ts) - 42個
+### ユニットテスト (test/compass.test.ts) - 47個
 - 各メソッドの単体テスト
 - 型安全性の確認
 - エラーハンドリング
 - 8方位すべての判定
 - 境界値テスト（22.5°, 67.5° など）
 
-### E2E テスト (test/compass.e2e.test.ts) - 23個
+### 統合テスト (test/compass.integration.test.ts)
 - 完全なワークフロー
 - 8方位全体の判定
 - 境界値での正確な遷移
@@ -175,9 +175,9 @@ describe('Compass', () => {
 });
 ```
 
-**E2E テスト**:
+**統合テスト**:
 ```typescript
-// test/compass.e2e.test.ts の describe ブロックに追加
+// test/compass.integration.test.ts の describe ブロックに追加
 it('should handle new scenario', () => {
   compass.calibrate();
   compass.setHeading(45);
@@ -257,8 +257,8 @@ npm test -- --testNamePattern="direction detection"
 # ファイルで実行
 npm test test/compass.test.ts
 
-# E2E テストのみ
-npm run test:e2e
+# 統合テストのみ
+npm run test:integration
 
 # ユニットテストのみ
 npm run test:unit
@@ -274,7 +274,7 @@ npm run test:watch
 ## 環境設定
 
 ### 必須ツール
-- Node.js 20.x（最新 LTS）
+- Node.js 22.x（LTS）
 - npm
 
 ### 初期セットアップ
@@ -286,9 +286,9 @@ npm test
 
 ### Node バージョン管理（asdf）
 ```bash
-asdf install nodejs 20.x.x
-asdf local nodejs 20.x.x
-node --version  # v20.x.x であることを確認
+asdf install nodejs 22.23.2
+asdf local nodejs 22.23.2
+node --version  # v22.23.2 であることを確認
 ```
 
 ## npm Scripts 一覧
@@ -296,21 +296,21 @@ node --version  # v20.x.x であることを確認
 | コマンド | 説明 |
 |---------|------|
 | `npm run build` | TypeScript をコンパイル |
-| `npm test` | 全テスト実行（ユニット + E2E） |
+| `npm test` | 全テスト実行（ユニット + 統合） |
 | `npm run test:watch` | Watch モード |
 | `npm run test:coverage` | カバレッジ付き実行 |
 | `npm run test:unit` | ユニットテストのみ |
-| `npm run test:e2e` | E2E テストのみ |
+| `npm run test:integration` | 統合テストのみ |
 | `npm run clean` | ビルド成果物を削除 |
 
 ## CI/CD
 
 ### GitHub Actions
 `.github/workflows/typescript-tests.yml` で自動実行：
-- Node 20.x でテスト
+- Node 22.x でテスト
 - push と PR トリガー
 - TypeScript ビルド確認
-- Jest でユニット + E2E テスト
+- Jest でユニット + 統合テスト
 - カバレッジレポートを codecov に送信
 
 ### ローカルテスト

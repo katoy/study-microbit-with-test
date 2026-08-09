@@ -4,12 +4,12 @@
 echo "🔍 Git commit 前の lint & テストチェック..."
 
 # sample-compass (Python) の変更をチェック
-if git diff --cached --name-only | grep -q "sample-compass"; then
+if git diff --cached --name-only | grep -q "^sample-compass/"; then
   echo "📝 sample-compass のファイルが変更されています"
   cd sample-compass
   
   echo "🔨 Python テストを実行中..."
-  if uv run pytest test_compass.py -v && uv run pytest e2e_test_compass.py -v; then
+  if uv run pytest test_compass.py test_build_hex.py -v && uv run pytest test_compass_integration.py -v; then
     echo "✅ Python テスト成功！"
   else
     echo "❌ Python テスト失敗！commit をキャンセルしました。"
@@ -21,12 +21,12 @@ else
 fi
 
 # sample-compass-ts (TypeScript) の変更をチェック
-if git diff --cached --name-only | grep -q "sample-compass-ts"; then
+if git diff --cached --name-only | grep -q "^sample-compass-ts/"; then
   echo "📝 sample-compass-ts のファイルが変更されています"
   cd sample-compass-ts
   
   echo "🔨 TypeScript テストを実行中..."
-  if npm test -- --testPathPattern="(test|e2e)" 2>/dev/null; then
+  if npm test -- --runInBand; then
     echo "✅ TypeScript テスト成功！"
   else
     echo "❌ TypeScript テスト失敗！commit をキャンセルしました。"
@@ -37,21 +37,17 @@ else
   echo "ℹ️ sample-compass-ts に変更がありません"
 fi
 
-# sample-compass-makecode の変更をチェック（オプション）
-if git diff --cached --name-only | grep -q "sample-compass-makecode"; then
+# sample-compass-makecode の変更をチェック
+if git diff --cached --name-only | grep -q "^sample-compass-makecode/"; then
   echo "📝 sample-compass-makecode のファイルが変更されています"
   cd sample-compass-makecode
   
-  # pxt が利用可能かチェック
-  if command -v pxt &> /dev/null; then
-    echo "🔨 pxt build を実行中..."
-    if pxt build --cloud; then
-      echo "✅ Build 成功！"
-    else
-      echo "⚠️ Build 警告！（スキップ）"
-    fi
+  echo "🔨 MakeCode コンパイル・シミュレーターテストを実行中..."
+  if npm test; then
+    echo "✅ MakeCode テスト成功！"
   else
-    echo "⚠️ pxt がインストールされていません（スキップ）"
+    echo "❌ MakeCode テスト失敗！commit をキャンセルしました。"
+    exit 1
   fi
   cd ..
 else

@@ -1,0 +1,24 @@
+{
+  "GHSA-5p2g-fcmc-qvqq": {
+    "packages": [
+      "image-size",
+      "less",
+      "pxt-core",
+      "pxt-common-packages",
+      "pxt-microbit"
+    ],
+    "reason": "The latest pxt-microbit build tool depends on image-size 2.0.2, and npm publishes no patched image-size release. This dependency is used only while building trusted MakeCode source; the affected JXL/HEIF parser is not shipped to the micro:bit.",
+    "reviewBy": "2026-09-09"
+  },
+  "GHSA-w3rx-r6r6-pgpr": {
+    "packages": [
+      "image-size",
+      "less",
+      "pxt-core",
+      "pxt-common-packages",
+      "pxt-microbit"
+    ],
+    "reason": "The latest pxt-microbit build tool depends on image-size 2.0.2, and npm publishes no patched image-size release. This dependency is used only while building trusted MakeCode source; the affected ICNS parser is not shipped to the micro:bit.",
+    "reviewBy": "2026-09-09"
+  }
+}

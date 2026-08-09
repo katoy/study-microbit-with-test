@@ -6,7 +6,7 @@
 /**
  * 方角を表す型定義
  */
-export type Direction = 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'NW';
+export type Direction = 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'NW' | 'CAL' | 'ERR';
 
 /**
  * コンパスの状態を管理するインターフェース
@@ -42,9 +42,6 @@ export class Compass {
    * 注: 実装では内部値を返す。実デバイスでは compass.heading() を呼ぶ
    */
   public getHeading(): number {
-    if (!this.isCalibrated) {
-      throw new Error('Compass not calibrated');
-    }
     return this.heading;
   }
 
@@ -52,7 +49,6 @@ export class Compass {
    * 方位角を設定する（テスト用）
    */
   public setHeading(heading: number): void {
-    Compass.validateHeading(heading);
     this.heading = heading;
   }
 
@@ -61,7 +57,11 @@ export class Compass {
    */
   public getDirection(): Direction {
     if (!this.isCalibrated) {
-      throw new Error('Compass not calibrated');
+      return 'CAL';
+    }
+    const heading = this.getHeading();
+    if (Number.isNaN(heading) || !Number.isFinite(heading) || heading < 0 || heading >= 360) {
+      return 'ERR';
     }
     return this.headingToDirection(this.heading);
   }
@@ -77,9 +77,6 @@ export class Compass {
    * 状態を取得する
    */
   public getState(): CompassState {
-    if (!this.isCalibrated) {
-      throw new Error('Compass not calibrated');
-    }
     return {
       heading: this.heading,
       direction: this.getDirection(),
@@ -90,10 +87,12 @@ export class Compass {
   /**
    * 方位角を方角文字列に変換する静的メソッド
    * @param heading - 0-359 度
-   * @returns 方角（N, NE, E, SE, S, SW, W, NW）
+   * @returns 方角（N, NE, E, SE, S, SW, W, NW, ERR）
    */
   public static headingToDirection(heading: number): Direction {
-    Compass.validateHeading(heading);
+    if (Number.isNaN(heading) || !Number.isFinite(heading) || heading < 0 || heading >= 360) {
+      return 'ERR';
+    }
 
     if (heading < 22.5 || heading >= 337.5) {
       return 'N';
@@ -120,12 +119,6 @@ export class Compass {
   private headingToDirection(heading: number): Direction {
     return Compass.headingToDirection(heading);
   }
-
-  private static validateHeading(heading: number): void {
-    if (!Number.isFinite(heading) || heading < 0 || heading >= 360) {
-      throw new Error('方位角は 0-359 度である必要があります');
-    }
-  }
 }
 
 /**
@@ -134,12 +127,8 @@ export class Compass {
 export function main(): void {
   const compass = new Compass();
 
-  try {
-    // 未校正状態での取得は例外を発生させる
-    compass.getDirection();
-  } catch (error: any) {
-    console.log(`初期警告: ${error.message}`);
-  }
+  // 未校正状態での取得は 'CAL' を返す
+  console.log(`初期警告: ${compass.getDirection()}`);
 
   // キャリブレーション実行
   compass.calibrate();
@@ -148,3 +137,4 @@ export function main(): void {
   const state = compass.getState();
   console.log(`方角: ${state.direction}, 度数: ${state.heading}°`);
 }
+

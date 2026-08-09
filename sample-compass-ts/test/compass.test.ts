@@ -17,12 +17,12 @@ describe('Compass クラス', () => {
       expect(compass.getIsCalibrated()).toBe(false);
     });
 
-    test('未キャリブレーション状態で getHeading() はエラーを投げる', () => {
-      expect(() => compass.getHeading()).toThrow('Compass not calibrated');
+    test('未キャリブレーション状態で getHeading() は 0 を返す', () => {
+      expect(compass.getHeading()).toBe(0);
     });
 
-    test('未キャリブレーション状態で getDirection() はエラーを投げる', () => {
-      expect(() => compass.getDirection()).toThrow('Compass not calibrated');
+    test('未キャリブレーション状態で getDirection() は CAL を返す', () => {
+      expect(compass.getDirection()).toBe('CAL');
     });
   });
 
@@ -44,22 +44,22 @@ describe('Compass クラス', () => {
       expect(compass.getHeading()).toBe(45);
     });
 
-    test('setHeading() で負の値がエラーになる', () => {
-      expect(() => compass.setHeading(-1)).toThrow(
-        '方位角は 0-359 度である必要があります'
-      );
+    test('setHeading() で負の値が設定された場合、getDirection() は ERR を返す', () => {
+      compass.setHeading(-1);
+      expect(compass.getHeading()).toBe(-1);
+      expect(compass.getDirection()).toBe('ERR');
     });
 
-    test('setHeading() で 360 度以上がエラーになる', () => {
-      expect(() => compass.setHeading(360)).toThrow(
-        '方位角は 0-359 度である必要があります'
-      );
+    test('setHeading() で 360 度以上が設定された場合、getDirection() は ERR を返す', () => {
+      compass.setHeading(360);
+      expect(compass.getHeading()).toBe(360);
+      expect(compass.getDirection()).toBe('ERR');
     });
 
-    test('setHeading() で NaN がエラーになる', () => {
-      expect(() => compass.setHeading(Number.NaN)).toThrow(
-        '方位角は 0-359 度である必要があります'
-      );
+    test('setHeading() で NaN が設定された場合、getDirection() は ERR を返す', () => {
+      compass.setHeading(Number.NaN);
+      expect(Number.isNaN(compass.getHeading())).toBe(true);
+      expect(compass.getDirection()).toBe('ERR');
     });
   });
 
@@ -292,16 +292,21 @@ describe('Compass クラス', () => {
     });
 
     test.each([Number.NaN, Number.POSITIVE_INFINITY, -1, 360])(
-      '無効な方位角 %s はエラーになる',
+      '無効な方位角 %s は ERR を返す',
       (heading) => {
-        expect(() => Compass.headingToDirection(heading)).toThrow(
-          '方位角は 0-359 度である必要があります'
-        );
+        expect(Compass.headingToDirection(heading)).toBe('ERR');
       }
     );
   });
 
   describe('状態取得メソッド', () => {
+    test('getState() は未校正状態でも例外を投げない', () => {
+      const state = compass.getState();
+      expect(state.heading).toBe(0);
+      expect(state.direction).toBe('CAL');
+      expect(state.isCalibrated).toBe(false);
+    });
+
     test('getState() が正しい状態を返す', () => {
       compass.calibrate();
       compass.setHeading(90);
@@ -349,3 +354,4 @@ describe('Compass クラス', () => {
     });
   });
 });
+

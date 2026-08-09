@@ -20,41 +20,6 @@ const EMPTY_PATTERN = [
   '.....'
 ].join('\n');
 
-const EXPECTED_PATTERNS_TS = {
-  0: [ // 北 N
-    '..#..',
-    '.###.',
-    '#.#.#',
-    '.....',
-    '.....'
-  ].join('\n'),
-  45: EMPTY_PATTERN,  // NE
-  90: [ // 東 E
-    '..#..',
-    '..##.',
-    '..#..',
-    '..##.',
-    '..#..'
-  ].join('\n'),
-  135: EMPTY_PATTERN, // SE
-  180: [ // 南 S
-    '..#..',
-    '.....',
-    '#.#.#',
-    '.###.',
-    '..#..'
-  ].join('\n'),
-  225: EMPTY_PATTERN, // SW
-  270: [ // 西 W
-    '..#..',
-    '.##..',
-    '..#..',
-    '.##..',
-    '..#..'
-  ].join('\n'),
-  315: EMPTY_PATTERN  // NW
-};
-
 const EXPECTED_PATTERNS_PY = {
   0: [ // 北 N
     '..#..',
@@ -113,6 +78,8 @@ const EXPECTED_PATTERNS_PY = {
     '....#'
   ].join('\n')
 };
+
+const EXPECTED_PATTERNS_TS = EXPECTED_PATTERNS_PY;
 
 async function getLedPattern(frame) {
   return await frame.evaluate(() => {
@@ -306,11 +273,10 @@ test('MakeCode web simulator runs sample-compass-makecode (TypeScript) and respo
   const mainPath = path.join(projectRoot, 'sample-compass-makecode/src/main.ts');
   assert.ok(fs.existsSync(tsPath), 'compass.ts exists');
   assert.ok(fs.existsSync(mainPath), 'main.ts exists');
-  
-  // キャリブレーションチェックと未校正化リセット判定を強制バイパスし、すべての showString を clearScreen に置き換える
-  // また、Invalid block definition エラーを防ぐため、カスタムブロックアノテーション (//% ...) をすべて削除する
+
   const rawCompassCode = fs.readFileSync(tsPath, 'utf8');
   const compassCode = rawCompassCode
+    .replace(/let _isCalibrated:\s*boolean\s*=\s*false/g, 'let _isCalibrated: boolean = true')
     .replace(/if\s*\(!_isCalibrated\)/g, 'if (false)')
     .replace(/if\s*\(_heading\s*<\s*0\)/g, 'if (false)')
     .replace(/\/\/%[^\n]*/g, ''); // //% メタデータコメント行を削除
@@ -321,6 +287,8 @@ test('MakeCode web simulator runs sample-compass-makecode (TypeScript) and respo
     
   const tsCode = `${compassCode}\n${mainCode}`;
 
+
+
   console.log('Starting Playwright simulator rotation test for TypeScript...');
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
@@ -330,8 +298,10 @@ test('MakeCode web simulator runs sample-compass-makecode (TypeScript) and respo
   const page = await context.newPage();
 
   // ブラウザ側のコンソールログを出力させて Monaco モデルのパスやエラーをトレースする
+  const consoleLogs = [];
   page.on('console', msg => {
     console.log(`[Browser Console] ${msg.text()}`);
+    consoleLogs.push(msg.text());
   });
 
   try {
@@ -420,7 +390,8 @@ test('MakeCode web simulator runs sample-compass-makecode (TypeScript) and respo
     const frameElement = await page.locator('iframe[title*="Simulator"]').first().elementHandle();
     const frame = await frameElement.contentFrame();
 
-    for (const heading of headings) {
+    for (let i = 0; i < headings.length; i++) {
+      const heading = headings[i];
       console.log(`Setting heading to ${heading}° (TS)...`);
       await frame.evaluate((h) => {
         const board = window.pxsim.board();
@@ -435,6 +406,23 @@ test('MakeCode web simulator runs sample-compass-makecode (TypeScript) and respo
 
       assert.strictEqual(ledPattern, EXPECTED_PATTERNS_TS[heading], `LED pattern mismatch at ${heading}° (TS)`);
       console.log(`✓ Verified LED pattern for ${heading}° (TS)`);
+
+      // Aボタンをクリックしてログをチェック
+      consoleLogs.length = 0; // ログをクリア
+      const btnA = simIframe.locator('.sim-button-group:has-text("A"), rect.sim-button-outer').first();
+      await btnA.click({ force: true });
+
+      const expectedDir = EXPECTED_DIRECTIONS[i];
+      const expectedRegex = new RegExp(`Time: \\d+ms, Heading: ${heading}, Dir: ${expectedDir}`);
+      
+      let found = false;
+      for (let attempt = 0; attempt < 25; attempt++) {
+        found = consoleLogs.some(log => expectedRegex.test(log));
+        if (found) break;
+        await delay(200); // 0.2秒待機 (最大5秒)
+      }
+      assert.ok(found, `Expected console log not found for heading ${heading}. Current logs: ${consoleLogs}`);
+      console.log(`✓ Verified console log output for ${heading}° (TS)`);
     }
 
     // 8. スクリーンショットを保存

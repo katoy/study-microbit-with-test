@@ -14,15 +14,18 @@ describe('Compass Integration Test Suite', () => {
   });
 
   describe('Complete compass workflow', () => {
-    it('should initialize compass and verify it throws errors when not calibrated', () => {
+    it('should initialize compass and verify it returns CAL and 0 when not calibrated', () => {
       // Arrange
       const compass = new Compass();
 
       // Act & Assert
       expect(compass.getIsCalibrated()).toBe(false);
-      expect(() => compass.getHeading()).toThrow('Compass not calibrated');
-      expect(() => compass.getDirection()).toThrow('Compass not calibrated');
-      expect(() => compass.getState()).toThrow('Compass not calibrated');
+      expect(compass.getHeading()).toBe(0);
+      expect(compass.getDirection()).toBe('CAL');
+      const state = compass.getState();
+      expect(state.isCalibrated).toBe(false);
+      expect(state.direction).toBe('CAL');
+      expect(state.heading).toBe(0);
     });
 
     it('should calibrate and maintain state', () => {
@@ -186,25 +189,25 @@ describe('Compass Integration Test Suite', () => {
   });
 
   describe('Error handling', () => {
-    it('should reject invalid headings (negative)', () => {
+    it('should set negative heading and get ERR direction', () => {
       compass.calibrate();
-      expect(() => compass.setHeading(-1)).toThrow(
-        '方位角は 0-359 度である必要があります'
-      );
+      compass.setHeading(-1);
+      expect(compass.getHeading()).toBe(-1);
+      expect(compass.getDirection()).toBe('ERR');
     });
 
-    it('should reject invalid headings (>= 360)', () => {
+    it('should set heading >= 360 and get ERR direction', () => {
       compass.calibrate();
-      expect(() => compass.setHeading(360)).toThrow(
-        '方位角は 0-359 度である必要があります'
-      );
+      compass.setHeading(360);
+      expect(compass.getHeading()).toBe(360);
+      expect(compass.getDirection()).toBe('ERR');
     });
 
-    it('should reject invalid headings (way out of range)', () => {
+    it('should set way out of range heading and get ERR direction', () => {
       compass.calibrate();
-      expect(() => compass.setHeading(720)).toThrow(
-        '方位角は 0-359 度である必要があります'
-      );
+      compass.setHeading(720);
+      expect(compass.getHeading()).toBe(720);
+      expect(compass.getDirection()).toBe('ERR');
     });
   });
 
@@ -254,7 +257,7 @@ describe('Compass Integration Test Suite', () => {
 
       // Assert
       expect(consoleSpy).toHaveBeenCalledTimes(2);
-      expect(consoleSpy.mock.calls[0][0]).toContain('Compass not calibrated');
+      expect(consoleSpy.mock.calls[0][0]).toContain('CAL');
       expect(consoleSpy.mock.calls[1][0]).toMatch(/方角/);
       expect(consoleSpy.mock.calls[1][0]).toMatch(/度数/);
     });
@@ -267,8 +270,9 @@ describe('Compass Integration Test Suite', () => {
 
       // Assert
       expect(consoleSpy).toHaveBeenCalledTimes(2);
-      expect(consoleSpy.mock.calls[0][0]).toContain('Compass not calibrated');
+      expect(consoleSpy.mock.calls[0][0]).toContain('CAL');
       expect(consoleSpy.mock.calls[1][0]).toContain('N');
     });
   });
 });
+

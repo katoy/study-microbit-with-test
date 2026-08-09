@@ -84,6 +84,8 @@ namespace Compass {
   /**
    * 方位角を方角文字列に変換する（内部メソッド）
    */
+  //% block="方位角 $heading 度の方角"
+  //% heading.min=0 heading.max=359
   export function headingToDirection(heading: number): string {
     if (heading < 22.5 || heading >= 337.5) {
       return 'N';

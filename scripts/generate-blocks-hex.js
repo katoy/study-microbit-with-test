@@ -6,6 +6,39 @@ async function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function evaluateBlocksConversionStatus({
+  errorDialogCount,
+  greyBlockCount,
+  workspaceCount
+}) {
+  if (errorDialogCount > 0) {
+    throw new Error('MakeCode reported a block conversion error');
+  }
+  if (greyBlockCount > 0) {
+    throw new Error(`MakeCode produced ${greyBlockCount} non-editable grey block(s)`);
+  }
+  if (workspaceCount < 1) {
+    throw new Error('MakeCode did not render a Blockly workspace');
+  }
+}
+
+async function verifyBlocksConversion(page) {
+  const status = {
+    errorDialogCount: await page
+      .locator('.ui.modal.error:visible, .compilation-error-widget:visible')
+      .count(),
+    greyBlockCount: await page
+      .locator('g.blocklyDraggable.blocklyDisabled, g.ui-grey-block')
+      .count(),
+    workspaceCount: await page
+      .locator('.blocklyWorkspace, svg.blocklySvg')
+      .count()
+  };
+
+  evaluateBlocksConversionStatus(status);
+  return status;
+}
+
 async function buildBlocksHexForProject(language, sourceCode, outputPath) {
   console.log(`Starting blocks-HEX generation for ${language}...`);
   const browser = await chromium.launch({ headless: true });
@@ -71,7 +104,7 @@ async function buildBlocksHexForProject(language, sourceCode, outputPath) {
     await delay(2000);
 
     // 4. Monaco エディタにソースコードを注入
-    await page.evaluate((code) => {
+    const sourceWasInjected = await page.evaluate((code) => {
       if (typeof window.monaco !== 'undefined') {
         const models = window.monaco.editor.getModels();
         if (models && models.length > 0) {
@@ -81,6 +114,9 @@ async function buildBlocksHexForProject(language, sourceCode, outputPath) {
       }
       return false;
     }, sourceCode);
+    if (!sourceWasInjected) {
+      throw new Error(`Unable to inject ${language} source into the MakeCode editor`);
+    }
     await delay(3000); // 構文解析を待つ
 
     // 5. ブロック表示に戻す（これでパースが確定し、HEXにブロックメタデータが埋め込まれる）
@@ -93,12 +129,10 @@ async function buildBlocksHexForProject(language, sourceCode, outputPath) {
     }
     await delay(5000); // ブロックレンダリング完了を待つ
 
-    // 6. [デバッグ用] ダウンロードエリア付近の HTML を取得してログ出力
-    const downloadAreaHtml = await page.evaluate(() => {
-      const el = document.getElementById('downloadarea') || document.querySelector('.download-button')?.parentElement;
-      return el ? el.outerHTML : 'NOT FOUND';
-    });
-    console.log(`[DEBUG] Download Area HTML:\n${downloadAreaHtml}\n`);
+    const conversionStatus = await verifyBlocksConversion(page);
+    console.log(
+      `✓ Editable blocks verified: ${conversionStatus.workspaceCount} workspace(s), no errors or grey blocks`
+    );
 
     // 6. ダウンロードイベントを監視しながら直接ファイル保存を実行
     console.log(`Downloading HEX for ${language} via direct file download menu...`);
@@ -186,4 +220,8 @@ if (require.main === module) {
   });
 }
 
-module.exports = { buildBlocksHexForProject };
+module.exports = {
+  buildBlocksHexForProject,
+  evaluateBlocksConversionStatus,
+  verifyBlocksConversion
+};

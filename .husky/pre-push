@@ -7,6 +7,7 @@ ZERO_SHA="0000000000000000000000000000000000000000"
 CHANGED_FILES=""
 FAILED_REFS=""
 FAILED_PROJECTS=""
+REPO_ROOT="$(git rev-parse --show-toplevel)"
 
 while read -r local_ref local_sha remote_ref remote_sha; do
   # ブランチ削除ではテスト対象のファイルはありません。
@@ -35,43 +36,43 @@ while read -r local_ref local_sha remote_ref remote_sha; do
   # sample-compass (Python) のテスト
   if printf '%s\n' "$ref_files" | grep -q "^sample-compass/"; then
     echo "📦 sample-compass のファイルが変更されています"
-    cd sample-compass || exit 1
+    cd "$REPO_ROOT/sample-compass" || exit 1
     
     echo "🧪 Python コンパイルチェックを実行中..."
     if ! uv run python -m py_compile src/compass_makecode.py; then
       echo "❌ Python コンパイル失敗（ref: $local_ref）"
       FAILED_REFS="${FAILED_REFS} $local_ref"
       FAILED_PROJECTS="${FAILED_PROJECTS} sample-compass"
-      cd ../../ || exit 1
+      cd "$REPO_ROOT" || exit 1
       continue
     fi
     echo "✅ Python コンパイルチェック 完了！"
     
-    cd ../../ || exit 1
+    cd "$REPO_ROOT" || exit 1
   fi
 
   # sample-compass-ts (TypeScript) のテスト
   if printf '%s\n' "$ref_files" | grep -q "^sample-compass-ts/"; then
     echo "📦 sample-compass-ts のファイルが変更されています"
-    cd sample-compass-ts || exit 1
+    cd "$REPO_ROOT/sample-compass-ts" || exit 1
     
     echo "🧪 TypeScript ユニット & 統合テスト実行..."
     if ! npm test; then
       echo "❌ TypeScript テスト失敗（ref: $local_ref）"
       FAILED_REFS="${FAILED_REFS} $local_ref"
       FAILED_PROJECTS="${FAILED_PROJECTS} sample-compass-ts"
-      cd ../../ || exit 1
+      cd "$REPO_ROOT" || exit 1
       continue
     fi
     echo "✅ TypeScript テスト 完了！"
     
-    cd ../../ || exit 1
+    cd "$REPO_ROOT" || exit 1
   fi
 
   # sample-compass-makecode のテスト
   if printf '%s\n' "$ref_files" | grep -q "^sample-compass-makecode/"; then
     echo "📦 sample-compass-makecode のファイルが変更されています"
-    cd sample-compass-makecode || exit 1
+    cd "$REPO_ROOT/sample-compass-makecode" || exit 1
     
     # 1. Build
     echo "🔨 ステップ 1/2: MakeCode ビルド..."
@@ -79,7 +80,7 @@ while read -r local_ref local_sha remote_ref remote_sha; do
       echo "❌ MakeCode ビルド失敗（ref: $local_ref）"
       FAILED_REFS="${FAILED_REFS} $local_ref"
       FAILED_PROJECTS="${FAILED_PROJECTS} sample-compass-makecode"
-      cd ../../ || exit 1
+      cd "$REPO_ROOT" || exit 1
       continue
     fi
     echo "✅ Build 完了！"
@@ -90,12 +91,12 @@ while read -r local_ref local_sha remote_ref remote_sha; do
       echo "❌ MakeCode テスト失敗（ref: $local_ref）"
       FAILED_REFS="${FAILED_REFS} $local_ref"
       FAILED_PROJECTS="${FAILED_PROJECTS} sample-compass-makecode"
-      cd ../../ || exit 1
+      cd "$REPO_ROOT" || exit 1
       continue
     fi
     echo "✅ MakeCode テスト 完了！"
     
-    cd ../../ || exit 1
+    cd "$REPO_ROOT" || exit 1
   fi
 done
 

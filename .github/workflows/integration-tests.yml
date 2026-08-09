@@ -61,6 +61,18 @@ jobs:
         npm ci
         npm test
 
+    # Python Playwright シミュレーターテスト
+    - name: Install uv
+      uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+
+    - name: Run Python Playwright tests
+      working-directory: ./sample-compass
+      run: |
+        echo "🚀 Python Playwright シミュレーターテストを実行中..."
+        uv sync
+        uv run pytest test/test_simulator.py -v
+        echo "✅ Python テスト完了"
+
     # 統合テスト結果のレポート
     - name: Integration test summary
       if: always()

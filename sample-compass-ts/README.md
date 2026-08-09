@@ -115,7 +115,7 @@ sample-compass-ts/
 ├── src/
 │   └── compass.ts              # メインの Compass クラス
 ├── test/
-│   ├── compass.test.ts         # ユニットテスト（47 個）
+│   ├── compass.test.ts         # ユニットテスト（48 個）
 │   └── compass.integration.test.ts # Node.js上の統合テスト
 ├── dist/                       # コンパイル済み JavaScript
 │   ├── compass.js
@@ -141,7 +141,7 @@ sample-compass-ts/
 
 | ファイル | 説明 | テスト数 |
 |---------|------|---------|
-| `test/compass.test.ts` | ユニットテスト | 47 |
+| `test/compass.test.ts` | ユニットテスト | 48 |
 | `test/compass.integration.test.ts` | Node.js上の統合テスト | 25 |
 
 ### ビルド・スクリプト

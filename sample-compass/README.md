@@ -151,7 +151,7 @@ uv sync
 ```
 sample-compass/
 ├── compass.py               # メイン実装（方位磁石ロジック）
-├── test_compass.py          # ユニットテスト（16 個）
+├── test_compass.py          # ユニットテスト（17 個）
 ├── test_build_hex.py        # HEX生成テスト（4 個）
 ├── test_compass_integration.py # モック環境での統合テスト
 ├── build_hex.py             # HEX ファイル生成スクリプト
@@ -176,7 +176,7 @@ sample-compass/
 
 | ファイル | 説明 | テスト数 |
 |---------|------|---------|
-| `test_compass.py` | ユニットテスト | 16 |
+| `test_compass.py` | ユニットテスト | 17 |
 | `test_build_hex.py` | HEX生成テスト | 4 |
 | `test_compass_integration.py` | モック環境での統合テスト | 13 |
 

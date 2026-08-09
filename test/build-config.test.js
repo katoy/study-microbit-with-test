@@ -91,8 +91,20 @@ test('README test counts match the current TypeScript suites', () => {
   );
 
   assert.doesNotMatch(rootReadme, /133\/133/);
-  assert.match(typeScriptReadme, /ユニットテスト（47 個）/);
+  assert.match(typeScriptReadme, /ユニットテスト（48 個）/);
   assert.match(typeScriptReadme, /統合テスト[^\n]*25/);
+});
+
+test('README test counts match Python test suites', () => {
+  const pythonReadme = fs.readFileSync(
+    path.join(projectRoot, 'sample-compass/README.md'),
+    'utf8'
+  );
+
+  // Python test counts: 17 unit, 13 integration, 4 build
+  assert.match(pythonReadme, /ユニットテスト（17 個）/);
+  assert.match(pythonReadme, /統合テスト[^\n]*13/);
+  assert.match(pythonReadme, /HEX生成テスト[^\n]*4/);
 });
 
 test('TypeScript development and CI use the supported Node 22 line', () => {

@@ -12,7 +12,7 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 TARGET_DIR=""
 DRY_RUN=false
@@ -23,6 +23,15 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
+
+if ! GIT_TOP_LEVEL="$(git -C "$PROJECT_ROOT" rev-parse --show-toplevel 2>/dev/null)"; then
+  echo -e "${RED}❌ Error: Unable to verify the project Git repository.${NC}" >&2
+  exit 1
+fi
+if [ "$GIT_TOP_LEVEL" != "$PROJECT_ROOT" ]; then
+  echo -e "${RED}❌ Error: Cleanup must run from its own Git repository root.${NC}" >&2
+  exit 1
+fi
 
 for arg in "$@"; do
   case "$arg" in
@@ -73,11 +82,40 @@ is_tracked_path() {
   local candidate="$1"
   local relative_path="${candidate#"$PROJECT_ROOT"/}"
 
-  git -C "$PROJECT_ROOT" ls-files --error-unmatch -- "$relative_path" >/dev/null 2>&1
+  if git -C "$PROJECT_ROOT" --literal-pathspecs \
+    ls-files --error-unmatch -- "$relative_path" >/dev/null 2>&1; then
+    return 0
+  else
+    local git_status=$?
+    if [ "$git_status" -eq 1 ]; then
+      return 1
+    fi
+    echo -e "${RED}❌ Error: Unable to verify tracked path: $candidate${NC}" >&2
+    exit "$git_status"
+  fi
+}
+
+validate_candidate_path() {
+  local candidate="$1"
+
+  case "$candidate" in
+    "$PROJECT_ROOT"|"$SEARCH_PATH")
+      echo -e "${RED}❌ Error: Refusing to remove cleanup root: $candidate${NC}" >&2
+      return 1
+      ;;
+    "$SEARCH_PATH"/*)
+      ;;
+    *)
+      echo -e "${RED}❌ Error: Refusing to remove path outside project: $candidate${NC}" >&2
+      return 1
+      ;;
+  esac
 }
 
 remove_candidate() {
   local candidate="$1"
+
+  validate_candidate_path "$candidate"
 
   if is_tracked_path "$candidate"; then
     echo -e "${YELLOW}  Preserving tracked path: $candidate${NC}"
@@ -126,15 +164,14 @@ cleanup_dir() {
   local pattern="$2"
   local desc="$3"
 
-  while IFS= read -r -d '' candidate; do
-    echo -e "${BLUE}📂 $desc:${NC}"
-    remove_candidate "$candidate"
-  done < <(
-    find "$dir" -maxdepth 10 \
-      -path "$PROJECT_ROOT/.git" -prune -o \
-      -type d -name "$pattern" -prune -print0 -o \
-      -type d \( "${CLEANUP_BOUNDARY_FIND_ARGS[@]}" \) -prune 2>/dev/null
-  )
+  find "$dir" -mindepth 1 -maxdepth 10 \
+    -path "$PROJECT_ROOT/.git" -prune -o \
+    -type d -name "$pattern" -prune -print0 -o \
+    -type d \( "${CLEANUP_BOUNDARY_FIND_ARGS[@]}" \) -prune |
+    while IFS= read -r -d '' candidate; do
+      echo -e "${BLUE}📂 $desc:${NC}"
+      remove_candidate "$candidate"
+    done
 }
 
 cleanup_file() {
@@ -142,15 +179,14 @@ cleanup_file() {
   local pattern="$2"
   local desc="$3"
 
-  while IFS= read -r -d '' candidate; do
-    echo -e "${BLUE}📄 $desc:${NC}"
-    remove_candidate "$candidate"
-  done < <(
-    find "$dir" -maxdepth 10 \
-      -path "$PROJECT_ROOT/.git" -prune -o \
-      -type d \( "${CLEANUP_BOUNDARY_FIND_ARGS[@]}" \) -prune -o \
-      -type f -name "$pattern" -print0 2>/dev/null
-  )
+  find "$dir" -mindepth 1 -maxdepth 10 \
+    -path "$PROJECT_ROOT/.git" -prune -o \
+    -type d \( "${CLEANUP_BOUNDARY_FIND_ARGS[@]}" \) -prune -o \
+    -type f -name "$pattern" -print0 |
+    while IFS= read -r -d '' candidate; do
+      echo -e "${BLUE}📄 $desc:${NC}"
+      remove_candidate "$candidate"
+    done
 }
 
 # Python cache files
@@ -192,14 +228,10 @@ cleanup_dir "$SEARCH_PATH" ".nyc_output" "NYC cache"
 cleanup_dir "$SEARCH_PATH" ".cache" "tool cache"
 cleanup_dir "$SEARCH_PATH" "coverage" "coverage directory"
 
-# IDE and OS files (only at project level, not root)
-if [ -n "$TARGET_DIR" ]; then
-  echo ""
-  echo -e "${YELLOW}IDE & OS Files:${NC}"
-  cleanup_dir "$SEARCH_PATH" ".vscode" ".vscode"
-  cleanup_dir "$SEARCH_PATH" ".idea" ".idea"
-  cleanup_file "$SEARCH_PATH" ".DS_Store" ".DS_Store"
-fi
+# OS metadata. Local IDE settings are user-authored and must be preserved.
+echo ""
+echo -e "${YELLOW}OS Files:${NC}"
+cleanup_file "$SEARCH_PATH" ".DS_Store" ".DS_Store"
 
 echo ""
 if [ "$DRY_RUN" = true ]; then

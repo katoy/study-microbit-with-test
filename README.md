@@ -122,7 +122,7 @@ GitHub ActionsはPython、TypeScript、MakeCode、統合テスト、リポジト
 ./scripts/clean.sh
 ```
 
-追跡中ファイルとlockfileは保持されます。
+追跡中ファイル、lockfile、`.vscode`／`.idea` のローカル設定は保持されます。Gitの保護判定やファイル走査に失敗した場合は、安全のため削除を中止します。
 
 ## ライセンス
 

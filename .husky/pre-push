@@ -5,6 +5,8 @@ echo "🚀 Git push 前のテスト実行..."
 
 ZERO_SHA="0000000000000000000000000000000000000000"
 CHANGED_FILES=""
+FAILED_REFS=""
+FAILED_PROJECTS=""
 
 while read -r local_ref local_sha remote_ref remote_sha; do
   # ブランチ削除ではテスト対象のファイルはありません。
@@ -12,88 +14,111 @@ while read -r local_ref local_sha remote_ref remote_sha; do
     continue
   fi
 
+  echo ""
+  echo "📍 処理中: $local_ref"
+
   if [ "$remote_sha" = "$ZERO_SHA" ]; then
     # 新規refは比較元がないため、安全側に倒して送信ツリー全体を対象にします。
     if ! ref_files=$(git ls-tree -r --name-only "$local_sha"); then
-      echo "❌ Push対象ファイルを取得できませんでした。"
-      exit 1
+      echo "❌ Push対象ファイルを取得できませんでした（ref: $local_ref）"
+      FAILED_REFS="${FAILED_REFS} $local_ref"
+      continue
     fi
   else
     if ! ref_files=$(git diff --name-only "$remote_sha" "$local_sha"); then
-      echo "❌ Push差分を取得できませんでした。"
-      exit 1
+      echo "❌ Push差分を取得できませんでした（ref: $local_ref）"
+      FAILED_REFS="${FAILED_REFS} $local_ref"
+      continue
     fi
   fi
 
-  CHANGED_FILES="${CHANGED_FILES}
-${ref_files}"
+  # sample-compass (Python) のテスト
+  if printf '%s\n' "$ref_files" | grep -q "^sample-compass/"; then
+    echo "📦 sample-compass のファイルが変更されています"
+    cd sample-compass || exit 1
+    
+    echo "🧪 Python コンパイルチェックを実行中..."
+    if ! uv run python -m py_compile src/compass_makecode.py; then
+      echo "❌ Python コンパイル失敗（ref: $local_ref）"
+      FAILED_REFS="${FAILED_REFS} $local_ref"
+      FAILED_PROJECTS="${FAILED_PROJECTS} sample-compass"
+      cd ../../ || exit 1
+      continue
+    fi
+    echo "✅ Python コンパイルチェック 完了！"
+    
+    cd ../../ || exit 1
+  fi
+
+  # sample-compass-ts (TypeScript) のテスト
+  if printf '%s\n' "$ref_files" | grep -q "^sample-compass-ts/"; then
+    echo "📦 sample-compass-ts のファイルが変更されています"
+    cd sample-compass-ts || exit 1
+    
+    echo "🧪 TypeScript ユニット & 統合テスト実行..."
+    if ! npm test; then
+      echo "❌ TypeScript テスト失敗（ref: $local_ref）"
+      FAILED_REFS="${FAILED_REFS} $local_ref"
+      FAILED_PROJECTS="${FAILED_PROJECTS} sample-compass-ts"
+      cd ../../ || exit 1
+      continue
+    fi
+    echo "✅ TypeScript テスト 完了！"
+    
+    cd ../../ || exit 1
+  fi
+
+  # sample-compass-makecode のテスト
+  if printf '%s\n' "$ref_files" | grep -q "^sample-compass-makecode/"; then
+    echo "📦 sample-compass-makecode のファイルが変更されています"
+    cd sample-compass-makecode || exit 1
+    
+    # 1. Build
+    echo "🔨 ステップ 1/2: MakeCode ビルド..."
+    if ! npm run build; then
+      echo "❌ MakeCode ビルド失敗（ref: $local_ref）"
+      FAILED_REFS="${FAILED_REFS} $local_ref"
+      FAILED_PROJECTS="${FAILED_PROJECTS} sample-compass-makecode"
+      cd ../../ || exit 1
+      continue
+    fi
+    echo "✅ Build 完了！"
+    
+    # 2. コンパイル・シミュレーターテスト
+    echo "🧪 ステップ 2/2: MakeCode テスト実行..."
+    if ! npm test; then
+      echo "❌ MakeCode テスト失敗（ref: $local_ref）"
+      FAILED_REFS="${FAILED_REFS} $local_ref"
+      FAILED_PROJECTS="${FAILED_PROJECTS} sample-compass-makecode"
+      cd ../../ || exit 1
+      continue
+    fi
+    echo "✅ MakeCode テスト 完了！"
+    
+    cd ../../ || exit 1
+  fi
 done
 
-# sample-compass (Python) のテスト
-if printf '%s\n' "$CHANGED_FILES" | grep -q "^sample-compass/"; then
-  echo "📦 sample-compass のファイルが変更されています"
-  cd sample-compass
-  
-  echo ""
-  echo "🧪 Python コンパイルチェックを実行中..."
-  if ! uv run python -m py_compile src/compass_makecode.py; then
-    echo "❌ Python コンパイル失敗！push をキャンセルしました。"
-    exit 1
-  fi
-  echo "✅ Python コンパイルチェック 完了！"
-  
-  cd ..
-else
-  echo "ℹ️ sample-compass に変更がありません"
-fi
-
-# sample-compass-ts (TypeScript) のテスト
-if printf '%s\n' "$CHANGED_FILES" | grep -q "^sample-compass-ts/"; then
-  echo "📦 sample-compass-ts のファイルが変更されています"
-  cd sample-compass-ts
-  
-  echo ""
-  echo "🧪 TypeScript ユニット & 統合テスト実行..."
-  if ! npm test; then
-    echo "❌ TypeScript テスト失敗！push をキャンセルしました。"
-    exit 1
-  fi
-  echo "✅ TypeScript テスト 完了！"
-  
-  cd ..
-else
-  echo "ℹ️ sample-compass-ts に変更がありません"
-fi
-
-# sample-compass-makecode のテスト
-if printf '%s\n' "$CHANGED_FILES" | grep -q "^sample-compass-makecode/"; then
-  echo "📦 sample-compass-makecode のファイルが変更されています"
-  cd sample-compass-makecode
-  
-  # 1. Build
-  echo ""
-  echo "🔨 ステップ 1/2: MakeCode ビルド..."
-  if npm run build; then
-    echo "✅ Build 完了！"
-  else
-    echo "❌ Lint 失敗！push をキャンセルしました。"
-    exit 1
-  fi
-  
-  # 2. コンパイル・シミュレーターテスト
-  echo ""
-  echo "🧪 ステップ 2/2: MakeCode テスト実行..."
-  if npm test; then
-    echo "✅ MakeCode テスト 完了！"
-  else
-    echo "❌ ユニットテスト 失敗！push をキャンセルしました。"
-    exit 1
-  fi
-  
-  cd ../
-else
-  echo "ℹ️ sample-compass-makecode に変更がありません"
-fi
-
 echo ""
+
+# 失敗したrefがある場合、詳細を表示して終了
+if [ -n "$FAILED_REFS" ]; then
+  echo "❌ テスト失敗のため Push をキャンセルしました"
+  echo ""
+  echo "📋 失敗した ref:"
+  for ref in $FAILED_REFS; do
+    echo "   - $ref"
+  done
+  echo ""
+  echo "📋 失敗したプロジェクト:"
+  for project in $FAILED_PROJECTS; do
+    echo "   - $project"
+  done
+  echo ""
+  echo "💡 対応方法:"
+  echo "   1. 上記のプロジェクトでテストを修正してください"
+  echo "   2. コミットして再度プッシュしてください"
+  exit 1
+fi
+
 echo "🎉 すべてのテストに成功しました！Push を続行します。"

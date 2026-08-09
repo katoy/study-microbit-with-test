@@ -3,7 +3,7 @@
 このファイルは AI アシスタント（Claude、Copilot など）が sample-compass-ts プロジェクトで作業する際のプロジェクト固有ガイドです。
 
 **プロジェクト全体のガイドは `../CLAUDE.md` を参照してください。**  
-**AIアシスタント連携（カスタムスキル同期）については、ルートにある [`../sync-ai-skills.sh`](file:///Users/katoy/github/study-microbit-with-test/sync-ai-skills.sh) をご利用ください。**
+**保守者向けAIルール同期については、ルートの [`../sync-ai-skills.sh`](../sync-ai-skills.sh) を参照してください（既定はdry-runです）。**
 
 ## プロジェクト概要
 
@@ -142,7 +142,7 @@ interface CompassState {
 
 ## テスト戦略
 
-### ユニットテスト (test/compass.test.ts) - 47個
+### ユニットテスト (test/compass.test.ts)
 - 各メソッドの単体テスト
 - 型安全性の確認
 - エラーハンドリング

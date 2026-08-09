@@ -1,254 +1,82 @@
-# Git Hooks 設定ガイド
+# Git hooksガイド
 
-Git commit/push 時に自動的にテストを実行するように設定しました。
+このリポジトリはHuskyで、変更したサブプロジェクトのテストをcommit/push前に実行します。hooksは高速な手元の安全網であり、GitHub Actionsの代わりではありません。
 
 ## セットアップ
 
-### 1. npm dependencies をインストール
+```bash
+npm ci
+npm --prefix sample-compass-ts ci
+npm --prefix sample-compass-makecode ci
+uv sync --project sample-compass
+npm run prepare
+```
+
+Dev Containerでは自動実行されます。
+
+## pre-commit
+
+ステージ済みのパスを見て、該当プロジェクトだけを検査します。
+
+| 変更パス | 実行内容 |
+|---|---|
+| `sample-compass/**` | Pythonユニット／HEX／統合テスト |
+| `sample-compass-ts/**` | Jestの全テスト |
+| `sample-compass-makecode/**` | PXTコンパイル／シミュレーターテスト |
+
+テストが1つでも失敗するとcommitを中止します。
+
+## pre-push
+
+送信するrefの差分を調べます。新規refでは送信ツリー全体を安全側に検査します。
+
+- Python変更: ユニット／HEX／統合テスト
+- TypeScript変更: Jestの全テスト
+- MakeCode変更: ビルド後、PXTコンパイル／シミュレーターテスト
+
+テスト失敗、差分取得失敗、ビルド失敗はpushを中止します。
+
+## 手動の完全検査
+
+hooksは変更されたサブプロジェクトに絞るため、提出・レビュー前にはルート品質ゲートも実行します。
 
 ```bash
-cd /Users/katoy/github/study-microbit-with-test
-npm install
+npm run test:all
+npm run lint
+npm run build:hex
 ```
-
-これにより以下がインストール・設定されます：
-- ✅ husky（Git hooks マネージャー）
-- ✅ lint-staged（ステージング済みファイルのみに lint を実行）
-- ✅ .husky ディレクトリ内の hooks
-
-### 2. sample-compass-makecode の依存関係をインストール
-
-```bash
-cd sample-compass-makecode
-npm install
-```
-
-## Git Hooks の動作
-
-### 1️⃣ `git commit` 時 → **Pre-commit Hook**
-
-**実行される処理:**
-```
-変更ファイルが sample-compass-makecode に含まれる
-  ↓
-pxt build --cloud （Lint）
-  ↓
-✅ 成功 → commit を続行
-❌ 失敗 → commit をキャンセル
-```
-
-**例:**
-```bash
-$ git commit -m "Add compass feature"
-🔍 Git commit 前の lint チェック...
-📝 sample-compass-makecode のファイルが変更されています
-🔨 MakeCode コンパイル・シミュレーターテストを実行中...
-✅ MakeCode テスト成功！
-✅ Pre-commit チェック完了！
-[main abc1234] Add compass feature
-```
-
-### 2️⃣ `git push` 時 → **Pre-push Hook**
-
-**実行される処理:**
-```
-変更ファイルが sample-compass-makecode に含まれる
-  ↓
-ステップ 1/2: npm run build （MakeCode ビルド）
-  ↓
-ステップ 2/2: npm test （コンパイル・シミュレーターテスト）
-  ↓
-✅ すべて成功 → push を続行
-❌ 1つでも失敗 → push をキャンセル
-```
-
-**例:**
-```bash
-$ git push origin main
-🚀 Git push 前のテスト実行...
-📦 sample-compass-makecode のファイルが変更されています
-
-🔨 ステップ 1/2: MakeCode ビルド...
-✅ Build 完了！
-
-🧪 ステップ 2/2: MakeCode テスト実行...
-MakeCode simulator tests passed: 28/28
-✅ MakeCode テスト 完了！
-
-🎉 すべてのテストに成功しました！Push を続行します。
-```
-
-## Hooks をスキップする
-
-### Commit Hooks をスキップ
-
-```bash
-git commit --no-verify -m "Skip pre-commit check"
-# または
-git commit -n -m "Skip pre-commit check"
-```
-
-### Push Hooks をスキップ
-
-```bash
-git push --no-verify
-# または
-git push -n
-```
-
-⚠️ **注意:** Hooks をスキップすることは推奨されません。CI/CD で失敗する可能性があります。
 
 ## トラブルシューティング
 
-### Hooks が実行されない
-
-**問題:** Pre-commit/pre-push hook が実行されない
-
-**解決方法:**
+### hooksが動かない
 
 ```bash
-# 1. Hooks ファイルに実行権限があるか確認
-chmod +x .husky/pre-commit
-chmod +x .husky/pre-push
-
-# 2. Husky が正しくインストールされているか確認
-cat .husky/pre-commit
-
-# 3. Husky を再インストール
-npm install husky --save-dev
-npx husky install
+npm run prepare
+ls -l .husky/pre-commit .husky/pre-push
 ```
 
-### "pxt: command not found"
+実行属性がなければ `chmod +x .husky/pre-commit .husky/pre-push` を実行します。
 
-**問題:** Hooks 実行時に pxt が見つからない
+### `pxt` が見つからない
 
-**解決方法:**
+グローバルインストールは不要です。
 
 ```bash
-# 1. pxt をグローバルにインストール
-npm install -g pxt
-
-# 2. または、package.json のスクリプトを修正
-npx pxt build --cloud
+npm --prefix sample-compass-makecode ci
 ```
 
-### シミュレーターテストがタイムアウト
+### PXTキャッシュの権限エラー
 
-**問題:** Pre-push hook でMakeCodeシミュレーターテストがタイムアウト
+PXTはホームディレクトリの `.pxt/cache` を使います。そのディレクトリが現在の利用者へ書込可能か確認してください。CIやコンテナでは利用者のホームを正しく設定します。
 
-**解決方法:**
+### 緊急時にhooksを飛ばす
 
-```bash
-# 1. Hooks をスキップして push
-git push --no-verify
+`--no-verify` はローカル検査を飛ばしますが、失敗を直すものではありません。障害対応など理由が明確な場合だけ使い、push前またはCIで同じ検査を必ず実行してください。
 
-# 2. または、シミュレーターテストの timeout を増やす
-# .husky/pre-push 内の timeout を調整
-```
+## 実装
 
-## Hook ファイルの位置
+- [`.husky/pre-commit`](./.husky/pre-commit)
+- [`.husky/pre-push`](./.husky/pre-push)
+- [`test/git-hooks.test.js`](./test/git-hooks.test.js)
 
-```
-.husky/
-├── _/husky.sh         ← husky のメインスクリプト
-├── pre-commit         ← Commit 時に実行
-└── pre-push           ← Push 時に実行
-```
-
-## Pre-commit Hook の詳細
-
-### `.husky/pre-commit`
-
-```bash
-#!/bin/sh
-# 1. sample-compass-makecode のファイルが変更されているかチェック
-# 2. 変更されている場合、pxt build を実行
-# 3. 失敗すると commit をキャンセル
-```
-
-**チェック対象ファイル:**
-- sample-compass-makecode/**/*.ts
-- sample-compass-makecode/**/*.js
-
-## Pre-push Hook の詳細
-
-### `.husky/pre-push`
-
-```bash
-#!/bin/sh
-# 1. Origin ブランチからのコミット差分をチェック
-# 2. sample-compass-makecode が変更されていれば以下を実行：
-#    - npm run build （MakeCode ビルド）
-#    - npm test （コンパイル・シミュレーターテスト）
-# 3. 1つでも失敗すると push をキャンセル
-```
-
-## Git Hooks の有効化・無効化
-
-### すべての Hooks を一時的に無効化
-
-```bash
-husky uninstall
-```
-
-### Hooks を再度有効化
-
-```bash
-npm install
-```
-
-## Package.json での関連スクリプト
-
-```json
-{
-  "scripts": {
-    "lint:makecode": "cd sample-compass-makecode && pxt build --cloud",
-    "test:makecode": "cd sample-compass-makecode && npm test"
-  }
-}
-```
-
-これらは以下で手動実行もできます：
-
-```bash
-npm run lint:makecode   # Lint のみ
-npm run test:makecode   # コンパイル・シミュレーターテスト
-```
-
-## GitHub Actions との関係
-
-| 実行環境 | 実行タイミング | テスト内容 |
-|---------|--------------|----------|
-| **ローカル（Pre-commit）** | `git commit` 時 | 変更プロジェクトのテスト |
-| **ローカル（Pre-push）** | `git push` 時 | Build + コンパイル + シミュレーター |
-| **GitHub Actions（CI/CD）** | push 後（自動） | Build + コンパイル + シミュレーター |
-
-## ベストプラクティス
-
-### 1. 定期的に Hooks を更新
-
-```bash
-# 定期的に Hooks を確認
-cat .husky/pre-commit
-cat .husky/pre-push
-```
-
-### 2. ローカルと CI/CD の一貫性を保つ
-
-- ローカル hooks ≈ GitHub Actions ワークフロー
-- 両方で同じテストを実行
-
-### 3. チーム全体で Hooks を共有
-
-```bash
-# リポジトリに .husky を含める
-git add .husky/
-git commit -m "Add Git hooks"
-```
-
-## 参考資料
-
-- [Husky ドキュメント](https://typicode.github.io/husky/)
-- [lint-staged](https://github.com/okonet/lint-staged)
-- [Git Hooks](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks)
+hooks自体もリポジトリ設定テストで、安全側に失敗することを検査しています。

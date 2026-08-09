@@ -3,7 +3,7 @@
 このファイルは AI アシスタント（Claude、Copilot など）が sample-compass プロジェクトで作業する際のプロジェクト固有ガイドです。
 
 **プロジェクト全体のガイドは `../CLAUDE.md` を参照してください。**  
-**AIアシスタント連携（カスタムスキル同期）については、ルートにある [`../sync-ai-skills.sh`](file:///Users/katoy/github/study-microbit-with-test/sync-ai-skills.sh) をご利用ください。**
+**保守者向けAIルール同期については、ルートの [`../sync-ai-skills.sh`](../sync-ai-skills.sh) を参照してください（既定はdry-runです）。**
 
 ## プロジェクト概要
 

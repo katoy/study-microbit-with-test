@@ -1,5 +1,8 @@
 # micro:bit プログラミング教材としての評価・レビュー
 
+> [!WARNING]
+> これは過去のレビュー資料です。現在の教材構成は [`docs/README.md`](./README.md) から確認してください。
+
 このプロジェクト（`study-microbit-with-test`）は、**micro:bit 用の方位磁石（コンパス）アプリケーション**を題材に、3つの異なる言語・実行環境（Python, TypeScript, MakeCode/PXT）での実装と、それぞれの環境に応じたテスト手法（TDD、ユニットテスト、シミュレータテスト、CI/CD）を統合的に学習できる非常に優れた教材です。
 
 本ドキュメントでは、本プロジェクトを「プログラミング教材」という観点から多角的にレビューし、そのメリットや特徴、さらに教材としての価値を高めるための改善提案をまとめます。
@@ -57,7 +60,7 @@
 * **現状**: `sample-compass` は MicroPython を前提としており、`import microbit` を行います。
 * **対応**: 
   - `sample-compass/README.md` に標準 MicroPython と MakeCode Python の違いを詳しく説明する対比表を追記しました。
-  - MakeCode の Python モードと完全な相互変換ができる Static Python 実装である [`compass_makecode.py`](file:///Users/katoy/github/study-microbit-with-test/sample-compass/compass_makecode.py) を新規追加しました。
+  - MakeCodeのPythonモード向けStatic Python実装である [`compass_makecode.py`](../sample-compass/compass_makecode.py) を追加しました。
 
 ### 💡 改善提案 2：MakeCode カスタムブロックの視覚的ドキュメント化
 * **現状**: `compass.ts` には `%block` などの MakeCode 独自アノテーションが記述されていますが、これがどのようにブロックとしてレンダリングされるかの説明が少ないです。

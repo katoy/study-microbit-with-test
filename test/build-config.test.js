@@ -83,28 +83,23 @@ test('mocked workflows are named integration tests rather than end-to-end tests'
   assert.ok(fs.existsSync(path.join(projectRoot, '.github/workflows/integration-tests.yml')));
 });
 
-test('README test counts match the current TypeScript suites', () => {
+test('canonical READMEs use executable checks instead of frozen test totals', () => {
   const rootReadme = fs.readFileSync(path.join(projectRoot, 'README.md'), 'utf8');
   const typeScriptReadme = fs.readFileSync(
     path.join(projectRoot, 'sample-compass-ts/README.md'),
     'utf8'
   );
-
-  assert.doesNotMatch(rootReadme, /133\/133/);
-  assert.match(typeScriptReadme, /ユニットテスト（48 個）/);
-  assert.match(typeScriptReadme, /統合テスト[^\n]*25/);
-});
-
-test('README test counts match Python test suites', () => {
   const pythonReadme = fs.readFileSync(
     path.join(projectRoot, 'sample-compass/README.md'),
     'utf8'
   );
 
-  // Python test counts: 17 unit, 13 integration, 4 build
-  assert.match(pythonReadme, /ユニットテスト（17 個）/);
-  assert.match(pythonReadme, /統合テスト[^\n]*13/);
-  assert.match(pythonReadme, /HEX生成テスト[^\n]*4/);
+  assert.match(rootReadme, /npm run test:all/);
+  assert.match(typeScriptReadme, /npm test/);
+  assert.match(pythonReadme, /uv run pytest/);
+  for (const readme of [rootReadme, typeScriptReadme, pythonReadme]) {
+    assert.doesNotMatch(readme, /\b\d+\/\d+\s+(PASS|成功)/);
+  }
 });
 
 test('TypeScript development and CI use the supported Node 22 line', () => {

@@ -1,6 +1,9 @@
 # micro:bit プログラミング環境教材 評価・レビュー報告書
 
-本プロジェクト（[`study-microbit-with-test`](file:///Users/katoy/github/study-microbit-with-test)）を、単に micro:bit のコードを書くためだけの教材ではなく、**「組み込み開発とモダンなソフトウェアエンジニアリング（TDD、環境分離、自動テスト、CI/CD）を体験するための『環境教材』」**という観点から総合的にレビューします。
+> [!WARNING]
+> これは過去のレビュー資料です。現在の教材導線と検証方法は [`docs/README.md`](./README.md) を参照してください。
+
+本プロジェクト（[`study-microbit-with-test`](../)）を、単に micro:bit のコードを書くためだけの教材ではなく、**「組み込み開発とモダンなソフトウェアエンジニアリング（TDD、環境分離、自動テスト、CI/CD）を体験するための『環境教材』」**という観点から総合的にレビューします。
 
 一般的な教育現場における「ブラウザ上でブロックを組んで終わり」という初級学習から一歩進み、**プロの現場で通用する DevOps ワークフローを micro:bit を題材に学べる比類なき環境**として評価します。
 
@@ -32,23 +35,23 @@ graph TD
 
 ## 2. 3つのプログラミング環境の教材価値
 
-### ① Python 環境 ([`sample-compass`](file:///Users/katoy/github/study-microbit-with-test/sample-compass))
+### ① Python 環境 ([`sample-compass`](../sample-compass/))
 * **テクノロジースタック**: Python 3.12 (uv), `pytest`, `unittest.mock`, `uflash`
 * **環境教材としての価値**:
   * **実機開発ワークフローの王道**: Web ブラウザを介さず、ローカルの CLI ターミナルから `uflash` 経由で直接 HEX ファイルを書き込む「ファームウェア開発」の基本的なフローを体験できます。
-  * **Static Python (MakeCode Python) への配慮**: 標準の MicroPython 用コード（[`compass.py`](file:///Users/katoy/github/study-microbit-with-test/sample-compass/compass.py)）だけでなく、MakeCode の Python モードと完全な互換性を持つ Static Python コード（[`compass_makecode.py`](file:///Users/katoy/github/study-microbit-with-test/sample-compass/compass_makecode.py)）が用意されています。これにより、「Python で書きたいが、ブロックとも連動させたい」という学習者のニーズに環境面で応えています。
-  * **モック化によるテスト**: [`conftest.py`](file:///Users/katoy/github/study-microbit-with-test/sample-compass/conftest.py) を使って `sys.modules['microbit']` に `MagicMock` を差し込むことで、実機センサーや LED 表示をシミュレートし、PC 単体で pytest カバレッジ 100% を達成する設計手法を学べます。
+  * **Static Python (MakeCode Python) への配慮**: 標準の MicroPython 用コード（[`compass.py`](../sample-compass/compass.py)）だけでなく、MakeCode の Python モード向けStatic Pythonコード（[`compass_makecode.py`](../sample-compass/compass_makecode.py)）が用意されています。
+  * **モック化によるテスト**: [`conftest.py`](../sample-compass/conftest.py) を使って `sys.modules['microbit']` に `MagicMock` を差し込むことで、PC単体でロジックを検査できます。
 
-### ② TypeScript 環境 ([`sample-compass-ts`](file:///Users/katoy/github/study-microbit-with-test/sample-compass-ts))
+### ② TypeScript 環境 ([`sample-compass-ts`](../sample-compass-ts/))
 * **テクノロジースタック**: Node.js, TypeScript (`tsc`), `Jest`
 * **環境教材としての価値**:
-  * **「関心の分離」のベストプラクティス**: micro:bit のハードウェアライブラリ（PXT/MakeCode）に依存しないピュアな TypeScript クラス（[`compass.ts`](file:///Users/katoy/github/study-microbit-with-test/sample-compass-ts/src/compass.ts)）としてロジックを切り離しています。
+  * **「関心の分離」のベストプラクティス**: micro:bit のハードウェアライブラリ（PXT/MakeCode）に依存しないピュアな TypeScript クラス（[`compass.ts`](../sample-compass-ts/src/compass.ts)）としてロジックを切り離しています。
   * **型安全と堅牢なエラーハンドリング**: Union Type (`'N' | 'NE' | ...`) による方向の定義や、未キャリブレーション時に例外エラー（`Error`）をスローする厳密な検証ロジックを実装。Jest による単体テストの実行速度が圧倒的に速く（10,000回ループも1秒未満）、バグを早期発見する「型安全プログラミング」の重要性を身をもって理解できます。
 
-### ③ MakeCode / PXT 環境 ([`sample-compass-makecode`](file:///Users/katoy/github/study-microbit-with-test/sample-compass-makecode))
+### ③ MakeCode / PXT 環境 ([`sample-compass-makecode`](../sample-compass-makecode/))
 * **テクノロジースタック**: Microsoft PXT CLI, Playwright
 * **環境教材としての価値**:
-  * **ヘッドレス・シミュレータテスト自動化**: 通常はブラウザでしか動かない MakeCode のシミュレータを CLI（`pxt run`）で起動し、アサーションログをパースしてテスト合否を判定するカスタムスクリプト（[`simulator-test-runner.cjs`](file:///Users/katoy/github/study-microbit-with-test/sample-compass-makecode/simulator-test-runner.cjs)）が組み込まれています。これは**「ヘッドレス環境での Web API / E2E テスト自動化」**の最高峰の教材です。
+  * **ヘッドレス・シミュレータテスト自動化**: MakeCodeのPXTシミュレーターを起動し、アサーションログを検査するスクリプト（[`simulator-test-runner.cjs`](../sample-compass-makecode/simulator-test-runner.cjs)）が組み込まれています。
   * **Webエディタとの双方向連携**:
     * GitHub リポジトリから Web にインポートする「GitHub 連携」
     * ローカルの `binary.hex` をドラッグ＆ドロップしてブロックを復元する「HEX インポート」
@@ -59,13 +62,13 @@ graph TD
 
 ## 3. 【特筆】メタ開発環境テスト (Meta-Testing)
 
-本プロジェクトが他教育用リポジトリと一線を画しているのが、ルート直下の [`test/`](file:///Users/katoy/github/study-microbit-with-test/test) ディレクトリに配された**「開発環境設定そのものをテストする」**テスト群です。
+本プロジェクトが他教育用リポジトリと一線を画しているのが、ルート直下の [`test/`](../test/) ディレクトリに配された**「開発環境設定そのものをテストする」**テスト群です。
 
 | テストファイル | テスト内容 | 教材・運用上の価値 |
 | :--- | :--- | :--- |
-| [`gitignore.test.js`](file:///Users/katoy/github/study-microbit-with-test/test/gitignore.test.js) | 一時リポジトリを作成し `.gitignore` が `.venv` やキャッシュを正しく無視し、かつ必要な設定ファイルを誤って除外していないか検証する | 「不要なファイルを Git にコミットしない」というリポジトリ管理のベストプラクティスをテストコードで保証する |
-| [`build-config.test.js`](file:///Users/katoy/github/study-microbit-with-test/test/build-config.test.js) | 各 package.json のビルドスクリプト整合性、Node.js バージョンの統一、さらに **README 内のテスト件数記述が実際のテストコード件数と一致しているか** を検証する | ドキュメントの陳腐化（コードと解説の乖離）を防ぐ「継続的なドキュメント管理」の手本となる |
-| [`clean-script.test.js`](file:///Users/katoy/github/study-microbit-with-test/test/clean-script.test.js) | クリーンアップスクリプト（[`clean.sh`](file:///Users/katoy/github/study-microbit-with-test/scripts/clean.sh)）が、誤って追跡中のファイルや lockfile を消去しないか「破壊的安全」をテストする | スクリプトの暴走によるソースコード消失を防ぎ、環境の安全性をエンジニアリング的に担保する |
+| [`gitignore.test.js`](../test/gitignore.test.js) | 一時リポジトリを作成し `.gitignore` が必要な設定を保持するか検証する | リポジトリ管理をテストで保証する |
+| [`build-config.test.js`](../test/build-config.test.js) | 各package.json、CI、READMEの整合性を検証する | 文書と設定の陳腐化を検出する |
+| [`clean-script.test.js`](../test/clean-script.test.js) | クリーンアップスクリプト（[`clean.sh`](../scripts/clean.sh)）が追跡中ファイルやlockfileを消さないか検証する | 破壊的操作を安全にする |
 
 > [!IMPORTANT]
 > **メタ環境テストの教育的意義**

@@ -1,308 +1,129 @@
 # study-microbit-with-test
 
-[![Python Tests](https://github.com/YOUR_USERNAME/study-microbit-with-test/actions/workflows/python-tests.yml/badge.svg)](https://github.com/YOUR_USERNAME/study-microbit-with-test/actions)
-[![TypeScript Tests](https://github.com/YOUR_USERNAME/study-microbit-with-test/actions/workflows/typescript-tests.yml/badge.svg)](https://github.com/YOUR_USERNAME/study-microbit-with-test/actions)
-[![codecov](https://codecov.io/gh/YOUR_USERNAME/study-microbit-with-test/branch/main/graph/badge.svg)](https://codecov.io/gh/YOUR_USERNAME/study-microbit-with-test)
+micro:bit の方位磁石を題材に、ブロック、Python、TypeScript、自動テストを段階的に学ぶプログラミング環境教材です。同じ「0〜359度を8方位へ変換する」課題を、実機・シミュレーター・PC上のテストで比較できます。
 
-micro:bit 用のシンプルな方位磁石アプリケーション学習プロジェクト
+## この教材で学べること
 
-**品質ゲート**: `npm run test:all` | **カバレッジ目標**: Python・TypeScriptともに100%
+- MakeCode ブロックと MakeCode Python／TypeScript の対応
+- MicroPython と MakeCode Static Python の違い
+- センサー値と、テストしやすい方位判定ロジックの分離
+- 境界値テスト（22.5度、67.5度など）
+- モック、型、安全なビルド、CI、Git hooks の役割
+- micro:bit V1/V2 用 Universal HEX の生成と検証
 
-## Table of Contents
+> [!IMPORTANT]
+> PC上のPython統合テストは `microbit` APIをモックします。MakeCodeテストはPXTシミュレーター上で動きます。どちらも実機の磁気センサー、校正、USB転送そのものを保証するテストではありません。最後に実機確認を行ってください。
 
-- [概要](#概要)
-- [プロジェクト構成](#プロジェクト構成)
-- [プログラム概要](#プログラム概要)
-- [AIアシスタント連携](#aiアシスタント連携)
-- [セットアップ](#セットアップ)
-- [テスト実行](#テスト実行)
-- [ビルド](#ビルド)
-- [HEX ファイル生成](#hex-ファイル生成)
-- [Cleanup Scripts](#cleanup-scripts)
-- [CI/CD](#cicd)
-- [npm Scripts リファレンス](#npm-scripts-リファレンス)
-- [ライセンス](#ライセンス)
-- [参考リンク](#参考リンク)
+## 推奨学習ルート
 
-## 概要
+1. **MakeCode** — ブロックでイベント、コンパス、LED表示を観察する
+2. **Python** — 方位判定をpytestの境界値テストで確かめる
+3. **TypeScript** — 同じ仕様を型と例外で表現する
+4. **開発環境** — ルート品質ゲート、CI、Git hooksが何を守るか調べる
 
-- **sample-compass**: Python による実装（実機向け MicroPython 版と、MakeCode ブロック相互変換に対応した Python 版の2種類を同梱。pytest による単体・統合テスト付き）
-- **sample-compass-ts**: TypeScript による実装（ハードウェアに依存しないロジックの Jest テスト付き。未キャリブレーション時に例外を投げるなど、高度なエラーハンドリングを包含）
-- **sample-compass-makecode**: MakeCode Editor 用の実装（PXT CLI を用いたシミュレータ上での自動テストランナー付き。テスト時にハードウェア制御をスキップするモック構造を包含）
+90分授業には [WORKSHOP_TEMPLATE.md](./WORKSHOP_TEMPLATE.md)、自習には [MULTILANGUAGE_GUIDE.md](./MULTILANGUAGE_GUIDE.md) を使います。
 
-## プロジェクト構成
+## すぐに始める
 
-```
-.
-├── sample-compass/           # Python 実装
-├── sample-compass-ts/        # TypeScript 実装
-├── sample-compass-makecode/  # MakeCode 実装
-├── .github/workflows/        # GitHub Actions CI/CD
-├── CLAUDE.md                 # プロジェクト全体の開発ガイド
-├── HEX_BUILD_GUIDE.md        # HEX ファイル生成ガイド
-├── GIT_HOOKS_GUIDE.md        # Git Hooks ガイド
-├── GIT_HOOKS_SETUP.md        # Git Hooks セットアップ
-├── package.json              # ルートプロジェクト設定
-└── README.md                 # このファイル
-```
+### Dev Container / Codespaces
 
-詳細は各プログラムのディレクトリの CLAUDE.md を参照してください。
+リポジトリをDev Containerで開くと、`.devcontainer/setup-dev.sh` が依存関係を導入し、完全な品質ゲートを実行します。成功を隠さない fail-fast 構成です。
 
-## AIアシスタント連携
+### ローカル環境
 
-本プロジェクトには、Antigravity（`agy`）、Claude Code、GitHub Copilot、Cursor（Codex）などの各種AIアシスタント間で、開発ガイドやカスタムルール（Skills）をグローバル共有・同期するためのスクリプトが用意されています。
+Node.js 22、Python 3.11以上、`uv` を用意して、リポジトリのルートで実行します。
 
 ```bash
-# 各AIアシスタントのグローバル設定にカスタムスキルをマージして適用する
-./sync-ai-skills.sh
-```
-
-### 適用される設定
-- **Antigravity (agy)**: `~/.gemini/config/GEMINI.md` に同期され、`agy` コマンド実行時にグローバル適用されます。
-- **Claude Code (CLI)**: `~/.claudecode.md` にグローバル適用されるほか、プロジェクトルートに `CLAUDE.md` を作成して適用します。
-- **GitHub Copilot**: VS Code の `settings.json` のグローバル指示に自動登録されます。
-- **Cursor (Codex)**: グローバルな `~/.cursorrules` にシンボリックリンクされます。
-
-## セットアップ
-
-### Python 環境（sample-compass）
-
-```bash
-cd sample-compass
-uv sync
-```
-
-### TypeScript 環境（sample-compass-ts）
-
-```bash
-cd sample-compass-ts
-npm install
-```
-
-### MakeCode 環境（sample-compass-makecode）
-
-```bash
-cd sample-compass-makecode
 npm ci
-```
-
-MakeCode CLI はプロジェクトの開発依存関係としてインストールされるため、グローバルインストールは不要です。
-
-## テスト実行
-
-### すべてのテスト実行
-
-```bash
-# ルートディレクトリから
+npm --prefix sample-compass-ts ci
+npm --prefix sample-compass-makecode ci
+uv sync --project sample-compass
 npm run test:all
-
-# または個別に
-npm run test:python && npm run test:ts && npm run test:makecode
 ```
 
-### Python テスト
+`npm run test:all` はユニット／統合／MakeCodeシミュレーターテストに加え、PythonとTypeScriptのカバレッジ検査を実行します。Pythonは100%未満なら失敗します。
 
-```bash
-cd sample-compass
-uv run pytest test_compass.py -v           # ユニットテスト
-uv run pytest test_compass_integration.py -v # 統合テスト（micro:bit API はモック）
-uv run pytest -v                           # 全テスト
-```
+## 3つの実装
 
-### TypeScript テスト
+| ディレクトリ | 実行環境 | 主な教材テーマ | 実機用HEX |
+|---|---|---|---|
+| [`sample-compass`](./sample-compass/) | MicroPython / MakeCode Python | モック、境界値、2種類のPython API | 生成可能 |
+| [`sample-compass-ts`](./sample-compass-ts/) | Node.js | 純粋ロジック、型、例外、Jest | 生成しない |
+| [`sample-compass-makecode`](./sample-compass-makecode/) | MakeCode / PXT | ブロックAPI、イベント、シミュレーター | 生成可能 |
 
-```bash
-cd sample-compass-ts
-npm test                            # 全テスト
-npm run test:unit                   # ユニットテストのみ
-npm run test:integration            # 統合テストのみ
-npm run test:coverage               # カバレッジレポート付き
-npm run test:watch                  # ウォッチモード
-```
+`sample-compass-ts` はPCで設計とテストを学ぶ実装です。micro:bitへ転送するTypeScriptは `sample-compass-makecode` を使います。
 
-### MakeCode テスト
+## よく使うコマンド
 
-```bash
-cd sample-compass-makecode
-npm test
-```
+| コマンド | 内容 |
+|---|---|
+| `npm run test:all` | ローカルの完全な品質ゲート |
+| `npm run test:config` | 文書・CI・安全スクリプトなどリポジトリ設定のテスト |
+| `npm run test:python` | Pythonユニット／HEX検証テスト |
+| `npm run integration:python` | モックを使うPython統合テスト |
+| `npm run test:ts` | TypeScriptユニットテスト |
+| `npm run integration:ts` | TypeScript統合テスト |
+| `npm run test:makecode` | PXTコンパイルとシミュレーターテスト |
+| `npm run lint` | Python構文、TypeScript、MakeCodeビルド検査 |
+| `npm run build:hex` | Python版とMakeCode版のHEXを生成 |
+| `npm run verify:blocks` | MakeCode WebでPython／TSをブロックへ変換し、エラーとグレーブロックを検査 |
+| `npm run audit:npm` | 全npm lockfileのhigh/critical脆弱性を検査 |
 
-`pxt test` によるコンパイル確認に加え、28件の方位判定テストを PXT の内蔵シミュレーターで実行します。失敗・結果欠落・件数不整合はいずれも非ゼロ終了になります。
-
-## ビルド
-
-### TypeScript のビルド
-
-```bash
-cd sample-compass-ts
-npm run build
-```
-
-## HEX ファイル生成
-
-MicroPython 版と MakeCode 版から、micro:bit に転送可能な HEX ファイルを生成できます。
-
-### 対応する実装から HEX を生成
+## 実機へ転送する
 
 ```bash
 npm run build:hex
 ```
 
-### 個別プロジェクトから HEX を生成
+生成物は次の場所です。
+
+- `sample-compass/dist/hex/compass.hex` — MicroPython、V1/V2 Universal HEX
+- `sample-compass-makecode/built/binary.hex` — MakeCode
+
+HEXをmicro:bitのUSBドライブへコピーします。初回や周囲の磁場が変わった場合は校正してください。詳細は [HEX_BUILD_GUIDE.md](./HEX_BUILD_GUIDE.md) を参照してください。
+
+ブロック互換性を含めて確認する場合は `npm run verify:blocks` を実行します。この検査はMakeCode WebとPlaywrightを使うため、ネットワーク接続が必要です。成功条件は、ソース注入、ブロックワークスペース表示、変換エラー0、グレーブロック0です。
+
+## MakeCode Webとの行き来
+
+最も確実な方法は、生成したMakeCode HEXを <https://makecode.microbit.org/> へドラッグ＆ドロップする方法です。ローカル編集には `npm --prefix sample-compass-makecode run serve` も使えます。
+
+このモノレポのルートには `pxt.json` がないため、ルートのGitHub URLをMakeCodeへ直接インポートしないでください。GitHub連携が必要なら `sample-compass-makecode` の内容を専用リポジトリのルートへ置きます。詳しくは [MakeCode版README](./sample-compass-makecode/README.md) を参照してください。
+
+## 教材・運用文書
+
+- [複数言語学習ガイド](./MULTILANGUAGE_GUIDE.md)
+- [90分ワークショップ](./WORKSHOP_TEMPLATE.md)
+- [動画収録台本](./VIDEO_TUTORIAL_SCRIPT.md)
+- [Git hooksガイド](./GIT_HOOKS_GUIDE.md)
+- [文書索引と過去レビュー](./docs/README.md)
+
+過去の評価レポートに書かれたテスト件数は作成時点のスナップショットです。現在の状態は `npm run test:all` の実行結果を正とします。
+
+## 保守者向け: AIルール同期
+
+`sync-ai-skills.sh` は学習に必須ではありません。既定ではファイルを変更せず、対象だけを表示します。
 
 ```bash
-# MakeCode
-cd sample-compass-makecode
-npm run build:hex
-
-# Python
-cd sample-compass
-uv run python build_hex.py
+./sync-ai-skills.sh          # dry-run
+./sync-ai-skills.sh --apply  # 既存設定を日時付きバックアップして適用
 ```
 
-生成された HEX ファイル：
+VS Code設定や、このリポジトリの `CLAUDE.md` は自動変更しません。
 
-```
-sample-compass/dist/hex/compass.hex
-sample-compass-makecode/built/binary.hex
-```
+## CIと安全性
 
-`sample-compass-ts` はNode.js上で方位ロジックを学習・テストするための実装であり、
-micro:bit用HEXは生成しません。実機向けTypeScriptにはMakeCode版を使用してください。
+GitHub ActionsはPython、TypeScript、MakeCode、統合テスト、リポジトリ設定、依存関係監査を分けて実行します。ローカルhooksは変更されたサブプロジェクトのテストをcommit/push前に実行します。CIを通すためだけにテスト失敗を無視する構成にはしていません。
 
-詳細は [HEX_BUILD_GUIDE.md](./HEX_BUILD_GUIDE.md) を参照してください。
-
-### Web エディターとの連携（相互インポート/エクスポート）
-
-MakeCode 版のコードは、ローカル開発環境と Web 画面上の [MakeCode エディター](https://makecode.microbit.org) を相互に行き来することができます。
-
-- **HEX ドラッグ＆ドロップ**: 生成された `sample-compass-makecode/built/binary.hex` を Web エディターにドラッグ＆ドロップすると、プロジェクト（ブロックや TypeScript コード）が瞬時に復元されます。
-- **GitHub 連携**: リポジトリを GitHub にプッシュし、Web エディターからインポートすることで、Web での編集とローカルの変更を `git pull/push` で同期できます。
-- **ローカルサーバー連携 (`npm run serve`)**: ローカルで Web サーバーを起動し、VS Code 等でのコード保存をブラウザのブロック/シミュレータにリアルタイム同期します。
-
-詳細は [sample-compass-makecode/README.md](file:///Users/katoy/github/study-microbit-with-test/sample-compass-makecode/README.md#makecode-web-エディターとの相互インポートエクスポート) を参照してください。
-
-## Code Quality & Linting
-
-### すべてのプロジェクトをチェック
+一時生成物の確認と削除には次を使います。
 
 ```bash
-# Python、TypeScript、MakeCode のすべてをチェック
-npm run lint
-```
-
-実行内容：
-- **Python**: `py_compile` で構文チェック
-- **TypeScript**: `tsc` コンパイル確認
-- **MakeCode**: `pxt build` でビルド検証
-
-### 個別プロジェクトのリント
-
-```bash
-npm run lint:python   # Python 構文チェック
-npm run lint:ts       # TypeScript ビルド確認
-npm run lint:makecode # MakeCode ビルド検証
-```
-
-## CI/CD
-
-このプロジェクトは GitHub Actions を使用して自動的にテストを実行します。
-
-- **Python テスト**: `sample-compass/` のテストが実行されます
-- **TypeScript テスト**: `sample-compass-ts/` のテストが実行されます
-- **統合・シミュレーターテスト**: Python・TypeScript の統合テストと MakeCode のPXTシミュレーターテストが実行されます
-- **セキュリティ**: Bandit、Trivy、全npm lockfile、`uv.lock` 由来のPython依存を監査します
-
-ローカルで全npm lockfileの high/critical 脆弱性を確認するには `npm run audit:npm` を実行します。修正版がないビルド時依存だけは [`security/npm-audit-allowlist.json`](./security/npm-audit-allowlist.json) で対象パッケージと見直し期限を限定しています。
-
-詳細は `.github/workflows/` を参照してください。
-
-### npm Scripts リファレンス
-
-#### テスト
-
-| コマンド | 説明 |
-|---------|------|
-| `npm run lint` | 全プロジェクトのコード品質チェック |
-| `npm run lint:python` | Python 構文チェック |
-| `npm run lint:ts` | TypeScript ビルド確認 |
-| `npm run lint:makecode` | MakeCode ビルド検証 |
-| `npm run test:python` | Python ユニットテスト |
-| `npm run integration:python` | Python 統合テスト（micro:bit API はモック） |
-| `npm run test:ts` | TypeScript ユニットテスト |
-| `npm run test:makecode` | MakeCode コンパイル・シミュレーターテスト |
-| `npm run integration:ts` | TypeScript 統合テスト |
-| `npm run test` | 全ユニットテスト |
-| `npm run integration` | Python・TypeScript 統合テスト |
-| `npm run test:all` | 全テスト（ユニット + 統合 + MakeCodeシミュレーター） |
-| `npm run audit:npm` | 全npm lockfileの high/critical 脆弱性監査 |
-
-#### ビルド
-
-| コマンド | 説明 |
-|---------|------|
-| `npm run build:hex` | Python版とMakeCode版の HEX ファイルを生成 |
-| `npm run build:hex:python` | Python HEX ファイルを生成 |
-| `npm run build:hex:makecode` | MakeCode HEX ファイルを生成 |
-
-## Cleanup Scripts
-
-中間ファイルやキャッシュを削除するスクリプトが利用可能です。
-
-```bash
-# すべてのプロジェクトをクリーンアップ
+./scripts/clean.sh --dry-run
 ./scripts/clean.sh
-
-# 特定プロジェクトのみクリーンアップ
-./scripts/clean.sh sample-compass
-./scripts/clean.sh sample-compass-ts
-./scripts/clean.sh sample-compass-makecode
 ```
 
-削除されるファイル（Git追跡中のパスは常に保持されます）：
-- **Python**: `__pycache__/`, `.pytest_cache/`, `.ruff_cache/`, `.mypy_cache/`, `.coverage`, `coverage.xml`, `htmlcov/`, `.venv/`
-- **Node.js / PXT**: `node_modules/`, `pxt_modules/`
-- **ビルド**: `dist/`, `build/`, `built/`
-- **キャッシュ**: `.jest-cache/`, `.pxt/`, `.nyc_output/`, `.cache/`, `coverage/`
-- **IDE**: `.vscode/`, `.idea/`, `.DS_Store`（プロジェクト指定時のみ）
-
-`package-lock.json`、`pnpm-lock.yaml`、`uv.lock` は再現可能なビルドに必要なため削除しません。事前確認には `./scripts/clean.sh --dry-run` を使えます。
-
-## プログラム概要
-
-### sample-compass（Python 実装）
-- **言語**: Python (MicroPython / MakeCode Python)
-- **テスト**: pytest（ユニットテスト + モック環境での統合テスト）
-- **特徴**:
-  - `compass.py`: 標準 MicroPython 向けの実装。未キャリブレーション時に "CAL" 警告をスクロール表示するエッジケース対応付き。
-  - `compass_makecode.py`: MakeCode Web エディタの Python モード（Static Python）との互換コード。ブロックへの相互変換が可能。
-- 詳細は [sample-compass/CLAUDE.md](./sample-compass/CLAUDE.md) を参照
-
-### sample-compass-ts（TypeScript 実装）
-- **言語**: TypeScript
-- **テスト**: Jest（ユニットテスト + Node.js上の統合テスト）
-- **ビルド**: npm run build で JavaScript に変換
-- **特徴**: 型安全な実装、豊富なテストカバレッジ。未キャリブレーション状態で状態取得時に明確な例外（`Error`）をスローする厳密なエラーハンドリングの学習用モデル。
-- 詳細は [sample-compass-ts/CLAUDE.md](./sample-compass-ts/CLAUDE.md) を参照
-
-### sample-compass-makecode（MakeCode 実装）
-- **プラットフォーム**: MakeCode Editor
-- **言語**: TypeScript/PXT
-- **特徴**: ビジュアルプログラミングと統合。テスト時にシミュレータ環境特有の undefined 例外を防ぐ `skipHardware` フラグやテストモードを搭載し、安全な自動テストが可能。
-- 詳細は [sample-compass-makecode/README.md](./sample-compass-makecode/README.md) を参照
+追跡中ファイルとlockfileは保持されます。
 
 ## ライセンス
 
-MIT License
-
-このプロジェクトはカスタムコードとして提供されています。
-自由に使用、変更、配布できます。
-
-詳細は各プロジェクトのディレクトリを参照してください。
-
-## 参考リンク
-
-- [micro:bit 公式ドキュメント](https://microbit.org/)
-- [MicroPython Documentation](https://microbit-micropython.readthedocs.io/)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [Intel HEX Format](https://en.wikipedia.org/wiki/Intel_HEX)
+[MIT License](./LICENSE)

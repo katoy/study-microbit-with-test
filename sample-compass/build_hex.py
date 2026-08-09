@@ -24,12 +24,17 @@ def _load_uflash():
 
 
 def validate_microbit_hex(hex_path: Path) -> None:
-    """Reject malformed HEX files and metadata-only placeholder artifacts."""
+    """Validate a Universal HEX containing firmware for micro:bit V1 and V2."""
     if not hex_path.is_file():
         raise ValueError(f"HEX compiler did not create {hex_path}")
 
     data_record_count = 0
     has_end_of_file = False
+    current_target = None
+    target_data_records = {
+        b"\x99\x00": 0,  # micro:bit V1
+        b"\x99\x03": 0,  # micro:bit V2
+    }
 
     try:
         lines = hex_path.read_text(encoding="ascii").splitlines()
@@ -53,15 +58,28 @@ def validate_microbit_hex(hex_path: Path) -> None:
             raise ValueError(f"Invalid Intel HEX checksum at line {line_number}")
 
         record_type = record[3]
-        if record_type == 0x00 and record[0] > 0:
+        record_data = record[4:-1]
+        if record_type in (0x00, 0x0C, 0x0D) and record[0] > 0:
             data_record_count += 1
+            if current_target in target_data_records:
+                expected_record_type = 0x0C if current_target == b"\x99\x00" else 0x0D
+                if record_type == expected_record_type:
+                    target_data_records[current_target] += 1
         elif record_type == 0x01:
             has_end_of_file = True
+        elif record_type == 0x0A and len(record_data) >= 2:
+            current_target = bytes(record_data[:2])
+        elif record_type == 0x0B:
+            current_target = None
 
     if data_record_count == 0:
         raise ValueError("HEX output contains no firmware data records")
     if not has_end_of_file:
         raise ValueError("HEX output has no end-of-file record")
+    if any(count == 0 for count in target_data_records.values()):
+        raise ValueError(
+            "Universal HEX must contain firmware blocks for micro:bit V1 and V2"
+        )
 
 
 def create_hex_from_python(

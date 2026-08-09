@@ -181,6 +181,22 @@ class TestCompass:
             # モックを復元
             compass_module.heading = original_heading
 
+    def test_get_heading_marks_compass_uncalibrated_for_minus_one(self):
+        """センサーの -1 応答は未校正状態として扱う"""
+        compass = Compass()
+        compass.calibrated = True
+        compass.heading = 90
+
+        from microbit import compass as compass_module
+        original_heading = compass_module.heading
+        compass_module.heading = lambda: -1
+
+        try:
+            assert compass.get_heading() == 90
+            assert compass.calibrated is False
+        finally:
+            compass_module.heading = original_heading
+
 
 if __name__ == '__main__':
     pytest.main([__file__, '-v'])

@@ -9,6 +9,15 @@ import build_hex
 
 METADATA_ONLY_HEX = ":020000040000FA\n:00000001FF\n"
 HEX_WITH_DATA = ":0400000001020304F2\n:00000001FF\n"
+UNIVERSAL_HEX = """\
+:0400000A9900C0DEBB
+:0100000C01F2
+:0000000BF5
+:0400000A9903C0DEB8
+:0100000D01F1
+:0000000BF5
+:00000001FF
+"""
 
 
 def test_validate_microbit_hex_rejects_a_file_without_firmware_data(tmp_path):
@@ -19,9 +28,17 @@ def test_validate_microbit_hex_rejects_a_file_without_firmware_data(tmp_path):
         build_hex.validate_microbit_hex(hex_path)
 
 
-def test_validate_microbit_hex_accepts_valid_intel_hex_data(tmp_path):
+def test_validate_microbit_hex_rejects_single_target_intel_hex(tmp_path):
     hex_path = tmp_path / "compass.hex"
     hex_path.write_text(HEX_WITH_DATA, encoding="ascii")
+
+    with pytest.raises(ValueError, match="Universal HEX"):
+        build_hex.validate_microbit_hex(hex_path)
+
+
+def test_validate_microbit_hex_accepts_v1_and_v2_universal_hex(tmp_path):
+    hex_path = tmp_path / "compass.hex"
+    hex_path.write_text(UNIVERSAL_HEX, encoding="ascii")
 
     build_hex.validate_microbit_hex(hex_path)
 

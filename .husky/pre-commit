@@ -25,6 +25,12 @@ if git diff --cached --name-only | grep -q "^sample-compass-ts/"; then
   echo "📝 sample-compass-ts のファイルが変更されています"
   cd sample-compass-ts
   
+  echo "🔨 TypeScript コンパイルチェックを実行中..."
+  if ! npm run build; then
+    echo "❌ TypeScript コンパイル失敗！commit をキャンセルしました。"
+    exit 1
+  fi
+  
   echo "🔨 TypeScript テストを実行中..."
   if npm test -- --runInBand; then
     echo "✅ TypeScript テスト成功！"

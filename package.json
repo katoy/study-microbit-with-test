@@ -1,0 +1,42 @@
+{
+  "name": "study-microbit-with-test",
+  "version": "1.0.0",
+  "description": "micro:bit 用方位磁石アプリケーション学習プロジェクト（ブロック・Python・TypeScript）",
+  "private": true,
+  "workspaces": [
+    "sample-compass-ts",
+    "sample-compass-makecode"
+  ],
+  "scripts": {
+    "test:all": "npm run test:python && npm run test:ts && npm run test:makecode",
+    "test:python": "cd sample-compass && uv run pytest test/test_simulator.py -v",
+    "test:ts": "npm --prefix sample-compass-ts run test:coverage",
+    "test:makecode": "npm --prefix sample-compass-makecode run test",
+    "integration": "npm run integration:python && npm run integration:ts",
+    "integration:python": "cd sample-compass && uv run pytest test/test_simulator.py -v",
+    "integration:ts": "npm --prefix sample-compass-ts run test:integration",
+    "test:config": "npm run test:config:ci",
+    "test:config:ci": "npm run audit:npm",
+    "lint": "npm run lint:python && npm run build:ts",
+    "lint:python": "cd sample-compass && uv run python -m py_compile src/compass_makecode.py",
+    "build:ts": "npm --prefix sample-compass-ts run build",
+    "build:hex": "cd sample-compass && uv run python -m uflash dist/hex/compass.hex && npm --prefix sample-compass-makecode run build",
+    "verify:blocks": "npm --prefix sample-compass run verify:blocks",
+    "audit:npm": "node scripts/audit-npm.js",
+    "clean": "bash scripts/clean.sh"
+  },
+  "keywords": [
+    "microbit",
+    "compass",
+    "python",
+    "typescript",
+    "makecode",
+    "education"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.23.2",
+    "npm": ">=10.0.0"
+  }
+}

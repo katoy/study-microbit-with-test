@@ -114,7 +114,41 @@ npm run build
 export type Direction = 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'NW';
 ```
 
-## 重要なクラス・インターフェース
+## コード品質チェック
+
+### ESLint（静的解析）
+```bash
+npm run lint          # リントチェック
+npm run lint:fix      # 自動修正
+```
+
+**設定** (`.eslintrc.json`):
+- TypeScript 型チェック有効
+- 厳密な型チェック（`no-any`）
+- 関数の戻り値型を必須（`explicit-function-return-types`）
+- 未使用変数を禁止（`no-unused-vars`）
+- strict boolean 式（`strict-boolean-expressions`）
+
+### Prettier（コード整形）
+```bash
+npm run format        # コード自動整形
+```
+
+**設定** (`.prettierrc.json`):
+- セミコロン: 有効
+- 引用符: シングル（TypeScript では一般的）
+- 行幅: 100字
+- インデント: 2スペース
+
+### TypeScript コンパイラ（型チェック）
+```bash
+npm run build         # TypeScript コンパイル＋型チェック
+```
+
+**設定** (`tsconfig.json`):
+- `strict: true` → すべての型チェックが有効
+- `noUnusedLocals: true` → 未使用の変数を検出
+- `noImplicitAny: true` → `any` 型を禁止
 
 ### `Direction` 型
 ```typescript

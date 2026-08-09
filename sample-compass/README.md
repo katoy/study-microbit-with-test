@@ -2,6 +2,8 @@
 
 [![Integration Tests](https://github.com/katoy/study-microbit-with-test/actions/workflows/integration-tests.yml/badge.svg?branch=main)](https://github.com/katoy/study-microbit-with-test/actions/workflows/integration-tests.yml)
 
+> **📚 参照**: プロジェクト全体については [`../README.md`](../README.md) を、開発ガイドについては [`CLAUDE.md`](./CLAUDE.md) を参照してください。
+
 micro:bit方位磁石のPython教材です。MakeCodeのブロックへ変換できるStatic Pythonを扱っています。
 
 ## 概要

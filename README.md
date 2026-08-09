@@ -57,7 +57,11 @@ uv sync --project sample-compass
 npm run test:all
 ```
 
-`npm run test:all` はユニット／統合／MakeCodeシミュレーターテストに加え、PythonとTypeScriptのカバレッジ検査を実行します。Pythonは100%未満なら失敗します。
+`npm run test:all` はユニット／統合／MakeCodeシミュレーターテストに加え、テストカバレッジ検査を実行します。
+
+**カバレッジ要件:**
+- **Python** (`sample-compass/src/compass_makecode.py`): 100% 以上（100% 未満なら失敗）
+- **TypeScript** (`sample-compass-ts/src/compass.ts`): 100% 以上（branches/functions/lines/statements）
 
 ## 3つの実装
 
@@ -134,15 +138,51 @@ npm run test:simulator:playwright
 `sync-ai-skills.sh` は学習に必須ではありません。既定ではファイルを変更せず、対象だけを表示します。
 
 ```bash
-./sync-ai-skills.sh          # dry-run
+./sync-ai-skills.sh          # dry-run（変更しない）
 ./sync-ai-skills.sh --apply  # 既存設定を日時付きバックアップして適用
 ```
 
-VS Code設定や、このリポジトリの `CLAUDE.md` は自動変更しません。
+**前提条件:**
+- `$HOME/.gemini/config/skills/` ディレクトリが存在すること（Gemini AI ツール向け）
+- 実行権限: `.skills/` 配下の `*.md` ファイルが読み取り可能であること
+- バックアップ先: `$HOME/.config/` が書き込み可能であること
+
+**同期対象:**
+| ツール | ファイル | 用途 |
+|--------|---------|------|
+| **Gemini (agy)** | `~/.gemini/config/GEMINI.md` | グローバルルール |
+| **Claude Code** | `~/.claudecode.md` | CLI ルール |
+| **Cursor (Codex)** | `~/.cursorrules` | デフォルトルール |
+
+**VS Code 統合** (自動ではなく手動):
+- `.vscode/settings.json` の `github.copilot.chat.codeGeneration.instructions` に CLAUDE.md をリンク
+
+詳細は [`./sync-ai-skills.sh`](./sync-ai-skills.sh) の内部コメントと [`docs/README.md`](./docs/README.md) を参照。
 
 ## CIと安全性
 
 GitHub ActionsはPython、TypeScript、MakeCode、統合テスト、リポジトリ設定、依存関係監査を分けて実行します。ローカルhooksは変更されたサブプロジェクトのテストをcommit/push前に実行します。CIを通すためだけにテスト失敗を無視する構成にはしていません。
+
+### npm 依存関係監査
+
+```bash
+npm run audit:npm
+```
+
+**スクリプト**: [`scripts/audit-npm.js`](./scripts/audit-npm.js)
+
+**機能**:
+- 複数の npm lockfile (`sample-compass-ts`, `sample-compass-makecode`) を一括監査
+- `high` 以上の脆弱性を検出
+- 例外（allowlist）をサポート（`security/.npm-audit-exceptions.json`）
+- CI では条件付き（既知脆弱性のみパス）で実行
+
+**前提条件**:
+- Node.js ≥ 14
+- npm ≥ 6
+- 実行権限: `scripts/audit-npm.js` が実行可能
+
+### 一時生成物の管理
 
 一時生成物の確認と削除には次を使います。
 
@@ -151,7 +191,30 @@ GitHub ActionsはPython、TypeScript、MakeCode、統合テスト、リポジト
 ./scripts/clean.sh
 ```
 
+**スクリプト**: [`scripts/clean.sh`](./scripts/clean.sh)
+
+**対象**:
+- ビルド出力: `dist/`, `built/`, `.pytest_cache/`
+- カバレッジ: `.coverage/`, `htmlcov/`
+- その他: `node_modules/`, `.venv/`
+
 追跡中ファイル、lockfile、`.vscode`／`.idea` のローカル設定は保持されます。Gitの保護判定やファイル走査に失敗した場合は、安全のため削除を中止します。
+
+## ドキュメント構造
+
+本プロジェクトのドキュメントは以下の構造で管理されています：
+
+| ドキュメント | 対象者 | 内容 |
+|---|---|---|
+| **README.md** (このファイル) | 全員 | プロジェクト全体の概要・クイックスタート・コマンド一覧 |
+| **CLAUDE.md** | AI アシスタント | プロジェクト全体の開発ガイド・コード品質ツール定義 |
+| **sample-compass/CLAUDE.md** | AI アシスタント (Python) | Python プロジェクト固有のガイド・テスト戦略 |
+| **sample-compass-ts/CLAUDE.md** | AI アシスタント (TypeScript) | TypeScript プロジェクト固有のガイド・テスト戦略 |
+| **GIT_HOOKS_GUIDE.md** | 開発者 | Git hooks の詳細・トラブルシューティング |
+| **MULTILANGUAGE_GUIDE.md** | 学習者 | 複数言語学習ガイド |
+| **WORKSHOP_TEMPLATE.md** | 講師 | 90分ワークショップテンプレート |
+
+**推奨**: 開発時は README を入口として、詳細は各 CLAUDE.md を参照してください。
 
 ## ライセンス
 

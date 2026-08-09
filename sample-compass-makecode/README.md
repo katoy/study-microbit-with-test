@@ -1,5 +1,7 @@
 # sample-compass-makecode: MakeCode/PXT版
 
+> **📚 参照**: プロジェクト全体については [`../README.md`](../README.md) をご覧ください。詳細な開発ガイドは本ディレクトリの `.vscode/CLAUDE.md` を参照。
+
 MakeCodeのブロック、TypeScript、シミュレーター、実機HEXをつなぐ方位磁石教材です。
 
 ## 動作

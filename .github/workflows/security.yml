@@ -82,8 +82,8 @@ jobs:
 
       - name: Export locked Python dependencies
         working-directory: sample-compass
-        run: uv export --locked --format requirements.txt --no-emit-project --output-file /tmp/study-microbit-requirements.txt
+        run: uv export --locked --format requirements.txt --no-emit-project
 
       - name: Audit Python dependencies
         working-directory: sample-compass
-        run: uvx pip-audit@2.10.1 --require-hashes --disable-pip -r /tmp/study-microbit-requirements.txt
+        run: uv export --locked --format requirements.txt --no-emit-project | uvx pip-audit@2.10.1 --require-hashes --disable-pip -r /dev/stdin

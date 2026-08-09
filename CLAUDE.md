@@ -137,6 +137,32 @@ cd sample-compass-ts
 npm install
 ```
 
+## コード品質ツール
+
+本プロジェクトは言語別に以下のツールで品質管理を行います：
+
+### Python (`sample-compass/`)
+| ツール | 役割 | 実行方法 |
+|--------|------|---------|
+| **py_compile** | 構文チェック | `uv run python -m py_compile src/compass_makecode.py` |
+| **ruff** (lint+format) | リント・整形 | `uv run ruff check/format src/compass_makecode.py` |
+| **pytest** | ユニット・シミュレーターテスト | `uv run pytest test/test_simulator.py -v` |
+| **pytest-cov** | テストカバレッジ | `uv run pytest --cov=src/compass_makecode.py` |
+
+### TypeScript (`sample-compass-ts/`)
+| ツール | 役割 | 実行方法 |
+|--------|------|---------|
+| **TypeScript (tsc)** | 型チェック・コンパイル | `npm run build` |
+| **ESLint** | 静的解析 | `npm run lint` |
+| **Prettier** | コード整形 | `npm run format` |
+| **Jest** | ユニット・統合テスト | `npm test` |
+
+### MakeCode (`sample-compass-makecode/`)
+| ツール | 役割 | 実行方法 |
+|--------|------|---------|
+| **PXT compiler** | ブロック/TS コンパイル | `npm run build` |
+| **PXT simulator** | シミュレーター実行 | `npm test` |
+
 ## TDD ワークフロー
 
 推奨される開発手順（Test-Driven Development）：

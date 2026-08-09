@@ -20,9 +20,9 @@ Dev Containerでは自動実行されます。
 
 | 変更パス | 実行内容 |
 |---|---|
-| `sample-compass/**` | Pythonユニット／HEX／統合テスト |
-| `sample-compass-ts/**` | Jestの全テスト |
-| `sample-compass-makecode/**` | PXTコンパイル／シミュレーターテスト |
+| `sample-compass/**` | Python構文チェック（`py_compile`） |
+| `sample-compass-ts/**` | TypeScriptコンパイル + Jest全テスト |
+| `sample-compass-makecode/**` | PXTコンパイル・シミュレーターテスト |
 
 テストが1つでも失敗するとcommitを中止します。
 
@@ -30,11 +30,15 @@ Dev Containerでは自動実行されます。
 
 送信するrefの差分を調べます。新規refでは送信ツリー全体を安全側に検査します。
 
-- Python変更: ユニット／HEX／統合テスト
-- TypeScript変更: Jestの全テスト
-- MakeCode変更: ビルド後、PXTコンパイル／シミュレーターテスト
+| 変更プロジェクト | 実行順序 | 内容 |
+|---|---|---|
+| **sample-compass** (Python) | 1 | Python構文チェック（`py_compile`） |
+| **sample-compass-ts** (TypeScript) | 2 | TypeScriptコンパイル → Jest全テスト |
+| **sample-compass-makecode** (MakeCode) | 3 | ビルド → PXTコンパイル・シミュレーターテスト |
 
-テスト失敗、差分取得失敗、ビルド失敗はpushを中止します。
+**テスト失敗、差分取得失敗、ビルド失敗はpushを中止します。**
+
+**重要**: TypeScriptは pre-commit で build を含め、pre-push でも build + test を実行します。これにより、型安全性とコンパイル可能性をcommit時点で確認できます。
 
 ## 手動の完全検査
 

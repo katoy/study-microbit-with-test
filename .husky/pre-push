@@ -4,7 +4,6 @@
 echo "🚀 Git push 前のテスト実行..."
 
 ZERO_SHA="0000000000000000000000000000000000000000"
-CHANGED_FILES=""
 FAILED_REFS=""
 FAILED_PROJECTS=""
 REPO_ROOT="$(git rev-parse --show-toplevel)"
@@ -56,7 +55,17 @@ while read -r local_ref local_sha remote_ref remote_sha; do
     echo "📦 sample-compass-ts のファイルが変更されています"
     cd "$REPO_ROOT/sample-compass-ts" || exit 1
     
-    echo "🧪 TypeScript ユニット & 統合テスト実行..."
+    echo "🔨 ステップ 1/2: TypeScript ビルド..."
+    if ! npm run build; then
+      echo "❌ TypeScript ビルド失敗（ref: $local_ref）"
+      FAILED_REFS="${FAILED_REFS} $local_ref"
+      FAILED_PROJECTS="${FAILED_PROJECTS} sample-compass-ts"
+      cd "$REPO_ROOT" || exit 1
+      continue
+    fi
+    echo "✅ Build 完了！"
+    
+    echo "🧪 ステップ 2/2: TypeScript ユニット & 統合テスト実行..."
     if ! npm test; then
       echo "❌ TypeScript テスト失敗（ref: $local_ref）"
       FAILED_REFS="${FAILED_REFS} $local_ref"

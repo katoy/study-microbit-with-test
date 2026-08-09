@@ -63,6 +63,21 @@ uv run pytest test/test_simulator.py -v
 - 層2（シミュレーター）: 全プッシュで実行、動作を完全検証
 - 層3（実機）: 本番環境/最終リリース時に実施
 
+### テストカバレッジ
+
+**対象**: `src/compass_makecode.py`
+
+```bash
+# カバレッジレポート付きテスト実行
+uv run pytest test/test_simulator.py --cov=src/compass_makecode.py --cov-report=html
+
+# 100% 達成を CI で検査（全テスト実行時）
+npm run test:python
+```
+
+- CI では 100% カバレッジが必須（`pyproject.toml` で設定）
+- 設計段階でテスト可能性を優先
+
 ## 環境設定
 
 ### 必須ツール
@@ -180,6 +195,32 @@ def calibrate_compass() -> None:
 - [ ] クラス使用は慎重に（MakeCode サポート限定）
 - [ ] 複雑な制御構文は避ける
 - [ ] シミュレーターテストで動作確認
+
+## コード品質チェック
+
+### Ruff（リンター + フォーマッター）
+```bash
+# リントチェック
+uv run ruff check src/compass_makecode.py
+
+# 自動修正
+uv run ruff check --fix src/compass_makecode.py
+
+# コード整形
+uv run ruff format src/compass_makecode.py
+```
+
+**設定** (`pyproject.toml` / `[tool.ruff]`):
+- 行幅: 100字
+- ターゲット: Python 3.12
+- ルール: E（エラー）, F（Pyflakes）, W（警告）, I（import）, N（命名）, UP（アップグレード）, B（バグベア）, C4（comprehension）
+- `E501`（行長）はoff（別途チェック）
+
+### 構文チェック
+```bash
+# MakeCode へのブロック変換前に実行
+uv run python -m py_compile src/compass_makecode.py
+```
 
 ## Git Hooks 連携
 

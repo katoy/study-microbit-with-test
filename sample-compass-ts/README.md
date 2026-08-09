@@ -2,6 +2,8 @@
 
 [![TypeScript Tests](https://github.com/katoy/study-microbit-with-test/actions/workflows/typescript-tests.yml/badge.svg)](https://github.com/katoy/study-microbit-with-test/actions/workflows/typescript-tests.yml)
 
+> **📚 参照**: プロジェクト全体については [`../README.md`](../README.md) を、開発ガイドについては [`CLAUDE.md`](./CLAUDE.md) を参照してください。
+
 方位磁石の状態と8方位変換を、ハードウェアから切り離して学ぶTypeScript教材です。MakeCodeプログラムではないため、このディレクトリからmicro:bit用HEXは生成しません。
 
 ## 学習テーマ

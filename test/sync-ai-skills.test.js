@@ -20,6 +20,7 @@ function createFixtureHome(t) {
   );
 
   for (const target of [
+    path.join(home, '.config/ai-global-rules.md'),
     path.join(home, '.cursorrules'),
     path.join(home, '.gemini/config/GEMINI.md'),
     path.join(home, '.claudecode.md')
@@ -41,7 +42,10 @@ test('AI skill sync is a non-mutating preview by default', t => {
 
   assert.match(output, /dry-run/i);
   assert.equal(fs.readFileSync(path.join(home, '.cursorrules'), 'utf8'), 'keep me\n');
-  assert.ok(!fs.existsSync(path.join(home, '.config/ai-global-rules.md')));
+  assert.equal(
+    fs.readFileSync(path.join(home, '.config/ai-global-rules.md'), 'utf8'),
+    'keep me\n'
+  );
 });
 
 test('AI skill sync backs up existing global rules before --apply', t => {
@@ -58,4 +62,6 @@ test('AI skill sync backs up existing global rules before --apply', t => {
   assert.ok(fs.readdirSync(path.join(home, '.gemini/config'))
     .some(name => name.startsWith('GEMINI.md.backup-')));
   assert.ok(fs.readdirSync(home).some(name => name.startsWith('.claudecode.md.backup-')));
+  assert.ok(fs.readdirSync(path.join(home, '.config'))
+    .some(name => name.startsWith('ai-global-rules.md.backup-')));
 });

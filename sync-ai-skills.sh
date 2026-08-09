@@ -34,8 +34,8 @@ fi
 if [ "$apply_changes" = false ]; then
   echo "[dry-run] No files will be changed."
   echo "Would merge SKILL.md files from: $skills_dir"
-  echo "Would create: $master_rules_file"
   echo "Would back up and replace:"
+  echo "  $master_rules_file"
   echo "  $cursor_rules_file"
   echo "  $agy_rules_file"
   echo "  $claude_code_rules_file"
@@ -43,7 +43,7 @@ if [ "$apply_changes" = false ]; then
   exit 0
 fi
 
-timestamp=$(date +%Y%m%d-%H%M%S)
+timestamp="$(date +%Y%m%d-%H%M%S)-$$"
 
 backup_and_link() {
   target=$1
@@ -58,6 +58,8 @@ backup_and_link() {
 }
 
 mkdir -p "$output_dir"
+temporary_rules_file="$output_dir/.ai-global-rules.md.tmp-$timestamp"
+trap 'rm -f "$temporary_rules_file"' EXIT
 {
   echo "# Global AI Rules & Custom Skills"
   echo ""
@@ -83,7 +85,15 @@ mkdir -p "$output_dir"
       !in_yaml { print }
     ' "$skill_file"
   done
-} > "$master_rules_file"
+} > "$temporary_rules_file"
+
+if [ -e "$master_rules_file" ] || [ -L "$master_rules_file" ]; then
+  master_backup_path="$master_rules_file.backup-$timestamp"
+  mv "$master_rules_file" "$master_backup_path"
+  echo "Backed up: $master_rules_file -> $master_backup_path"
+fi
+mv "$temporary_rules_file" "$master_rules_file"
+trap - EXIT
 
 backup_and_link "$cursor_rules_file"
 backup_and_link "$agy_rules_file"

@@ -80,6 +80,12 @@ async function runSimulatorTests(projectDirectory = __dirname) {
       'basic.pause(100);\ncompassTests.runAllTests();\n',
       'utf8'
     );
+    // targetVersions を省くと PXT が旧バージョン向けの upgrade ルールを適用し、
+    // 未使用の microphone パッケージを勝手に追加してビルドが失敗する
+    const projectConfig = JSON.parse(
+      fs.readFileSync(path.join(projectDirectory, 'pxt.json'), 'utf8')
+    );
+
     fs.writeFileSync(
       path.join(testDirectory, 'pxt.json'),
       `${JSON.stringify(
@@ -87,10 +93,10 @@ async function runSimulatorTests(projectDirectory = __dirname) {
           name: 'sample-compass-makecode-tests',
           dependencies: {
             core: '*',
-            microphone: '*',
           },
           files: ['main.ts', 'compass.ts', 'test.ts'],
           preferredEditor: 'tsprj',
+          targetVersions: projectConfig.targetVersions,
         },
         null,
         2

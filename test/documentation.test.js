@@ -64,3 +64,36 @@ test('canonical documentation has no broken relative links', () => {
 
   assert.deepEqual(brokenLinks, []);
 });
+
+test('learning path documents the zero-install start and coverage limitations', () => {
+  const rootReadme = fs.readFileSync(path.join(projectRoot, 'README.md'), 'utf8');
+  const guide = fs.readFileSync(path.join(projectRoot, 'MULTILANGUAGE_GUIDE.md'), 'utf8');
+  const workshop = fs.readFileSync(path.join(projectRoot, 'WORKSHOP_TEMPLATE.md'), 'utf8');
+
+  assert.match(rootReadme, /ステップ 0/);
+  assert.match(rootReadme, /インストール不要/);
+  assert.match(guide, /入力検証/);
+  assert.match(guide, /カバレッジ 100%.*バグゼロ/);
+  assert.match(guide, /16 方位/);
+  assert.match(workshop, /カバレッジ 100%.*バグゼロ/);
+
+  const preparation = workshop.match(/## 準備[\s\S]*?## 時間割/)[0];
+  const finalCheck = workshop.match(/## 80〜88分: 最終確認[\s\S]*?## 88〜90分/)[0];
+  assert.match(preparation, /npm run verify:blocks/);
+  assert.doesNotMatch(finalCheck, /npm run verify:blocks/);
+});
+
+test('each implementation README includes progressive learning exercises', () => {
+  for (const relativeFile of [
+    'sample-compass/README.md',
+    'sample-compass-ts/README.md',
+    'sample-compass-makecode/README.md'
+  ]) {
+    const readme = fs.readFileSync(path.join(projectRoot, relativeFile), 'utf8');
+    assert.match(readme, /## 学習課題/);
+    assert.match(readme, /16 方位/);
+    assert.match(readme, /移動平均/);
+    assert.match(readme, /傾き補正/);
+    assert.match(readme, /磁気干渉/);
+  }
+});

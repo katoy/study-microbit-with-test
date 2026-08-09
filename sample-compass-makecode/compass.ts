@@ -27,7 +27,18 @@ namespace Compass {
    * コンパスをキャリブレーションする
    */
   //% block="コンパスをキャリブレーション"
-  export function calibrate(skipHardware: boolean = false): void {
+  export function calibrate(): void {
+    calibrateInternal(false);
+  }
+
+  /**
+   * テスト用：ハードウェア API を呼ばずにキャリブレーション済みにする
+   */
+  export function calibrateForTest(): void {
+    calibrateInternal(true);
+  }
+
+  function calibrateInternal(skipHardware: boolean): void {
     if (!skipHardware && !_isTestMode) {
       input.calibrateCompass();
     }
@@ -51,7 +62,7 @@ namespace Compass {
     if (!_isTestMode) {
       _heading = input.compassHeading();
     }
-    // シミュレータや実機エラーで負の値（-1など）が返った場合は未キャリブレーションと判定
+    // 公式 API の範囲外でも壊れないかを考える、防御的プログラミングの練習
     if (_heading < 0) {
       _isCalibrated = false;
     }
@@ -87,6 +98,10 @@ namespace Compass {
   //% block="方位角 $heading 度の方角"
   //% heading.min=0 heading.max=359
   export function headingToDirection(heading: number): string {
+    if (heading != heading || heading < 0 || heading >= 360) {
+      return 'ERR';
+    }
+
     if (heading < 22.5 || heading >= 337.5) {
       return 'N';
     } else if (heading < 67.5) {

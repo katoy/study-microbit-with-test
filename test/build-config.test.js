@@ -38,6 +38,35 @@ test('MakeCode tests execute in the simulator from root scripts and CI', () => {
   assert.doesNotMatch(workflow, /npm run build \|\| true/);
 });
 
+test('MakeCode exposes no test-only block parameter or unused microphone dependency', () => {
+  const compassSource = fs.readFileSync(
+    path.join(projectRoot, 'sample-compass-makecode/compass.ts'),
+    'utf8'
+  );
+  const simulatorRunner = fs.readFileSync(
+    path.join(projectRoot, 'sample-compass-makecode/simulator-test-runner.cjs'),
+    'utf8'
+  );
+
+  assert.doesNotMatch(compassSource, /calibrate\(skipHardware/);
+  assert.match(compassSource, /export function calibrate\(\): void/);
+  assert.match(compassSource, /export function calibrateForTest\(\): void/);
+  assert.doesNotMatch(simulatorRunner, /microphone:/);
+
+  const pxtConfig = JSON.parse(
+    fs.readFileSync(path.join(projectRoot, 'sample-compass-makecode/pxt.json'), 'utf8')
+  );
+  assert.equal(Object.hasOwn(pxtConfig.dependencies, 'microphone'), false);
+
+  // targetVersions が無いと PXT が旧バージョン向けの upgrade ルールを適用し、
+  // pxt install のたびに microphone 依存を書き戻して pxt.json が汚れる
+  assert.ok(pxtConfig.targetVersions);
+  assert.match(pxtConfig.targetVersions.target, /^\d+\.\d+\.\d+$/);
+
+  // シミュレーターテスト用の一時プロジェクトにも同じ抑止が必要
+  assert.match(simulatorRunner, /targetVersions: projectConfig\.targetVersions/);
+});
+
 test('TypeScript lint preserves the compiler exit code', () => {
   assert.equal(
     rootPackage.scripts['lint:ts'],
@@ -51,12 +80,47 @@ test('Python README documents only implemented Compass methods', () => {
     'utf8'
   );
 
-  for (const method of ['calibrate', 'get_heading', 'get_direction', 'display_direction']) {
+  for (const method of [
+    'calibrate',
+    'is_calibrated',
+    'get_heading',
+    'get_direction',
+    'display_direction'
+  ]) {
     assert.match(readme, new RegExp(`\\b${method}\\(`));
   }
   for (const missingMethod of ['set_heading', 'get_calibrated', 'get_state']) {
     assert.doesNotMatch(readme, new RegExp(`\\b${missingMethod}\\(`));
   }
+});
+
+test('Python compass uses real API state and latched button presses', () => {
+  const source = fs.readFileSync(
+    path.join(projectRoot, 'sample-compass/compass.py'),
+    'utf8'
+  );
+  const conftest = fs.readFileSync(
+    path.join(projectRoot, 'sample-compass/conftest.py'),
+    'utf8'
+  );
+
+  assert.match(source, /compass\.is_calibrated\(\)/);
+  assert.match(source, /button_a\.was_pressed\(\)/);
+  assert.match(source, /'N': Image\.ARROW_N/);
+  assert.match(source, /display\.show\(DIRECTION_IMAGES\[direction\]\)/);
+  assert.doesNotMatch(source, /self\.calibrated/);
+  assert.doesNotMatch(source, /isinstance\(val/);
+  assert.match(conftest, /microbit\.compass\.heading\.return_value = 0/);
+});
+
+test('Python coverage configuration has one authoritative source setting', () => {
+  assert.equal(fs.existsSync(path.join(projectRoot, 'sample-compass/.coveragerc')), false);
+
+  const pyproject = fs.readFileSync(
+    path.join(projectRoot, 'sample-compass/pyproject.toml'),
+    'utf8'
+  );
+  assert.match(pyproject, /\[tool\.coverage\.run\][\s\S]*source = \["compass"\]/);
 });
 
 test('mocked workflows are named integration tests rather than end-to-end tests', () => {

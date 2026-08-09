@@ -23,7 +23,11 @@ def calibrate_compass():
     is_calibrated = True
 
 def get_direction_string(heading: number) -> str:
-    # 8方位判定（各方位は45度幅）
+    # 8 方位判定の前に有効範囲を確認する
+    if heading != heading or heading < 0 or heading >= 360:
+        return "ERR"
+
+    # 各方位は 45 度幅
     if heading < 22.5 or heading >= 337.5:
         return "N"
     elif heading < 67.5:
@@ -46,7 +50,7 @@ def on_button_pressed_a():
 input.on_button_pressed(Button.A, on_button_pressed_a)
 
 def on_button_pressed_b():
-    # ボタンBを押して現在の角度と方位を表示
+    # ボタン B を押して現在の角度と方位を表示
     global is_calibrated
     if not is_calibrated:
         basic.show_string("CAL?")

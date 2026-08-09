@@ -48,6 +48,7 @@ namespace compassTests {
     testWestDirection();
     testNorthWestDirection();
     testBoundaryValues();
+    testInvalidHeadings();
     testCalibrationAndErrors();
 
     tests.summary();
@@ -117,6 +118,13 @@ namespace compassTests {
     tests.assertEqual(Compass.headingToDirection(337.4), 'NW', '337.4 度は NW と N の境界');
   }
 
+  function testInvalidHeadings(): void {
+    console.log('\n無効な方位角テスト');
+    tests.assertEqual(Compass.headingToDirection(-5), 'ERR', '-5 度は無効');
+    tests.assertEqual(Compass.headingToDirection(400), 'ERR', '400 度は無効');
+    tests.assertEqual(Compass.headingToDirection(NaN), 'ERR', 'NaN は無効');
+  }
+
   function testCalibrationAndErrors(): void {
     console.log('\nキャリブレーションとエラーのテスト');
     
@@ -125,8 +133,8 @@ namespace compassTests {
     tests.assertEqual(Compass.isCalibrated(), false, '初期状態は未校正');
     tests.assertEqual(Compass.getDirection(), 'CAL', '未校正状態の getDirection() は CAL');
     
-    // キャリブレーション実行（テストなのでハードウェアAPIの呼び出しをスキップ）
-    Compass.calibrate(true);
+    // テスト専用 API でハードウェア API の呼び出しをスキップする
+    Compass.calibrateForTest();
     tests.assertEqual(Compass.isCalibrated(), true, '校正後は isCalibrated() が true');
     
     // テスト用のダミー方位角を設定して正常動作確認

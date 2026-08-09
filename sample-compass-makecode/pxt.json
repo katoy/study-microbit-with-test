@@ -3,8 +3,7 @@
     "version": "1.0.0",
     "description": "micro:bit 用方位磁石アプリケーション（MakeCode 版）",
     "dependencies": {
-        "core": "*",
-        "microphone": "*"
+        "core": "*"
     },
     "files": [
         "main.ts",
@@ -14,6 +13,9 @@
         "test.ts"
     ],
     "public": true,
+    "targetVersions": {
+        "target": "9.1.1"
+    },
     "preferredEditor": "tsprj",
     "installedVersion": "1.0.0"
 }

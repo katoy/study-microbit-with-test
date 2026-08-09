@@ -83,22 +83,27 @@ uv run pytest --cov=compass --cov-report=html
   ```
 
 ### クラス設計
-- Compass クラスは micro:bit API に依存しない
-- テストでは MockCompass を使用（デバイスなしでテスト可能）
-- インスタンス変数: `self.heading`, `self.calibrated`
+- Compass クラスはモジュール境界で micro:bit API に依存する
+- テストでは `conftest.py` が `microbit` モジュールを `MagicMock` に置き換える
+- 統合テストは `microbit.compass.heading.return_value` から実機入力を与える
+- インスタンス変数は前回の有効値を保持する `self.heading` のみとし、校正状態は `compass.is_calibrated()` から取得する
 
 ## 重要なメソッド
 
 | メソッド | 説明 | 戻り値 |
 |---------|------|--------|
 | `calibrate()` | キャリブレーション実行 | None |
+| `is_calibrated()` | 実機 API のキャリブレーション状態を取得 | bool |
 | `get_heading()` | 現在の方位角を取得 | int (0-359) |
 | `get_direction()` | 現在の方角を取得 | str (N/NE/E/SE/S/SW/W/NW) |
 | `_heading_to_direction(heading)` | 方位角を方角に変換 | str |
 
 ## テスト戦略
 
-### ユニットテスト (test_compass.py) - 13個
+### ユニットテスト (test_compass.py)
+
+テスト件数は固定せず、`uv run pytest` の実行結果を現在の正として扱う。
+
 - 初期化状態の確認
 - キャリブレーション状態の更新
 - 8方位すべての判定
@@ -111,8 +116,8 @@ uv run pytest --cov=compass --cov-report=html
 - 北でのラップアラウンド（359° → 0°）
 - 360° 連続回転シミュレーション
 - 複数インスタンスの独立動作
-- 無効な入力の拒否
-- パフォーマンステスト（10000回実行）
+- 実機 API の校正状態とエラー時キャッシュ
+- 多数回更新後の結果が正しいことを確認する決定的テスト
 
 ## よくある作業
 
@@ -123,9 +128,7 @@ uv run pytest --cov=compass --cov-report=html
 # test_compass.py に追加
 def test_new_direction():
     """新しい方角判定のテスト"""
-    compass = MockCompass()
-    compass.heading = 50  # NE方向
-    assert compass.get_direction() == 'NE'
+    assert Compass._heading_to_direction(50) == 'NE'
 ```
 
 **統合テスト**:
@@ -133,8 +136,10 @@ def test_new_direction():
 # test_compass_integration.py の TestCompassIntegration クラスに追加
 def test_new_scenario(self, compass):
     """新しいシナリオのテスト"""
+    from microbit import compass as compass_sensor
+
     compass.calibrate()
-    compass.heading = 90
+    compass_sensor.heading.return_value = 90
     assert compass.get_direction() == 'E'
 ```
 

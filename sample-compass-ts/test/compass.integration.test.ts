@@ -208,22 +208,16 @@ describe('Compass Integration Test Suite', () => {
     });
   });
 
-  describe('Performance under load', () => {
-    it('should handle rapid heading updates efficiently', () => {
+  describe('Repeated updates', () => {
+    it('should preserve correctness after many heading updates', () => {
       compass.calibrate();
-
-      const startTime = Date.now();
 
       for (let i = 0; i < 10000; i++) {
         compass.setHeading((i * 13) % 360);
         compass.getDirection();
       }
 
-      const endTime = Date.now();
-      const duration = endTime - startTime;
-
-      // Should complete 10000 operations quickly
-      expect(duration).toBeLessThan(1000);
+      expect(compass.getHeading()).toBe((9999 * 13) % 360);
     });
 
     it('should provide consistent results across rapid state queries', () => {

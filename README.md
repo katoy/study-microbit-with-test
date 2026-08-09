@@ -25,6 +25,17 @@ micro:bit の方位磁石を題材に、ブロック、Python、TypeScript、自
 
 ## すぐに始める
 
+### ステップ 0: インストール不要で LED を光らせる
+
+最初の 5 分はセットアップをせず、ブラウザーだけで MakeCode Python 版を動かします。
+
+1. <https://makecode.microbit.org/> で新しいプロジェクトを作る
+2. Python へ切り替え、[`sample-compass/compass_makecode.py`](./sample-compass/compass_makecode.py) の内容を貼り付ける
+3. シミュレーターの A ボタンで校正し、LED の方位表示を確認する
+4. 実機があればダウンロードした HEX を転送する
+
+ブロックへ切り替えると、同じプログラムをブロックでも観察できます。開発環境と自動テストは、動きを確認した後で準備します。
+
 ### Dev Container / Codespaces
 
 リポジトリをDev Containerで開くと、`.devcontainer/setup-dev.sh` が依存関係を導入し、完全な品質ゲートを実行します。成功を隠さない fail-fast 構成です。

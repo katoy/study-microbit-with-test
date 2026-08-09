@@ -82,7 +82,7 @@ npm run build:hex
 
 HEXをmicro:bitのUSBドライブへコピーします。初回や周囲の磁場が変わった場合は校正してください。詳細は [HEX_BUILD_GUIDE.md](./HEX_BUILD_GUIDE.md) を参照してください。
 
-ブロック互換性を含めて確認する場合は `npm run verify:blocks` を実行します。この検査はMakeCode WebとPlaywrightを使うため、ネットワーク接続が必要です。成功条件は、ソース注入、ブロックワークスペース表示、変換エラー0、グレーブロック0です。
+ブロック互換性を含めて確認する場合は `npm run verify:blocks` を実行します。この検査はMakeCode WebとPlaywrightを使うため、ネットワーク接続が必要です。成功条件は、ソース注入、ブロックワークスペース表示、変換エラー0、グレーブロック0です。ブロック表示対応HEXは `sample-compass/dist/hex/blocks.hex` と `sample-compass-makecode/built/blocks.hex` に生成され、通常ビルドの成果物を上書きしません。
 
 ## MakeCode Webとの行き来
 

@@ -135,7 +135,7 @@ PythonとMakeCodeのHEXをそれぞれ確認し、どちらか一方をmicro:bit
 npm run verify:blocks
 ```
 
-MakeCode Webでエラーなし、グレーブロックなし、編集可能ワークスペースありを確認します。ネットワークがなければ、MakeCodeシミュレーターテストの結果を再確認します。
+MakeCode Webでエラーなし、グレーブロックなし、編集可能ワークスペースありを確認します。成果物は `sample-compass/dist/hex/blocks.hex` と `sample-compass-makecode/built/blocks.hex` です。ネットワークがなければ、MakeCodeシミュレーターテストの結果を再確認します。
 
 ## 88〜90分: 振り返り
 

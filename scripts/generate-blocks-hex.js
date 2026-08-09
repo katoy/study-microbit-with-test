@@ -10,11 +10,11 @@ function getBlocksHexOutputPaths(rootDirectory) {
   return {
     python: path.join(
       rootDirectory,
-      'sample-compass/dist/hex/binary.hex'
+      'sample-compass/dist/hex/blocks.hex'
     ),
     makecode: path.join(
       rootDirectory,
-      'sample-compass-makecode/built/binary.hex'
+      'sample-compass-makecode/built/blocks.hex'
     )
   };
 }

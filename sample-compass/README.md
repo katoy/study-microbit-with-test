@@ -74,7 +74,7 @@ HEXをUSB接続したmicro:bitドライブへコピーし、実機で校正と�
 npm run verify:blocks
 ```
 
-ネットワーク接続が必要です。
+ブロック表示対応HEXは `dist/hex/blocks.hex` に生成されます。ネットワーク接続が必要です。
 
 ## 学習課題
 

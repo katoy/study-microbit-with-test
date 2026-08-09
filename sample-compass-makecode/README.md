@@ -76,7 +76,7 @@ GitHub連携を使う場合は、`sample-compass-makecode` の内容を専用リ
 npm run verify:blocks
 ```
 
-PlaywrightがMakeCode WebでTypeScriptをブロックへ切り替え、変換エラー、グレーブロック、ワークスペース欠落を検査します。ネットワーク接続が必要です。
+PlaywrightがMakeCode WebでTypeScriptをブロックへ切り替え、変換エラー、グレーブロック、ワークスペース欠落を検査します。ブロック表示対応HEXは `built/blocks.hex` に生成され、通常のPXTビルドが生成する `built/binary.hex` を上書きしません。ネットワーク接続が必要です。
 
 ## ファイル
 

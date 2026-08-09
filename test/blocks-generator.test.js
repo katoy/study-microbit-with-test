@@ -8,29 +8,43 @@ const {
   getBlocksHexOutputPaths
 } = require('../scripts/generate-blocks-hex');
 
-test('block HEX outputs use the program-name-independent binary.hex name', () => {
+test('block HEX outputs use the program-name-independent blocks.hex name', () => {
   const rootDirectory = path.resolve('/workspace/project');
   const outputPaths = getBlocksHexOutputPaths(rootDirectory);
 
   assert.equal(
     outputPaths.python,
-    path.join(rootDirectory, 'sample-compass/dist/hex/binary.hex')
+    path.join(rootDirectory, 'sample-compass/dist/hex/blocks.hex')
   );
   assert.equal(
     outputPaths.makecode,
-    path.join(rootDirectory, 'sample-compass-makecode/built/binary.hex')
+    path.join(rootDirectory, 'sample-compass-makecode/built/blocks.hex')
   );
 });
 
-test('the generator skill documents the fixed binary.hex output paths', () => {
+test('the MakeCode block HEX output does not overwrite the PXT build output', () => {
+  const rootDirectory = path.resolve('/workspace/project');
+  const outputPaths = getBlocksHexOutputPaths(rootDirectory);
+  const pxtOutputPath = path.join(
+    rootDirectory,
+    'sample-compass-makecode/built/binary.hex'
+  );
+
+  assert.notEqual(outputPaths.makecode, pxtOutputPath);
+});
+
+test('the generator skill documents the fixed blocks.hex output paths', () => {
   const skill = fs.readFileSync(
     path.resolve(__dirname, '../skills/microbit-generate-blocks-hex/SKILL.md'),
     'utf8'
   );
 
-  assert.match(skill, /sample-compass\/dist\/hex\/binary\.hex/);
-  assert.match(skill, /sample-compass-makecode\/built\/binary\.hex/);
-  assert.doesNotMatch(skill, /compass_makecode_blocks|binary_blocks/);
+  assert.match(skill, /sample-compass\/dist\/hex\/blocks\.hex/);
+  assert.match(skill, /sample-compass-makecode\/built\/blocks\.hex/);
+  assert.doesNotMatch(
+    skill,
+    /compass_makecode_blocks|binary_blocks|dist\/hex\/binary\.hex/
+  );
 });
 
 test('block conversion accepts an editable workspace without errors', () => {

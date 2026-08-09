@@ -118,6 +118,11 @@ npm run verify:blocks
 
 > ネットワーク接続がある環境では、MakeCode Webへソースを読み込み、ブロックへ変換します。エラーダイアログ、編集できないグレーブロック、ワークスペース欠落は失敗になります。MakeCode Pythonには `compass_makecode.py` を使います。
 
+画面: 通常ビルドと衝突しない2つの生成先。
+
+- `sample-compass/dist/hex/blocks.hex`
+- `sample-compass-makecode/built/blocks.hex`
+
 ## 17:30〜18:00 まとめ
 
 ナレーション:

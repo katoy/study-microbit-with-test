@@ -39,6 +39,21 @@ npm run build:hex:makecode
 
 どちらかのコンパイラが失敗した場合、一括ビルドも失敗します。
 
+## ブロック表示対応HEX
+
+MakeCode Webでブロックへ戻せることまで確認したHEXは、ルートで次を実行して生成します。
+
+```bash
+npm run verify:blocks
+```
+
+生成先は次の2つです。プログラム名に依存しない固定名を使い、通常ビルドの成果物とは分離します。
+
+- `sample-compass/dist/hex/blocks.hex`
+- `sample-compass-makecode/built/blocks.hex`
+
+MakeCode WebとPlaywrightを使うため、ネットワーク接続が必要です。
+
 ## MicroPython版
 
 ```bash

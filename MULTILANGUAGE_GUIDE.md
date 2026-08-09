@@ -130,7 +130,7 @@ npm run build:hex
 npm run verify:blocks
 ```
 
-このコマンドは変換エラー、グレーブロック、Blocklyワークスペース欠落を失敗として扱います。
+このコマンドは変換エラー、グレーブロック、Blocklyワークスペース欠落を失敗として扱い、ブロック表示対応HEXを `sample-compass/dist/hex/blocks.hex` と `sample-compass-makecode/built/blocks.hex` に生成します。
 
 ## 振り返り
 

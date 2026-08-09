@@ -44,7 +44,7 @@ jobs:
       working-directory: ./sample-compass-ts
       run: |
         echo "🚀 TypeScript 統合テストを実行中..."
-        npm run test:integration -- -v
+        npm run test:integration -- --verbose
         echo "✅ TypeScript 統合テスト完了"
 
     # MakeCode コンパイル・シミュレーターテスト

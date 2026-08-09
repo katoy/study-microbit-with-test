@@ -17,44 +17,66 @@ interface CompassState {
   isCalibrated: boolean;
 }
 
-/**
- * %block="コンパス" icon="\uf14e"
- */
+//% color="#E74C3C" icon="\uf14e" block="コンパス"
 namespace Compass {
   let _heading: number = 0;
   let _isCalibrated: boolean = false;
+  let _isTestMode: boolean = false;
 
   /**
    * コンパスをキャリブレーションする
-   * %block="コンパスをキャリブレーション"
    */
-  export function calibrate(): void {
-    input.calibrateCompass();
+  //% block="コンパスをキャリブレーション"
+  export function calibrate(skipHardware: boolean = false): void {
+    if (!skipHardware && !_isTestMode) {
+      input.calibrateCompass();
+    }
+    _isCalibrated = true;
+  }
+
+  /**
+   * テスト用：シミュレータテスト環境でのテストモードを有効にし、度数を設定する
+   */
+  export function setHeadingForTest(heading: number): void {
+    _heading = heading;
+    _isTestMode = true;
     _isCalibrated = true;
   }
 
   /**
    * 現在の方位角を取得する（0-359 度）
-   * %block="コンパスの度数 (度)"
    */
+  //% block="コンパスの度数 (度)"
   export function getHeading(): number {
-    _heading = input.compassHeading();
+    if (!_isTestMode) {
+      _heading = input.compassHeading();
+    }
+    // シミュレータや実機エラーで負の値（-1など）が返った場合は未キャリブレーションと判定
+    if (_heading < 0) {
+      _isCalibrated = false;
+    }
     return _heading;
   }
 
   /**
    * 現在の方角を取得する（8 方位）
-   * %block="コンパスの方角"
    */
+  //% block="コンパスの方角"
   export function getDirection(): string {
+    if (!_isCalibrated) {
+      return 'CAL';
+    }
     const heading = getHeading();
+    if (heading < 0) {
+      return 'ERR';
+    }
     return headingToDirection(heading);
   }
 
   /**
    * キャリブレーション状態を取得する
-   * %block="コンパスはキャリブレーション済み"
    */
+  //% block="コンパスはキャリブレーション済み"
   export function isCalibrated(): boolean {
     return _isCalibrated;
   }
@@ -84,12 +106,15 @@ namespace Compass {
 
   /**
    * デバッグ用：現在の状態を表示
-   * %block="コンパス状態を表示"
    */
+  //% block="コンパス状態を表示"
   export function showState(): void {
+    if (!_isCalibrated) {
+      basic.showString('CAL?');
+      return;
+    }
     const heading = getHeading();
     const direction = getDirection();
-    const calibrated = isCalibrated() ? 'OK' : 'NG';
     basic.showString(direction);
     basic.showNumber(heading);
   }

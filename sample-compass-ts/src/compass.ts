@@ -42,6 +42,9 @@ export class Compass {
    * 注: 実装では内部値を返す。実デバイスでは compass.heading() を呼ぶ
    */
   public getHeading(): number {
+    if (!this.isCalibrated) {
+      throw new Error('Compass not calibrated');
+    }
     return this.heading;
   }
 
@@ -57,6 +60,9 @@ export class Compass {
    * 現在の方角を取得する（8 方位）
    */
   public getDirection(): Direction {
+    if (!this.isCalibrated) {
+      throw new Error('Compass not calibrated');
+    }
     return this.headingToDirection(this.heading);
   }
 
@@ -71,6 +77,9 @@ export class Compass {
    * 状態を取得する
    */
   public getState(): CompassState {
+    if (!this.isCalibrated) {
+      throw new Error('Compass not calibrated');
+    }
     return {
       heading: this.heading,
       direction: this.getDirection(),
@@ -125,11 +134,17 @@ export class Compass {
 export function main(): void {
   const compass = new Compass();
 
+  try {
+    // 未校正状態での取得は例外を発生させる
+    compass.getDirection();
+  } catch (error: any) {
+    console.log(`初期警告: ${error.message}`);
+  }
+
   // キャリブレーション実行
   compass.calibrate();
 
-  // ループで定期的に方角を更新・表示（疑似コード）
-  // 実装時は micro:bit の display API や button イベントを使用
+  // キャリブレーション後は正常に状態取得可能
   const state = compass.getState();
   console.log(`方角: ${state.direction}, 度数: ${state.heading}°`);
 }

@@ -14,6 +14,22 @@
 テスト件数は各テストランナーの出力を正とします。
 
 
+## AIアシスタント向けカスタムスキル同期
+
+本プロジェクトには、Antigravity（`agy`）、Claude Code、GitHub Copilot、Cursor（Codex）などの各種AIアシスタント間で、開発ガイドやカスタムルール（Skills）をグローバル共有・同期するためのスクリプトが用意されています。
+
+### 同期手順
+```bash
+# スキルをマージして各AIツールのグローバル設定に同期
+./sync-ai-skills.sh
+```
+
+### 同期対象と効果
+- **Antigravity (agy)**: `~/.gemini/config/GEMINI.md` に同期され、`agy` がすべてのカスタムルールをグローバルに認識します。
+- **Claude Code (CLI)**: `~/.claudecode.md` に同期されるほか、ローカルに `CLAUDE.md` としてマージルールをリンクさせることで、即座にプロジェクトに反映できます。
+- **GitHub Copilot**: VS Code の `settings.json`（`github.copilot.chat.codeGeneration.instructions`）に自動登録されます。
+- **Cursor (Codex)**: グローバルな `~/.cursorrules` にシンボリックリンクされ、デフォルトルールとして動作します。
+
 ## クイックスタート
 
 ### プロジェクト別ガイド

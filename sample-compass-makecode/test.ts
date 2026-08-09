@@ -48,6 +48,7 @@ namespace compassTests {
     testWestDirection();
     testNorthWestDirection();
     testBoundaryValues();
+    testCalibrationAndErrors();
 
     tests.summary();
   }
@@ -114,5 +115,22 @@ namespace compassTests {
     tests.assertEqual(Compass.headingToDirection(67.4), 'NE', '67.4 度は NE と E の境界');
     tests.assertEqual(Compass.headingToDirection(202.4), 'S', '202.4 度は S と SW の境界');
     tests.assertEqual(Compass.headingToDirection(337.4), 'NW', '337.4 度は NW と N の境界');
+  }
+
+  function testCalibrationAndErrors(): void {
+    console.log('\nキャリブレーションとエラーのテスト');
+    
+    // 初期状態は simulator-test-runner.cjs 内で pxt run される時点では
+    // _isCalibrated が false のまま
+    tests.assertEqual(Compass.isCalibrated(), false, '初期状態は未校正');
+    tests.assertEqual(Compass.getDirection(), 'CAL', '未校正状態の getDirection() は CAL');
+    
+    // キャリブレーション実行（テストなのでハードウェアAPIの呼び出しをスキップ）
+    Compass.calibrate(true);
+    tests.assertEqual(Compass.isCalibrated(), true, '校正後は isCalibrated() が true');
+    
+    // テスト用のダミー方位角を設定して正常動作確認
+    Compass.setHeadingForTest(0);
+    tests.assertEqual(Compass.getDirection(), 'N', '校正後のデフォルト角(0)は北(N)');
   }
 }

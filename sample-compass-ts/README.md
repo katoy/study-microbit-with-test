@@ -2,6 +2,9 @@
 
 micro:bit 用の TypeScript 実装による方位磁石アプリケーション
 
+> [!NOTE]  
+> AIアシスタント（Antigravity, Claude, Copilot, Cursor）の環境設定や、プロジェクト共通のカスタムスキル同期方法については、ルートの [`../README.md`](file:///Users/katoy/github/study-microbit-with-test/README.md#aiアシスタント連携) を参照してください。
+
 ## Table of Contents
 
 - [機能](#機能)

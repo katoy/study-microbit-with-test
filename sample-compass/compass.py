@@ -31,8 +31,13 @@ class Compass:
             val = compass.heading()
             # テスト環境（MagicMock）では数値ではないため、数値の場合のみ self.heading を更新
             if isinstance(val, (int, float)) and not isinstance(val, bool):
-                self.heading = val
+                if val == -1:
+                    # micro:bit API では、未校正やエラーの場合に -1 を返すことがある
+                    self.calibrated = False
+                else:
+                    self.heading = val
         except (OSError, RuntimeError):
+            # センサーエラー時は前回の有効値を返す
             return self.heading
         return self.heading
 
@@ -78,7 +83,12 @@ class Compass:
     def display_direction(self):
         """
         ディスプレイに現在の方向を表示する
+        キャリブレーションされていない場合は 'CAL' を表示して促す
         """
+        if not self.calibrated:
+            display.scroll("CAL")
+            return
+            
         direction = self.get_direction()
         heading = self.get_heading()
         display.scroll(f"{direction} {heading}")

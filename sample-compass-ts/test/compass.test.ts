@@ -14,12 +14,15 @@ describe('Compass クラス', () => {
 
   describe('初期化', () => {
     test('コンストラクタが正しく初期化される', () => {
-      expect(compass.getHeading()).toBe(0);
       expect(compass.getIsCalibrated()).toBe(false);
     });
 
-    test('初期状態の方角は北（N）である', () => {
-      expect(compass.getDirection()).toBe('N');
+    test('未キャリブレーション状態で getHeading() はエラーを投げる', () => {
+      expect(() => compass.getHeading()).toThrow('Compass not calibrated');
+    });
+
+    test('未キャリブレーション状態で getDirection() はエラーを投げる', () => {
+      expect(() => compass.getDirection()).toThrow('Compass not calibrated');
     });
   });
 
@@ -32,6 +35,10 @@ describe('Compass クラス', () => {
   });
 
   describe('方位角の設定と取得', () => {
+    beforeEach(() => {
+      compass.calibrate();
+    });
+
     test('setHeading() で方位角が正しく設定される', () => {
       compass.setHeading(45);
       expect(compass.getHeading()).toBe(45);
@@ -57,6 +64,10 @@ describe('Compass クラス', () => {
   });
 
   describe('北方向（N）の判定', () => {
+    beforeEach(() => {
+      compass.calibrate();
+    });
+
     test('0 度は北（N）', () => {
       compass.setHeading(0);
       expect(compass.getDirection()).toBe('N');
@@ -79,6 +90,10 @@ describe('Compass クラス', () => {
   });
 
   describe('北東方向（NE）の判定', () => {
+    beforeEach(() => {
+      compass.calibrate();
+    });
+
     test('45 度は北東（NE）', () => {
       compass.setHeading(45);
       expect(compass.getDirection()).toBe('NE');
@@ -96,6 +111,10 @@ describe('Compass クラス', () => {
   });
 
   describe('東方向（E）の判定', () => {
+    beforeEach(() => {
+      compass.calibrate();
+    });
+
     test('90 度は東（E）', () => {
       compass.setHeading(90);
       expect(compass.getDirection()).toBe('E');
@@ -113,6 +132,10 @@ describe('Compass クラス', () => {
   });
 
   describe('南東方向（SE）の判定', () => {
+    beforeEach(() => {
+      compass.calibrate();
+    });
+
     test('135 度は南東（SE）', () => {
       compass.setHeading(135);
       expect(compass.getDirection()).toBe('SE');
@@ -130,6 +153,10 @@ describe('Compass クラス', () => {
   });
 
   describe('南方向（S）の判定', () => {
+    beforeEach(() => {
+      compass.calibrate();
+    });
+
     test('180 度は南（S）', () => {
       compass.setHeading(180);
       expect(compass.getDirection()).toBe('S');
@@ -147,6 +174,10 @@ describe('Compass クラス', () => {
   });
 
   describe('南西方向（SW）の判定', () => {
+    beforeEach(() => {
+      compass.calibrate();
+    });
+
     test('225 度は南西（SW）', () => {
       compass.setHeading(225);
       expect(compass.getDirection()).toBe('SW');
@@ -164,6 +195,10 @@ describe('Compass クラス', () => {
   });
 
   describe('西方向（W）の判定', () => {
+    beforeEach(() => {
+      compass.calibrate();
+    });
+
     test('270 度は西（W）', () => {
       compass.setHeading(270);
       expect(compass.getDirection()).toBe('W');
@@ -181,6 +216,10 @@ describe('Compass クラス', () => {
   });
 
   describe('北西方向（NW）の判定', () => {
+    beforeEach(() => {
+      compass.calibrate();
+    });
+
     test('315 度は北西（NW）', () => {
       compass.setHeading(315);
       expect(compass.getDirection()).toBe('NW');
@@ -198,6 +237,10 @@ describe('Compass クラス', () => {
   });
 
   describe('境界値テスト', () => {
+    beforeEach(() => {
+      compass.calibrate();
+    });
+
     test('22.5 度は NE と N の境界', () => {
       compass.setHeading(22.4);
       expect(compass.getDirection()).toBe('N');
@@ -271,6 +314,7 @@ describe('Compass クラス', () => {
     });
 
     test('getState() が複数回呼び出されても一貫性がある', () => {
+      compass.calibrate();
       compass.setHeading(225);
 
       const state1 = compass.getState();

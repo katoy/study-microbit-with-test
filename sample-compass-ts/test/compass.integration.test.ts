@@ -14,17 +14,15 @@ describe('Compass Integration Test Suite', () => {
   });
 
   describe('Complete compass workflow', () => {
-    it('should initialize compass and perform basic heading check', () => {
+    it('should initialize compass and verify it throws errors when not calibrated', () => {
       // Arrange
       const compass = new Compass();
 
-      // Act
-      const initialState = compass.getState();
-
-      // Assert
-      expect(initialState.heading).toBe(0);
-      expect(initialState.isCalibrated).toBe(false);
-      expect(initialState.direction).toBe('N');
+      // Act & Assert
+      expect(compass.getIsCalibrated()).toBe(false);
+      expect(() => compass.getHeading()).toThrow('Compass not calibrated');
+      expect(() => compass.getDirection()).toThrow('Compass not calibrated');
+      expect(() => compass.getState()).toThrow('Compass not calibrated');
     });
 
     it('should calibrate and maintain state', () => {
@@ -244,43 +242,39 @@ describe('Compass Integration Test Suite', () => {
   });
 
   describe('Main function', () => {
-    it('should execute main function without errors', () => {
-      // Import main after Compass is defined
-      const { main } = require('../src/compass');
+    let consoleSpy: jest.SpyInstance;
 
-      // Arrange & Act
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+    beforeEach(() => {
+      consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+    });
 
-      // Act
-      main();
-
-      // Assert
-      expect(consoleSpy).toHaveBeenCalled();
-      const callArgs = consoleSpy.mock.calls[0][0];
-      expect(callArgs).toMatch(/方角/);
-      expect(callArgs).toMatch(/度数/);
-
-      // Cleanup
+    afterEach(() => {
       consoleSpy.mockRestore();
     });
 
-    it('should initialize compass and get state in main', () => {
-      // Import main after Compass is defined
+    it('should execute main function without errors', () => {
       const { main } = require('../src/compass');
-
-      // Arrange
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
       // Act
       main();
 
       // Assert
-      expect(consoleSpy).toHaveBeenCalledTimes(1);
-      const output = consoleSpy.mock.calls[0][0];
-      expect(output).toContain('N');  // Initial direction should be N
+      expect(consoleSpy).toHaveBeenCalledTimes(2);
+      expect(consoleSpy.mock.calls[0][0]).toContain('Compass not calibrated');
+      expect(consoleSpy.mock.calls[1][0]).toMatch(/方角/);
+      expect(consoleSpy.mock.calls[1][0]).toMatch(/度数/);
+    });
 
-      // Cleanup
-      consoleSpy.mockRestore();
+    it('should initialize compass and get state in main', () => {
+      const { main } = require('../src/compass');
+
+      // Act
+      main();
+
+      // Assert
+      expect(consoleSpy).toHaveBeenCalledTimes(2);
+      expect(consoleSpy.mock.calls[0][0]).toContain('Compass not calibrated');
+      expect(consoleSpy.mock.calls[1][0]).toContain('N');
     });
   });
 });

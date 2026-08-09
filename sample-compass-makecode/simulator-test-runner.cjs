@@ -77,7 +77,7 @@ async function runSimulatorTests(projectDirectory = __dirname) {
     );
     fs.writeFileSync(
       path.join(testDirectory, 'main.ts'),
-      'compassTests.runAllTests();\n',
+      'basic.pause(100);\ncompassTests.runAllTests();\n',
       'utf8'
     );
     fs.writeFileSync(
@@ -85,7 +85,10 @@ async function runSimulatorTests(projectDirectory = __dirname) {
       `${JSON.stringify(
         {
           name: 'sample-compass-makecode-tests',
-          dependencies: { core: '*' },
+          dependencies: {
+            core: '*',
+            microphone: '*',
+          },
           files: ['main.ts', 'compass.ts', 'test.ts'],
           preferredEditor: 'tsprj',
         },

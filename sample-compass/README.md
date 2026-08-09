@@ -2,6 +2,9 @@
 
 micro:bit 用のシンプルな方位磁石アプリケーション（Python 実装）
 
+> [!NOTE]  
+> AIアシスタント（Antigravity, Claude, Copilot, Cursor）の環境設定や、プロジェクト共通のカスタムスキル同期方法については、ルートの [`../README.md`](file:///Users/katoy/github/study-microbit-with-test/README.md#aiアシスタント連携) を参照してください。
+
 ## Table of Contents
 
 - [機能](#機能)
@@ -48,12 +51,40 @@ ls -l dist/hex/compass.hex
 uflash compass.py
 ```
 
-または MakeCode Editor で手動転送：
+### Python 実行環境の差異とデプロイ方法
 
+本教材では、micro:bit における Python の2つの主要な実行環境に対応しています。用途に合わせてファイルを選択してください。
+
+| 特徴 | MicroPython (`compass.py`) | MakeCode Python (`compass_makecode.py`) |
+| :--- | :--- | :--- |
+| **用途** | 実機への直接書き込み・ローカル単体テスト | MakeCode エディタでのブロック相互変換・シミュレータ |
+| **ライブラリ** | `from microbit import *` を明示的インポート | インポート不要（グローバルAPI） |
+| **言語仕様** | 標準の Python 3 に近い (クラスや try-except をサポート) | 静的型付けの TypeScript にトランスパイルされる制限版 |
+| **ブロック変換**| 不可 | **可能**（Pythonコードとビジュアルブロックの相互変換） |
+| **書き込み方法** | `uflash` CLI 等で直接 HEX 転送 | Web エディタ経由で HEX をダウンロードして転送 |
+
+#### 1. 標準の MicroPython を使用する場合
+`compass.py` を実機に転送するか、`uflash` で書き込みます：
+```bash
+# uflash でデバイスに転送
+uflash compass.py
+```
+
+#### 2. MakeCode Editor (Pythonモード) を使用する場合
 1. [MakeCode Editor](https://makecode.microbit.org/) を開く
-2. Python モードに切り替え
-3. `compass.py` の内容をコピー＆ペースト
-4. Download をクリック
+2. **Python** モードに切り替える
+3. [`compass_makecode.py`](file:///Users/katoy/github/study-microbit-with-test/sample-compass/compass_makecode.py) の内容をコピー＆ペースト
+4. 「ブロック」ボタンを押すと、自動的にビジュアルブロックに変換されます
+5. **Download** をクリックして micro:bit に書き込みます
+
+### エッジケースとエラーハンドリング
+
+本プログラムでは、以下の組み込み開発特有のエッジケースに対応しています。
+
+1. **未キャリブレーション（校正）状態のハンドリング**:
+   - 初期状態のまま方位表示（`display_direction()`）を呼び出すと、方位ではなく `"CAL"` という警告文字がスクロール表示され、ボタンAによるキャリブレーションを促します。
+2. **センサー異常値（負の値など）のハンドリング**:
+   - センサー取得時に `-1` などの無効値が返ってきた場合、キャリブレーション状態を自動で未完了（`False`）に戻し、再校正が必要なことを示します。
 
 ## 使用方法
 

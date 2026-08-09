@@ -65,6 +65,12 @@ basic.forever(function () {
       . # # . .
       . . # . .
     `);
+  } else if (direction == 'CAL') {
+    // キャリブレーション未完了時は 'CAL' を表示してボタンA押下を促す
+    basic.showString('CAL');
+  } else if (direction == 'ERR') {
+    // センサー異常時は 'ERR' を表示
+    basic.showString('ERR');
   } else {
     basic.showString(direction);
   }

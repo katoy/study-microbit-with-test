@@ -13,6 +13,7 @@ micro:bit 用のシンプルな方位磁石アプリケーション学習プロ�
 - [概要](#概要)
 - [プロジェクト構成](#プロジェクト構成)
 - [プログラム概要](#プログラム概要)
+- [AIアシスタント連携](#aiアシスタント連携)
 - [セットアップ](#セットアップ)
 - [テスト実行](#テスト実行)
 - [ビルド](#ビルド)
@@ -25,10 +26,9 @@ micro:bit 用のシンプルな方位磁石アプリケーション学習プロ�
 
 ## 概要
 
-3つのサンプル実装を含んでいます：
-- **sample-compass**: Python による実装（micro:bit API を使用）
-- **sample-compass-ts**: TypeScript による実装（Jest テスト付き）
-- **sample-compass-makecode**: MakeCode Editor 用の実装
+- **sample-compass**: Python による実装（実機向け MicroPython 版と、MakeCode ブロック相互変換に対応した Python 版の2種類を同梱。pytest による単体・統合テスト付き）
+- **sample-compass-ts**: TypeScript による実装（ハードウェアに依存しないロジックの Jest テスト付き。未キャリブレーション時に例外を投げるなど、高度なエラーハンドリングを包含）
+- **sample-compass-makecode**: MakeCode Editor 用の実装（PXT CLI を用いたシミュレータ上での自動テストランナー付き。テスト時にハードウェア制御をスキップするモック構造を包含）
 
 ## プロジェクト構成
 
@@ -47,6 +47,21 @@ micro:bit 用のシンプルな方位磁石アプリケーション学習プロ�
 ```
 
 詳細は各プログラムのディレクトリの CLAUDE.md を参照してください。
+
+## AIアシスタント連携
+
+本プロジェクトには、Antigravity（`agy`）、Claude Code、GitHub Copilot、Cursor（Codex）などの各種AIアシスタント間で、開発ガイドやカスタムルール（Skills）をグローバル共有・同期するためのスクリプトが用意されています。
+
+```bash
+# 各AIアシスタントのグローバル設定にカスタムスキルをマージして適用する
+./sync-ai-skills.sh
+```
+
+### 適用される設定
+- **Antigravity (agy)**: `~/.gemini/config/GEMINI.md` に同期され、`agy` コマンド実行時にグローバル適用されます。
+- **Claude Code (CLI)**: `~/.claudecode.md` にグローバル適用されるほか、プロジェクトルートに `CLAUDE.md` を作成して適用します。
+- **GitHub Copilot**: VS Code の `settings.json` のグローバル指示に自動登録されます。
+- **Cursor (Codex)**: グローバルな `~/.cursorrules` にシンボリックリンクされます。
 
 ## セットアップ
 
@@ -157,6 +172,16 @@ micro:bit用HEXは生成しません。実機向けTypeScriptにはMakeCode版�
 
 詳細は [HEX_BUILD_GUIDE.md](./HEX_BUILD_GUIDE.md) を参照してください。
 
+### Web エディターとの連携（相互インポート/エクスポート）
+
+MakeCode 版のコードは、ローカル開発環境と Web 画面上の [MakeCode エディター](https://makecode.microbit.org) を相互に行き来することができます。
+
+- **HEX ドラッグ＆ドロップ**: 生成された `sample-compass-makecode/built/binary.hex` を Web エディターにドラッグ＆ドロップすると、プロジェクト（ブロックや TypeScript コード）が瞬時に復元されます。
+- **GitHub 連携**: リポジトリを GitHub にプッシュし、Web エディターからインポートすることで、Web での編集とローカルの変更を `git pull/push` で同期できます。
+- **ローカルサーバー連携 (`npm run serve`)**: ローカルで Web サーバーを起動し、VS Code 等でのコード保存をブラウザのブロック/シミュレータにリアルタイム同期します。
+
+詳細は [sample-compass-makecode/README.md](file:///Users/katoy/github/study-microbit-with-test/sample-compass-makecode/README.md#makecode-web-エディターとの相互インポートエクスポート) を参照してください。
+
 ## Code Quality & Linting
 
 ### すべてのプロジェクトをチェック
@@ -246,22 +271,24 @@ npm run lint:makecode # MakeCode ビルド検証
 ## プログラム概要
 
 ### sample-compass（Python 実装）
-- **言語**: Python
+- **言語**: Python (MicroPython / MakeCode Python)
 - **テスト**: pytest（ユニットテスト + モック環境での統合テスト）
-- **特徴**: micro:bit MicroPython API を使用した方位磁石実装
+- **特徴**:
+  - `compass.py`: 標準 MicroPython 向けの実装。未キャリブレーション時に "CAL" 警告をスクロール表示するエッジケース対応付き。
+  - `compass_makecode.py`: MakeCode Web エディタの Python モード（Static Python）との互換コード。ブロックへの相互変換が可能。
 - 詳細は [sample-compass/CLAUDE.md](./sample-compass/CLAUDE.md) を参照
 
 ### sample-compass-ts（TypeScript 実装）
 - **言語**: TypeScript
 - **テスト**: Jest（ユニットテスト + Node.js上の統合テスト）
 - **ビルド**: npm run build で JavaScript に変換
-- **特徴**: 型安全な実装、豊富なテストカバレッジ
+- **特徴**: 型安全な実装、豊富なテストカバレッジ。未キャリブレーション状態で状態取得時に明確な例外（`Error`）をスローする厳密なエラーハンドリングの学習用モデル。
 - 詳細は [sample-compass-ts/CLAUDE.md](./sample-compass-ts/CLAUDE.md) を参照
 
 ### sample-compass-makecode（MakeCode 実装）
 - **プラットフォーム**: MakeCode Editor
 - **言語**: TypeScript/PXT
-- **特徴**: ビジュアルプログラミングと統合
+- **特徴**: ビジュアルプログラミングと統合。テスト時にシミュレータ環境特有の undefined 例外を防ぐ `skipHardware` フラグやテストモードを搭載し、安全な自動テストが可能。
 - 詳細は [sample-compass-makecode/README.md](./sample-compass-makecode/README.md) を参照
 
 ## ライセンス

@@ -113,6 +113,7 @@ class TestCompass:
         """ディスプレイに方向を表示するテスト"""
         compass = Compass()
         compass.heading = 90
+        compass.calibrated = True
         
         # display_direction() を呼び出し（display.scroll() がモックされている）
         compass.display_direction()
@@ -123,6 +124,19 @@ class TestCompass:
         # 呼び出し時の引数に "E 90" が含まれていることを確認
         call_args = display.scroll.call_args[0][0]
         assert "E" in call_args and "90" in call_args
+
+    def test_display_direction_uncalibrated(self):
+        """未キャリブレーション状態でのディスプレイ表示テスト"""
+        compass = Compass()
+        compass.calibrated = False
+        
+        from microbit import display
+        display.scroll.reset_mock()
+        
+        compass.display_direction()
+        
+        # "CAL" がスクロールされることを確認
+        display.scroll.assert_called_once_with("CAL")
 
     def test_get_heading_with_exception(self):
         """compass.heading() が例外を発生させる場合のテスト"""

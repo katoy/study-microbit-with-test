@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "test": "npm run test:makecode",
-    "test:all": "npm run test:config && npm run test:python && npm run test:ts && npm run integration:ts && npm run test:makecode && npm run test:coverage",
+    "test:all": "npm run test:config && npm run test:python && npm run integration:python && npm run test:ts && npm run integration:ts && npm run test:makecode && npm run test:coverage",
     "test:config": "node --test test/blocks-generator.test.js test/build-config.test.js test/clean-script.test.js test/documentation.test.js test/education-environment.test.js test/git-hooks.test.js test/gitignore.test.js test/npm-audit-policy.test.js test/security-workflow.test.js test/sync-ai-skills.test.js",
     "test:python": "cd sample-compass && uv run pytest",
     "integration:python": "cd sample-compass && uv run pytest test/test_integration.py",

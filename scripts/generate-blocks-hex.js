@@ -1,4 +1,3 @@
-const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 
@@ -54,6 +53,7 @@ async function verifyBlocksConversion(page) {
 
 async function buildBlocksHexForProject(language, sourceCode, outputPath) {
   console.log(`Starting blocks-HEX generation for ${language}...`);
+  const { chromium } = require('playwright');
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
     locale: 'ja-JP', // 日本語 UI で実行

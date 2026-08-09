@@ -1,0 +1,26 @@
+{
+  "name": "study-microbit-with-test",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "test": "npm run test:makecode",
+    "test:all": "npm run test:config && npm run test:python && npm run integration:python && npm run test:ts && npm run integration:ts && npm run test:makecode && npm run test:coverage",
+    "test:config": "node --test test/blocks-generator.test.js test/build-config.test.js test/clean-script.test.js test/documentation.test.js test/education-environment.test.js test/git-hooks.test.js test/gitignore.test.js test/npm-audit-policy.test.js test/security-workflow.test.js test/sync-ai-skills.test.js",
+    "test:python": "cd sample-compass && uv run pytest",
+    "integration:python": "cd sample-compass && uv run pytest test/test_integration.py",
+    "test:ts": "cd sample-compass-ts && npm test",
+    "integration:ts": "cd sample-compass-ts && npm run test:integration",
+    "test:makecode": "cd sample-compass-makecode && npm test",
+    "test:simulator:playwright": "node --test test/simulator.test.js",
+    "test:coverage": "cd sample-compass && uv run pytest --cov=src --cov-fail-under=100",
+    "lint": "npm run lint:python && npm run lint:ts && npm run lint:makecode",
+    "lint:python": "cd sample-compass && uv run python -m py_compile src/compass_makecode.py",
+    "lint:ts": "cd sample-compass-ts && npm run build",
+    "lint:makecode": "cd sample-compass-makecode && npm run lint",
+    "build:hex": "npm run build:hex:makecode",
+    "build:hex:python": "cd sample-compass && uv run python build_hex.py",
+    "build:hex:makecode": "cd sample-compass-makecode && npm run build:hex",
+    "verify:blocks": "node scripts/generate-blocks-hex.js",
+    "audit:npm": "node scripts/audit-npm.js"
+  }
+}

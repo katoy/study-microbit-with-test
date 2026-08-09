@@ -77,7 +77,7 @@ git push
     └→ テスト成功でプッシュ完了
     ↓
 GitHub Actions で CI/CD実行
-    └→ Python 3.11, Node 22.x でテスト
+    └→ Python 3.12.8, Node 22.23.2 でテスト
     └→ カバレッジレポート生成
 ```
 
@@ -96,6 +96,46 @@ GitHub Actions で CI/CD実行
 ## GitHub Actions CI/CD
 
 CI/CD ワークフローは `.github/workflows/` に定義されています。詳細は各ワークフロー定義ファイルを参照してください。
+
+## 環境設定
+
+### バージョン管理
+
+本プロジェクトは **ルートレベル `.tool-versions`** で統一的にバージョンを管理します：
+
+```
+python 3.12.8
+node 22.23.2
+```
+
+**各プロジェクトの対応:**
+- **sample-compass/** - Python 3.12.8 を使用
+- **sample-compass-ts/** - Node.js 22.23.2 を使用
+- **sample-compass-makecode/** - Node.js 22.23.2（MakeCode CLI実行時）
+
+### asdf でのセットアップ
+
+```bash
+# ルートディレクトリで実行
+asdf install
+
+# 確認
+python3 --version  # Python 3.12.8
+node --version     # v22.23.2
+```
+
+### 環境変数の設定
+
+各プロジェクトのセットアップ：
+```bash
+# sample-compass（Python）
+cd sample-compass
+uv sync
+
+# sample-compass-ts（Node.js）
+cd sample-compass-ts
+npm install
+```
 
 ## TDD ワークフロー
 

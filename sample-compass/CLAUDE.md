@@ -5,6 +5,7 @@
 ## プロジェクト概要
 
 MakeCodeのブロックへ変換できるStatic Python (`compass_makecode.py`) を扱っています。
+共通のアプリケーション仕様については、ルートディレクトリの [`compass_spec.md`](../compass_spec.md) を参照してください。
 
 ## ディレクトリ構造
 
@@ -16,9 +17,10 @@ sample-compass/
 │   └── test_simulator.py    # Playwright シミュレーターテスト
 ├── pyproject.toml           # uv project configuration
 ├── CLAUDE.md                # このファイル
-├── README.md
-└── .tool-versions           # Python version management (3.11.5)
+└── README.md
 ```
+
+**注:** `.tool-versions` はルートディレクトリで一元管理されています。詳細は [`../.tool-versions`](../.tool-versions) を参照してください。
 
 ## コンパイルチェック
 

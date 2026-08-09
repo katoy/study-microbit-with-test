@@ -3,7 +3,8 @@
 このファイルは AI アシスタント（Claude、Copilot など）が sample-compass-ts プロジェクトで作業する際のプロジェクト固有ガイドです。
 
 **プロジェクト全体のガイドは `../CLAUDE.md` を参照してください。**  
-**保守者向けAIルール同期については、ルートの [`../sync-ai-skills.sh`](../sync-ai-skills.sh) を参照してください（既定はdry-runです）。**
+**保守者向けAIルール同期については、ルートの [`../sync-ai-skills.sh`](../sync-ai-skills.sh) を参照してください（既定はdry-runです）。**  
+**共通のアプリケーション仕様については、ルートディレクトリの [`../compass_spec.md`](../compass_spec.md) を参照してください。**
 
 ## プロジェクト概要
 
@@ -28,9 +29,10 @@ sample-compass-ts/
 ├── tsconfig.json            # TypeScript configuration
 ├── package.json             # npm dependencies & scripts
 ├── CLAUDE.md                # このファイル
-├── README.md
-└── .tool-versions           # Node version management (22.23.2)
+└── README.md
 ```
+
+**注:** `.tool-versions` はルートディレクトリで一元管理されています。詳細は [`../.tool-versions`](../.tool-versions) を参照してください。
 
 ## テスト実行方法
 

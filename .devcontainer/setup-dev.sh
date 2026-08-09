@@ -10,64 +10,45 @@ echo ""
 # Colors for output
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Step 1: System package updates
-echo -e "${BLUE}📦 Step 1: Installing system packages...${NC}"
-apt-get update -qq
-apt-get install -y -qq \
-  build-essential \
-  curl \
-  git \
-  pkg-config \
-  > /dev/null 2>&1
-echo -e "${GREEN}✅ System packages installed${NC}"
-
-# Step 2: Node.js packages (npm ci)
+# Step 1: Node.js packages (the Dev Container features provide system tools)
 echo ""
-echo -e "${BLUE}📦 Step 2: Installing Node.js dependencies...${NC}"
-npm ci --no-progress --no-audit > /dev/null 2>&1
-
-# Python dependencies for root
-echo "  → Root dependencies"
+echo -e "${BLUE}📦 Step 1: Installing Node.js dependencies...${NC}"
 npm ci --no-progress --no-audit > /dev/null 2>&1
 
 # TypeScript
 echo "  → TypeScript dependencies"
-cd sample-compass-ts && npm ci --no-progress --no-audit > /dev/null 2>&1 && cd ..
+npm --prefix sample-compass-ts ci --no-progress --no-audit > /dev/null 2>&1
 
 # MakeCode
 echo "  → MakeCode dependencies"
-cd sample-compass-makecode && npm ci --no-progress --no-audit > /dev/null 2>&1 && cd ..
+npm --prefix sample-compass-makecode ci --no-progress --no-audit > /dev/null 2>&1
 
 echo -e "${GREEN}✅ Node.js dependencies installed${NC}"
 
-# Step 3: Python setup with uv
+# Step 2: Python setup with uv
 echo ""
-echo -e "${BLUE}📦 Step 3: Setting up Python environment...${NC}"
+echo -e "${BLUE}📦 Step 2: Setting up Python environment...${NC}"
 
 # Install uv package manager
-pip install -q --no-cache-dir uv
+python -m pip install --user -q --no-cache-dir uv
 
 # Python project setup
-cd sample-compass
 echo "  → Python dependencies (uv sync)"
-uv sync -q
+uv sync --project sample-compass -q
 echo -e "${GREEN}✅ Python environment configured${NC}"
-cd ..
 
-# Step 4: Git hooks setup
+# Step 3: Git hooks setup
 echo ""
-echo -e "${BLUE}🔧 Step 4: Configuring Git hooks...${NC}"
-npm run prepare > /dev/null 2>&1 || true
+echo -e "${BLUE}🔧 Step 3: Configuring Git hooks...${NC}"
+npm run prepare > /dev/null 2>&1
 echo -e "${GREEN}✅ Git hooks configured${NC}"
 
-# Step 5: Run initial test
+# Step 4: Verify the complete local quality gate
 echo ""
-echo -e "${BLUE}🧪 Step 5: Running initial test suite...${NC}"
-echo "  → Configuration tests"
-npm run test:config > /dev/null 2>&1 || echo "    ⚠️ Some config checks may fail (non-critical)"
+echo -e "${BLUE}🧪 Step 4: Running the complete test suite...${NC}"
+npm run test:all
 
 echo ""
 echo "╔══════════════════════════════════════════════════════════════════════════════╗"

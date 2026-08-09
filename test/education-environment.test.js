@@ -19,6 +19,7 @@ test('repository checks run configuration tests in CI', () => {
   assert.ok(fs.existsSync(workflowPath));
 
   const workflow = fs.readFileSync(workflowPath, 'utf8');
+  assert.match(workflow, /permissions:\s*\n\s*contents: read/);
   assert.match(workflow, /npm run test:config/);
   assert.match(workflow, /bash -n \.devcontainer\/setup-dev\.sh/);
   assert.match(workflow, /bash -n sync-ai-skills\.sh/);

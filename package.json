@@ -22,7 +22,6 @@
     "build:ts": "npm --prefix sample-compass-ts run build",
     "build:hex": "cd sample-compass && uv run python -m uflash dist/hex/compass.hex && npm --prefix sample-compass-makecode run build",
     "verify:blocks": "npm --prefix sample-compass run verify:blocks",
-    "audit:npm": "node scripts/audit-npm.js",
     "clean": "bash scripts/clean.sh"
   },
   "keywords": [

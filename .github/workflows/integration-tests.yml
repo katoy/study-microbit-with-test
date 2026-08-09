@@ -73,6 +73,7 @@ jobs:
       run: |
         echo "🚀 Python Playwright シミュレーターテストを実行中..."
         uv sync
+        uv run playwright install
         uv run pytest test/test_simulator.py -v
         echo "✅ Python テスト完了"
 

@@ -1,5 +1,10 @@
 # study-microbit-with-test
 
+[![Integration Tests](https://github.com/katoy/study-microbit-with-test/actions/workflows/integration-tests.yml/badge.svg)](https://github.com/katoy/study-microbit-with-test/actions/workflows/integration-tests.yml)
+[![TypeScript Tests](https://github.com/katoy/study-microbit-with-test/actions/workflows/typescript-tests.yml/badge.svg)](https://github.com/katoy/study-microbit-with-test/actions/workflows/typescript-tests.yml)
+[![Security Scan](https://github.com/katoy/study-microbit-with-test/actions/workflows/security.yml/badge.svg)](https://github.com/katoy/study-microbit-with-test/actions/workflows/security.yml)
+[![Repository Checks](https://github.com/katoy/study-microbit-with-test/actions/workflows/repository-checks.yml/badge.svg)](https://github.com/katoy/study-microbit-with-test/actions/workflows/repository-checks.yml)
+
 micro:bit の方位磁石を題材に、ブロック、Python、TypeScript、自動テストを段階的に学ぶプログラミング環境教材です。同じ「0〜359度を8方位へ変換する」課題を、実機・シミュレーター・PC上のテストで比較できます。
 
 ## この教材で学べること

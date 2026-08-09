@@ -1,5 +1,7 @@
 # sample-compass-ts: Node.js TypeScript版
 
+[![TypeScript Tests](https://github.com/katoy/study-microbit-with-test/actions/workflows/typescript-tests.yml/badge.svg)](https://github.com/katoy/study-microbit-with-test/actions/workflows/typescript-tests.yml)
+
 方位磁石の状態と8方位変換を、ハードウェアから切り離して学ぶTypeScript教材です。MakeCodeプログラムではないため、このディレクトリからmicro:bit用HEXは生成しません。
 
 ## 学習テーマ
@@ -9,44 +11,181 @@
 - 未校正時の例外
 - `NaN`、`Infinity`、範囲外を防ぐ実行時検証
 - Jestによる境界値、状態遷移、統合テスト
+- 100% カバレッジによる品質基準
 
 ## セットアップ
 
-リポジトリをcloneした後、モノレポ内で実行します。
-
 ```bash
-cd sample-compass-ts
+# プロジェクト依存関係のインストール
 npm ci
+
+# ビルド確認
+npm run build
+
+# テスト実行
+npm test
 ```
 
-## コマンド
+## よく使うコマンド
 
-| コマンド | 内容 |
+| コマンド | 説明 |
 |---|---|
-| `npm run build` | TypeScriptをコンパイル |
-| `npm test` | すべてのJestテスト |
-| `npm run test:unit` | ユニットテスト |
-| `npm run test:integration` | 統合テスト |
-| `npm run test:coverage` | カバレッジ100%を検査 |
-| `npm run test:watch` | 編集中の再実行 |
+| `npm run build` | TypeScript をコンパイル |
+| `npm test` | 全テスト実行（ユニット + 統合）|
+| `npm run test:unit` | ユニットテストのみ |
+| `npm run test:integration` | 統合テストのみ |
+| `npm run test:coverage` | カバレッジレポート（100% 要件チェック）|
+| `npm run test:watch` | ファイル変更時に自動再実行 |
+| `npm run clean` | ビルド成果物を削除 |
 
-## API
+## API リファレンス
 
 ```typescript
 const compass = new Compass();
 compass.calibrate();
 compass.setHeading(90);
 
-console.log(compass.getDirection()); // E
-console.log(compass.getState());
+console.log(compass.getDirection());  // 'E'
+console.log(compass.getState());      // { heading: 90, direction: 'E', isCalibrated: true }
 ```
 
-- `calibrate()` — 校正済み状態へ移す
-- `setHeading(heading)` — 0以上360未満の有限値を設定する
-- `getHeading()` — 校正済みなら現在値を返す
-- `getDirection()` — 校正済みなら8方位を返す
-- `getState()` — heading、direction、isCalibratedを返す
-- `Compass.headingToDirection(heading)` — 状態を持たない変換
+### 主要メソッド
+
+| メソッド | 説明 | 戻り値 |
+|---|---|---|
+| `calibrate()` | 校正済み状態へ移す | void |
+| `getHeading()` | 現在の方位角を取得（校正済みの場合） | number |
+| `setHeading(heading)` | 方位角を設定（テスト用） | void |
+| `getDirection()` | 8方位を取得（校正済みの場合） | Direction |
+| `getIsCalibrated()` | 校正状態を取得 | boolean |
+| `getState()` | 現在の状態をスナップショット | CompassState |
+| `static headingToDirection(heading)` | 方位角を方角に変換（静的） | Direction |
+
+### 型定義
+
+```typescript
+type Direction = 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'NW';
+
+interface CompassState {
+  heading: number;        // 0-359度
+  direction: Direction;   // 8方位
+  isCalibrated: boolean;  // 校正済みフラグ
+}
+```
+
+## テスト戦略
+
+### ユニットテスト (test/compass.test.ts)
+- 各メソッドの単体テスト
+- 型安全性の確認
+- エラーハンドリング（NaN、無限大、範囲外）
+- 8方位すべての判定
+- **境界値テスト**（22.5°、67.5°、337.5° など）
+
+**例: 境界値テスト**
+```typescript
+test('should detect N at boundary 0°', () => {
+  compass.calibrate();
+  compass.setHeading(0);
+  expect(compass.getDirection()).toBe('N');
+});
+
+test('should detect N at boundary 359°', () => {
+  compass.calibrate();
+  compass.setHeading(359);
+  expect(compass.getDirection()).toBe('N');
+});
+```
+
+### 統合テスト (test/compass.integration.test.ts)
+- 完全なワークフロー（校正 → 回転 → 方向判定）
+- 8方位全体を連続的に判定
+- 境界値での正確な遷移
+- 複数インスタンスの独立動作
+- 無効な入力の拒否
+
+**カバレッジ要件: 全メトリクス 100%**
+- Branches (分岐): 100%
+- Functions (関数): 100%
+- Lines (行): 100%
+- Statements (文): 100%
+
+## CI/CD 統合
+
+### GitHub Actions
+`.github/workflows/typescript-tests.yml` で自動実行：
+- Node.js 22.23.2 環境をセットアップ
+- `npm ci` で依存関係をインストール
+- `npm run build` で TypeScript をコンパイル
+- `npm test` で全テストを実行
+- **100% カバレッジを確認**
+- codecov へカバレッジレポートをアップロード
+
+### ローカルテスト
+```bash
+# 全テスト実行
+npm test
+
+# カバレッジレポート生成
+npm run test:coverage
+# coverage/lcov-report/index.html をブラウザで開く
+```
+
+## トラブルシューティング
+
+### npm dependencies のエラー
+```bash
+rm -rf node_modules package-lock.json
+npm install
+npm test
+```
+
+### TypeScript コンパイルエラー
+```bash
+npm run build
+# または
+npx tsc --noEmit
+```
+
+### テストが 100% カバレッジを満たさない
+```bash
+npm run test:coverage
+# coverage/lcov-report/index.html で未カバー部分を確認
+```
+
+### 特定のテストだけを実行したい
+```bash
+# テスト名パターンで実行
+npm test -- --testNamePattern="direction detection"
+
+# ファイルで実行
+npm test test/compass.test.ts
+
+# キーワードマッチ
+npm test -- -t "should handle"
+```
+
+### Watch モードで開発する
+```bash
+npm run test:watch
+# ファイル保存時に自動的にテスト実行
+# q キーで終了
+```
+
+## ドキュメント
+
+- [`CLAUDE.md`](./CLAUDE.md) - AI アシスタント向けの詳細ガイド（テスト戦略・デバッグ方法）
+- [`../compass_spec.md`](../compass_spec.md) - 共通アプリケーション仕様
+- [`../CLAUDE.md`](../CLAUDE.md) - プロジェクト全体のガイド
+- [Jest Documentation](https://jestjs.io/)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+
+## 学習課題
+
+- **16 方位** へ拡張し、11.25 度の境界テストを設計する
+- **キャリブレーション状態の永続化** を実装（localStorage など）
+- **複数の磁場環境** をシミュレート（オフセット値の設定）
+- **統計的な外れ値検出** を実装（不安定な磁場計測値をフィルタリング）
 
 未校正で状態を読むと `Compass not calibrated` 例外になります。Python版の `CAL` 表示と比較し、ライブラリAPIと対話型UIでエラー通知がどう違うか考える教材です。
 

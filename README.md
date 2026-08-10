@@ -1,6 +1,6 @@
 # study-microbit-with-test
 
-[![Integration Tests](https://github.com/katoy/study-microbit-with-test/actions/workflows/integration-tests.yml/badge.svg)](https://github.com/katoy/study-microbit-with-test/actions/workflows/integration-tests.yml)
+[![Integration and Simulator Tests](https://github.com/katoy/study-microbit-with-test/actions/workflows/integration-tests.yml/badge.svg)](https://github.com/katoy/study-microbit-with-test/actions/workflows/integration-tests.yml)
 [![TypeScript Tests](https://github.com/katoy/study-microbit-with-test/actions/workflows/typescript-tests.yml/badge.svg)](https://github.com/katoy/study-microbit-with-test/actions/workflows/typescript-tests.yml)
 [![Security Scan](https://github.com/katoy/study-microbit-with-test/actions/workflows/security.yml/badge.svg)](https://github.com/katoy/study-microbit-with-test/actions/workflows/security.yml)
 [![Repository Checks](https://github.com/katoy/study-microbit-with-test/actions/workflows/repository-checks.yml/badge.svg)](https://github.com/katoy/study-microbit-with-test/actions/workflows/repository-checks.yml)

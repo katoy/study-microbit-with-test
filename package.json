@@ -4,25 +4,34 @@
   "description": "micro:bit 用方位磁石アプリケーション学習プロジェクト（ブロック・Python・TypeScript）",
   "private": true,
   "workspaces": [
-    "sample-compass-ts",
-    "sample-compass-makecode"
+    "projects/sample-compass-ts",
+    "projects/sample-compass-makecode"
   ],
   "scripts": {
-    "test:all": "npm run test:python && npm run test:ts && npm run test:makecode",
-    "test:python": "cd sample-compass && uv run pytest test/test_simulator.py -v",
-    "test:ts": "npm --prefix sample-compass-ts run test:coverage",
-    "test:makecode": "npm --prefix sample-compass-makecode run test",
+    "test": "npm run test:config && npm run test:python && npm run test:ts && npm run test:makecode",
+    "test:all": "npm run test && npm run integration:ts && npm run test:coverage",
+    "test:python": "cd projects/sample-compass && uv run pytest test/test_simulator.py -v",
+    "test:ts": "cd projects/sample-compass-ts && npm run test:unit",
+    "test:makecode": "cd projects/sample-compass-makecode && npm test",
     "integration": "npm run integration:python && npm run integration:ts",
-    "integration:python": "cd sample-compass && uv run pytest test/test_simulator.py -v",
-    "integration:ts": "npm --prefix sample-compass-ts run test:integration",
-    "test:config": "npm run test:config:ci",
-    "test:config:ci": "echo 'npm audit チェックは無効化されています'",
-    "lint": "npm run lint:python && npm run build:ts",
-    "lint:python": "cd sample-compass && uv run python -m py_compile src/compass_makecode.py",
-    "build:ts": "npm --prefix sample-compass-ts run build",
-    "build:hex": "cd sample-compass && uv run python -m uflash dist/hex/compass.hex && npm --prefix sample-compass-makecode run build",
-    "verify:blocks": "npm --prefix sample-compass run verify:blocks",
-    "clean": "bash scripts/clean.sh"
+    "integration:python": "cd projects/sample-compass && uv run pytest test/test_simulator.py -v",
+    "integration:ts": "cd projects/sample-compass-ts && npm run test:integration",
+    "test:config": "node --test test/",
+    "test:coverage:ts": "cd projects/sample-compass-ts && npm run test:coverage",
+    "test:coverage": "npm run test:coverage:ts",
+    "lint": "npm run lint:python && npm run lint:ts",
+    "lint:python": "cd projects/sample-compass && uv run python -m py_compile src/compass_makecode.py",
+    "lint:ts": "cd projects/sample-compass-ts && npm run build",
+    "build:ts": "npm --prefix projects/sample-compass-ts run build",
+    "build:hex": "node scripts/generate-blocks-hex.js",
+    "build:hex:makecode": "cd projects/sample-compass-makecode && npm run build:hex",
+    "verify:blocks": "node scripts/generate-blocks-hex.js",
+    "clean": "bash scripts/clean.sh",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "playwright": "^1.62.1"
   },
   "keywords": [
     "microbit",

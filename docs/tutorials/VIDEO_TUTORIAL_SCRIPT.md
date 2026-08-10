@@ -16,13 +16,13 @@
 
 ナレーション:
 
-> MakeCode版は実機とブロック、MicroPython版はモックとpytest、Node TypeScript版は型と純粋ロジックを担当します。Node版はそのままmicro:bitへ書き込むものではありません。
+> MakeCode版は実機とブロック、MakeCode Python版はPython構文とブラウザーシミュレーター、Node TypeScript版は型と純粋ロジックを担当します。Node版はそのままmicro:bitへ書き込むものではありません。
 
 強調テロップ: 「シミュレーター ≠ 実機テスト」
 
 ## 3:00〜6:00 MakeCode
 
-画面: `sample-compass-makecode/compass.ts`。
+画面: `sample-compass-makecode/src/compass.ts`。
 
 ```typescript
 _heading = input.compassHeading();
@@ -42,9 +42,9 @@ npm --prefix sample-compass-makecode test
 
 末尾の成功結果を拡大します。
 
-## 6:00〜10:00 Pythonと境界値
+## 6:00〜10:00 MakeCode Pythonと境界値
 
-画面: `sample-compass/compass.py` の方位判定。
+画面: `sample-compass/src/compass_makecode.py` の方位判定。
 
 ```python
 if heading < 22.5 or heading >= 337.5:
@@ -55,34 +55,32 @@ if heading < 22.5 or heading >= 337.5:
 
 > 北だけは0度を中心に360度をまたぎます。ここは典型的な境界バグの場所です。
 
-画面: `test_compass.py` に次を追加。
-
-```python
-assert Compass._heading_to_direction(337.4) == "NW"
-assert Compass._heading_to_direction(337.5) == "N"
-```
+画面: `sample-compass/test/test_simulator.py`。
 
 ```bash
-cd sample-compass
-uv run pytest test_compass.py -v
-cd ..
+npm run integration:python
 ```
 
-画面: `conftest.py`。
-
-> PCにはmicro:bitの磁気センサーがないため、pytestではAPIをモックします。これは方位ロジックを保証しますが、実物のセンサー精度やUSB転送は保証しません。
+> PCにはmicro:bitの磁気センサーがないため、このテストはMakeCode Webへソースを読み込み、シミュレーターの方位角を操作します。LED表示は確認できますが、実物のセンサー精度やUSB転送は保証しません。
 
 ## 10:00〜13:00 TypeScript
 
 画面: `sample-compass-ts/src/compass.ts`。
 
 ```typescript
-export type Direction = 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'NW';
+export type Direction = 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'NW' | 'CAL' | 'ERR';
+```
+
+画面: `sample-compass-ts/test/compass.test.ts`。
+
+```typescript
+expect(Compass.headingToDirection(337.4)).toBe('NW');
+expect(Compass.headingToDirection(337.5)).toBe('N');
 ```
 
 ナレーション:
 
-> TypeScriptでは戻り値の候補を型で限定できます。ただし `NaN` や `Infinity` もnumberなので、実行時検証は残ります。未校正状態は例外で知らせます。
+> TypeScriptでは戻り値の候補を型で限定できます。ただし `NaN` や `Infinity` もnumberなので、実行時検証は残ります。未校正状態は `CAL`、無効な値は `ERR` で知らせます。
 
 ```bash
 npm --prefix sample-compass-ts run build
@@ -101,27 +99,17 @@ npm run build:hex
 
 ナレーション:
 
-> `test:all` はユニット、統合、MakeCodeシミュレーター、カバレッジをまとめて実行します。Pythonのカバレッジが100%未満なら失敗します。Pythonの生成物はmicro:bit V1とV2の両ブロックを持つUniversal HEXかどうかも検査します。
+> `test:all` はルート設定、Python統合、TypeScript、MakeCodeシミュレーター、TypeScriptカバレッジの検査をまとめて実行します。実機用HEXのビルドはMakeCode版だけに対応しています。
 
-画面: 2つの生成先。
+画面: 生成先。
 
-- `sample-compass/dist/hex/compass.hex`
 - `sample-compass-makecode/built/binary.hex`
 
-## 16:00〜17:30 ブロック互換性
-
-```bash
-npm run verify:blocks
-```
+## 16:00〜17:30 MakeCode Webで確認
 
 ナレーション:
 
-> ネットワーク接続がある環境では、MakeCode Webへソースを読み込み、ブロックへ変換します。エラーダイアログ、編集できないグレーブロック、ワークスペース欠落は失敗になります。MakeCode Pythonには `compass_makecode.py` を使います。
-
-画面: 通常ビルドと衝突しない2つの生成先。
-
-- `sample-compass/dist/hex/blocks.hex`
-- `sample-compass-makecode/built/blocks.hex`
+> ネットワーク接続がある環境では、生成したMakeCode HEXをMakeCode Webへ読み込み、TypeScriptとブロックの表示を確認します。MakeCode Pythonを試す場合は `sample-compass/src/compass_makecode.py` をPythonモードへ貼り付けます。
 
 ## 17:30〜18:00 まとめ
 

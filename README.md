@@ -47,7 +47,7 @@ micro:bit の方位磁石を題材に、ブロック、Python、TypeScript、自
 
 ### ローカル環境
 
-Node.js 22、Python 3.11以上、`uv` を用意して、リポジトリのルートで実行します。
+Node.js 22、Python 3.12、`uv` を用意して、リポジトリのルートで実行します。
 
 ```bash
 npm ci
@@ -67,7 +67,7 @@ npm run test:all
 
 | ディレクトリ | 実行環境 | 主な教材テーマ | 実機用HEX |
 |---|---|---|---|
-| [`sample-compass`](./sample-compass/) | MicroPython / MakeCode Python | モック、境界値、2種類のPython API | 生成可能 |
+| [`sample-compass`](./sample-compass/) | MakeCode Python | MakeCode API、境界値、シミュレーター | 生成可能 |
 | [`sample-compass-ts`](./sample-compass-ts/) | Node.js | 純粋ロジック、型、例外、Jest | 生成しない |
 | [`sample-compass-makecode`](./sample-compass-makecode/) | MakeCode / PXT | ブロックAPI、イベント、シミュレーター | 生成可能 |
 
@@ -78,17 +78,14 @@ npm run test:all
 | コマンド | 内容 |
 |---|---|
 | `npm run test:all` | ローカルの完全な品質ゲート |
-| `npm run test:config` | 文書・CI・安全スクリプトなどリポジトリ設定のテスト |
-| `npm run test:simulator:playwright` | Playwright を使用した MakeCode シミュレータ動作テスト（45度回転・8方位LED判定） |
+| `npm run test:config` | ルート設定テスト |
 | `npm run test:python` | Pythonユニット／HEX検証テスト |
 | `npm run integration:python` | モックを使うPython統合テスト |
 | `npm run test:ts` | TypeScriptユニットテスト |
 | `npm run integration:ts` | TypeScript統合テスト |
 | `npm run test:makecode` | PXTコンパイルとシミュレーターテスト |
 | `npm run lint` | Python構文、TypeScript、MakeCodeビルド検査 |
-| `npm run build:hex` | Python版とMakeCode版のHEXを生成 |
-| `npm run verify:blocks` | MakeCode WebでPython／TSをブロックへ変換し、エラーとグレーブロックを検査 |
-| `npm run audit:npm` | 全npm lockfileのhigh/critical脆弱性を検査 |
+| `npm run build:hex` | MakeCode版のHEXを生成 |
 
 ## 実機へ転送する
 
@@ -98,24 +95,21 @@ npm run build:hex
 
 生成物は次の場所です。
 
-- `sample-compass/dist/hex/compass.hex` — MicroPython、V1/V2 Universal HEX
 - `sample-compass-makecode/built/binary.hex` — MakeCode
 
 HEXをmicro:bitのUSBドライブへコピーします。初回や周囲の磁場が変わった場合は校正してください。詳細は [HEX_BUILD_GUIDE.md](./HEX_BUILD_GUIDE.md) を参照してください。
 
-ブロック互換性を含めて確認する場合は `npm run verify:blocks` を実行します。この検査はMakeCode WebとPlaywrightを使うため、ネットワーク接続が必要です。成功条件は、ソース注入、ブロックワークスペース表示、変換エラー0、グレーブロック0です。ブロック表示対応HEXは `sample-compass/dist/hex/blocks.hex` と `sample-compass-makecode/built/blocks.hex` に生成され、通常ビルドの成果物を上書きしません。
-
-### MakeCode シミュレーター動作テスト（Playwright）
+### MakeCode Python シミュレーター動作テスト（Playwright）
 
 MakeCodeのWebエディターのシミュレーター機能を利用し、PC上で自動的に方位センサーを回転させてLED表示パターンを検証する Playwright 統合テストです。
 
 ```bash
-npm run test:simulator:playwright
+npm run integration:python
 ```
 
-- **検証対象**: `sample-compass/compass_makecode.py` (Python) および `sample-compass-makecode` (TypeScript)
+- **検証対象**: `sample-compass/src/compass_makecode.py` (MakeCode Python)
 - **テスト仕様**: シミュレーター上の micro:bit を 45度ずつ回転させ、各角度（`0°`, `45°`, `90°`, `135°`, `180°`, `225°`, `270°`, `315°`）における5x5 LED マトリクスの点灯・消灯状態が期待通り（N, E, S, W マークおよびスクロール消去時の消灯）かアサーションします。
-- **最適化処理**: テスト実行を高速・安定化するため、テスト中のコード注入時に起動時や方位変更時の文字列スクロール表示を一時的に `clearScreen()` に置換してバイパスし、アノテーション等の無駄なメタデータを自動クリーンアップして読み込ませています。テスト結果のシミュレーター画面は `dist/rotation-test-py.png` / `dist/rotation-test-ts.png` にスクリーンショットとして保存されます。
+- **最適化処理**: テスト実行を高速・安定化するため、テスト中のコード注入時に起動時や方位変更時の文字列スクロール表示を一時的に `basic.clear_screen()` に置換します。テスト結果のシミュレーター画面は `dist/rotation-test-py.png` にスクリーンショットとして保存されます。
 
 ## MakeCode Webとの行き来
 
@@ -165,22 +159,7 @@ GitHub ActionsはPython、TypeScript、MakeCode、統合テスト、リポジト
 
 ### npm 依存関係監査
 
-```bash
-npm run audit:npm
-```
-
-**スクリプト**: [`scripts/audit-npm.js`](./scripts/audit-npm.js)
-
-**機能**:
-- 複数の npm lockfile (`sample-compass-ts`, `sample-compass-makecode`) を一括監査
-- `high` 以上の脆弱性を検出
-- 例外（allowlist）をサポート（`security/.npm-audit-exceptions.json`）
-- CI では条件付き（既知脆弱性のみパス）で実行
-
-**前提条件**:
-- Node.js ≥ 14
-- npm ≥ 6
-- 実行権限: `scripts/audit-npm.js` が実行可能
+依存関係監査の自動実行は現在無効です。監査を再開する場合の例外（allowlist）は [`security/npm-audit-allowlist.json`](./security/npm-audit-allowlist.json) で管理し、関連スクリプトは [`scripts/audit-npm.js`](./scripts/audit-npm.js) にあります。
 
 ### 一時生成物の管理
 

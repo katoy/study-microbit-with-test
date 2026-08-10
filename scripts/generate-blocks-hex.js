@@ -10,11 +10,11 @@ function getBlocksHexOutputPaths(rootDirectory) {
   return {
     python: path.join(
       rootDirectory,
-      'sample-compass/dist/hex/blocks.hex'
+      'projects/sample-compass/dist/hex/blocks.hex'
     ),
     makecode: path.join(
       rootDirectory,
-      'sample-compass-makecode/built/blocks.hex'
+      'projects/sample-compass-makecode/built/blocks.hex'
     )
   };
 }
@@ -195,7 +195,7 @@ async function main() {
   const outputPaths = getBlocksHexOutputPaths(rootDir);
   
   // 1. Python 版 (MakeCode 互換)
-  const pythonPath = path.join(rootDir, 'sample-compass/compass_makecode.py');
+  const pythonPath = path.join(rootDir, 'projects/sample-compass/src/compass_makecode.py');
   if (fs.existsSync(pythonPath)) {
     const pythonCode = fs.readFileSync(pythonPath, 'utf8');
     await buildBlocksHexForProject('Python', pythonCode, outputPaths.python);
@@ -204,8 +204,8 @@ async function main() {
   }
 
   // 2. TypeScript/MakeCode 版
-  const makecodeCompassPath = path.join(rootDir, 'sample-compass-makecode/compass.ts');
-  const makecodeMainPath = path.join(rootDir, 'sample-compass-makecode/main.ts');
+  const makecodeCompassPath = path.join(rootDir, 'projects/sample-compass-makecode/src/compass.ts');
+  const makecodeMainPath = path.join(rootDir, 'projects/sample-compass-makecode/src/main.ts');
   
   if (fs.existsSync(makecodeCompassPath) && fs.existsSync(makecodeMainPath)) {
     const compassCode = fs.readFileSync(makecodeCompassPath, 'utf8');

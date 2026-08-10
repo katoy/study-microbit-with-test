@@ -23,13 +23,10 @@ npm --prefix sample-compass-makecode ci
 uv sync --project sample-compass
 npm run test:all
 npm run build:hex
-```
-
-ブロック変換は MakeCode Web と Playwright に依存するため、講師だけがネットワークの安定した環境で授業前に確認します。授業中の必須手順にはしません。
-
-```bash
 npm run verify:blocks
 ```
+
+ブロック変換は MakeCode Web に依存するため、講師だけがネットワークの安定した環境で [`sample-compass/src/compass_makecode.py`](./sample-compass/src/compass_makecode.py) を貼り付け、ブロックへ切り替えられることを授業前に確認します。授業中の必須手順にはしません。
 
 実機を使う場合は、micro:bit V1/V2、USB ケーブル、磁石から離れた校正場所を用意します。ネットワークが不安定な授業では依存関係と MakeCode 画面を事前に準備してください。2 人 1 台でも進行できます。
 
@@ -39,8 +36,8 @@ npm run verify:blocks
 |---|---|---|
 | 0〜10分 | 導入と環境確認 | 3実装の役割を言える |
 | 10〜30分 | MakeCodeで観察 | コンパスAPIとLED表示を確認 |
-| 30〜50分 | Python境界値テスト | テストを1件追加 |
-| 50〜65分 | TypeScript比較 | 型と例外の違いを説明 |
+| 30〜50分 | TypeScript境界値テスト | テストを1件追加 |
+| 50〜65分 | MakeCode Python比較 | 型とAPIの違いを説明 |
 | 65〜80分 | 品質ゲート | 失敗→修正→成功を体験 |
 | 80〜88 分 | 実機またはシミュレーター確認 | HEX 転送または操作確認 |
 | 88〜90分 | 振り返り | 保証範囲を一言で共有 |
@@ -74,44 +71,43 @@ npm --prefix sample-compass-makecode test
 
 実機がある場合は、生成済みHEXを転送し、Aで校正、Bで状態表示を試します。校正中は本体の指示に従って動かします。
 
-## 30〜50分: Python
+## 30〜50分: TypeScript境界値テスト
 
-1. `sample-compass/test_compass.py` を開く
-2. `test_heading_to_direction_boundaries` に次を追加する
+1. [`sample-compass-ts/test/compass.test.ts`](./sample-compass-ts/test/compass.test.ts) を開く
+2. 境界値テストに次を追加する
 
-```python
-assert Compass._heading_to_direction(337.4) == "NW"
-assert Compass._heading_to_direction(337.5) == "N"
+```typescript
+test('337.5 度の直前と境界を判定する', () => {
+  expect(Compass.headingToDirection(337.49)).toBe('NW');
+  expect(Compass.headingToDirection(337.5)).toBe('N');
+});
 ```
 
 3. テストを実行する
 
 ```bash
-cd sample-compass
-uv run pytest test_compass.py -v
-cd ..
+npm --prefix sample-compass-ts test
 ```
 
-4. `compass.py` の `heading < 22.5 or heading >= 337.5` と対応させる
+4. [`sample-compass-ts/src/compass.ts`](./sample-compass-ts/src/compass.ts) の `heading < 22.5 || heading >= 337.5` と対応させる
 
-早く終わった学習者は、公式 API の範囲外である `-1` をあえて与えるテストを読み、あり得ない値でも最後の有効な heading を維持する防御的プログラミングの狙いを考えます。
+早く終わった学習者は、`-1`、`360`、`NaN` を与えるテストを読み、無効な値を `ERR` に変換する防御的プログラミングの狙いを考えます。
 
-## 50〜65分: TypeScript
+## 50〜65分: MakeCode Python比較
 
-[`sample-compass-ts/src/compass.ts`](./sample-compass-ts/src/compass.ts) とテストを開きます。
+[`sample-compass/src/compass_makecode.py`](./sample-compass/src/compass_makecode.py) と [`sample-compass-ts/src/compass.ts`](./sample-compass-ts/src/compass.ts) を開きます。
 
 - `Direction` が許す文字列
 - `Number.isFinite` が必要な理由
-- 未校正時の例外
+- MakeCode が提供する `input.compass_heading()` とPC上の内部値の違い
 
 を探します。
 
 ```bash
-npm --prefix sample-compass-ts test
 npm --prefix sample-compass-ts run build
 ```
 
-ペアで「Pythonは`CAL`表示、TypeScriptは例外」という違いを、利用者の観点から説明します。
+ペアで「MakeCode Pythonは実機APIを呼び、Node TypeScriptは純粋ロジックを検証する」という役割の違いを説明します。
 
 ## 65〜80分: 品質ゲート
 
@@ -123,7 +119,7 @@ npm run test:all
 
 次に `.github/workflows/` と `.husky/` を見て、ローカルとCIの二重の安全網を確認します。`test:all` はカバレッジも含むため、単に「テストが通る」だけでなく未実行経路も検査します。
 
-設問: `--cov=compass` で `compass.py` のカバレッジが 100% でも、`compass_makecode.py` の不具合や、`-5`、`400`、`NaN` の期待結果が未検証なら見逃せるのはなぜでしょうか。「カバレッジ 100% = バグゼロ」ではない理由を 1 文で答えます。
+設問: `sample-compass-ts/src/compass.ts` のカバレッジが 100% でも、`sample-compass/src/compass_makecode.py` の不具合や、`-5`、`400`、`NaN` の期待結果が未検証なら見逃せるのはなぜでしょうか。「カバレッジ 100% = バグゼロ」ではない理由を 1 文で答えます。
 
 ## 80〜88分: 最終確認
 
@@ -133,7 +129,7 @@ npm run test:all
 npm run build:hex
 ```
 
-PythonとMakeCodeのHEXをそれぞれ確認し、どちらか一方をmicro:bitへ転送します。Python HEXはV1/V2ブロックを含むUniversal HEXとして検証済みです。
+生成されたMakeCodeのHEXを確認し、micro:bitへ転送します。
 
 ### 実機がない場合
 
@@ -156,6 +152,6 @@ MakeCode シミュレーターで A ボタンによる校正、B ボタンによ
 | `pxt` が見つからない | `npm --prefix sample-compass-makecode ci` を実行 |
 | PXTキャッシュの権限エラー | 所有者とホームディレクトリの書込権限を確認 |
 | コンパスが正しく向かない | 校正し、磁石・スピーカー・金属から離す |
-| MakeCodeでブロック変換できない | `compass.py` ではなく `compass_makecode.py` を使う |
+| MakeCodeでブロック変換できない | `sample-compass/src/compass_makecode.py` を使っているか確認 |
 
 授業でリポジトリ本体を汚さないため、学習者ごとにブランチを作るか、終了後に自分の変更だけを戻してください。

@@ -28,6 +28,7 @@ npm run build:hex
 
 次のファイルは改善検討時のスナップショットです。評価、テスト件数、未実装項目は作成時点の情報で、現在仕様ではありません。
 
+- [repository_review_2026-08-10.md](./repository_review_2026-08-10.md) — 最新。品質ゲート・CI・文書の実測レビュー（Critical 3 件）
 - [ACTIONABLE_IMPROVEMENTS.md](./ACTIONABLE_IMPROVEMENTS.md)
 - [MICROBIT_EDUCATION_REVIEW.md](./MICROBIT_EDUCATION_REVIEW.md)
 - [TEST_RESULTS.md](./TEST_RESULTS.md)

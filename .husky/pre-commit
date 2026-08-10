@@ -4,9 +4,9 @@
 echo "🔍 Git commit 前の lint & テストチェック..."
 
 # sample-compass (Python) の変更をチェック
-if git diff --cached --name-only | grep -q "^sample-compass/"; then
+if git diff --cached --name-only | grep -q "^projects/sample-compass/"; then
   echo "📝 sample-compass のファイルが変更されています"
-  cd sample-compass
+  cd projects/sample-compass
   
   echo "🔨 Python コンパイルチェックを実行中..."
   if uv run python -m py_compile src/compass_makecode.py; then
@@ -21,9 +21,9 @@ else
 fi
 
 # sample-compass-ts (TypeScript) の変更をチェック
-if git diff --cached --name-only | grep -q "^sample-compass-ts/"; then
+if git diff --cached --name-only | grep -q "^projects/sample-compass-ts/"; then
   echo "📝 sample-compass-ts のファイルが変更されています"
-  cd sample-compass-ts
+  cd projects/sample-compass-ts
   
   echo "🔨 TypeScript コンパイルチェックを実行中..."
   if ! npm run build; then
@@ -44,9 +44,9 @@ else
 fi
 
 # sample-compass-makecode の変更をチェック
-if git diff --cached --name-only | grep -q "^sample-compass-makecode/"; then
+if git diff --cached --name-only | grep -q "^projects/sample-compass-makecode/"; then
   echo "📝 sample-compass-makecode のファイルが変更されています"
-  cd sample-compass-makecode
+  cd projects/sample-compass-makecode
   
   echo "🔨 MakeCode コンパイル・シミュレーターテストを実行中..."
   if npm test; then

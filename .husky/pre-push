@@ -33,9 +33,9 @@ while read -r local_ref local_sha remote_ref remote_sha; do
   fi
 
   # sample-compass (Python) のテスト
-  if printf '%s\n' "$ref_files" | grep -q "^sample-compass/"; then
+  if printf '%s\n' "$ref_files" | grep -q "^projects/sample-compass/"; then
     echo "📦 sample-compass のファイルが変更されています"
-    cd "$REPO_ROOT/sample-compass" || exit 1
+    cd "$REPO_ROOT/projects/sample-compass" || exit 1
     
     echo "🧪 Python コンパイルチェックを実行中..."
     if ! uv run python -m py_compile src/compass_makecode.py; then
@@ -51,9 +51,9 @@ while read -r local_ref local_sha remote_ref remote_sha; do
   fi
 
   # sample-compass-ts (TypeScript) のテスト
-  if printf '%s\n' "$ref_files" | grep -q "^sample-compass-ts/"; then
+  if printf '%s\n' "$ref_files" | grep -q "^projects/sample-compass-ts/"; then
     echo "📦 sample-compass-ts のファイルが変更されています"
-    cd "$REPO_ROOT/sample-compass-ts" || exit 1
+    cd "$REPO_ROOT/projects/sample-compass-ts" || exit 1
     
     echo "🔨 ステップ 1/2: TypeScript ビルド..."
     if ! npm run build; then
@@ -79,9 +79,9 @@ while read -r local_ref local_sha remote_ref remote_sha; do
   fi
 
   # sample-compass-makecode のテスト
-  if printf '%s\n' "$ref_files" | grep -q "^sample-compass-makecode/"; then
+  if printf '%s\n' "$ref_files" | grep -q "^projects/sample-compass-makecode/"; then
     echo "📦 sample-compass-makecode のファイルが変更されています"
-    cd "$REPO_ROOT/sample-compass-makecode" || exit 1
+    cd "$REPO_ROOT/projects/sample-compass-makecode" || exit 1
     
     # 1. Build
     echo "🔨 ステップ 1/2: MakeCode ビルド..."

@@ -43,7 +43,7 @@ for arg in "$@"; do
         echo -e "${RED}❌ Error: Specify only one project target.${NC}"
         exit 1
       fi
-      TARGET_DIR="$arg"
+      TARGET_DIR="projects/$arg"
       ;;
     *)
       echo -e "${RED}❌ Error: Unknown argument: $arg${NC}"

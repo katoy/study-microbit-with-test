@@ -56,4 +56,4 @@ jobs:
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
 
       - name: Run Bandit security check
-        run: uvx bandit@1.9.4 sample-compass/compass_makecode.py
+        run: uvx bandit@1.9.4 projects/sample-compass/src/compass_makecode.py

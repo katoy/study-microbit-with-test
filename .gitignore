@@ -8,6 +8,7 @@ pnpm-debug.log*
 # ビルド成果物
 dist/
 build/
+projects/dist/
 *.hex
 *.uf2
 

@@ -112,6 +112,56 @@ test('should detect N at boundary 359°', () => {
 - Lines (行): 100%
 - Statements (文): 100%
 
+## テストカバレッジ
+
+### 📊 カバレッジ結果: **100%** ✅
+
+```
+------------|---------|----------|---------|---------|-------------------
+File        | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+------------|---------|----------|---------|---------|-------------------
+All files   |     100 |      100 |     100 |     100 |                   
+ compass.ts |     100 |      100 |     100 |     100 |                   
+------------|---------|----------|---------|---------|-------------------
+
+Test Suites: 2 passed, 2 total
+Tests:       74 passed, 74 total
+Snapshots:   0 total
+Time:        1.64 s, estimated 2 s
+```
+
+**達成状況**:
+- ✅ **Statements**: 100% - すべてのコード行を実行
+- ✅ **Branches**: 100% - すべての条件分岐をカバー
+- ✅ **Functions**: 100% - すべての関数を呼び出し
+- ✅ **Lines**: 100% - すべての行をカバー
+
+### カバレッジ測定方法
+
+```bash
+# コンソール出力で結果確認
+npm run test:coverage
+
+# HTML レポート生成
+npm run test:coverage
+# coverage/lcov-report/index.html をブラウザで開く
+```
+
+### テスト構成（74 テスト）
+
+**ユニットテスト** (test/compass.test.ts):
+- 8 方位の判定テスト (22.5°, 45°, 90° など各方位の複数境界値)
+- エラーハンドリング (NaN, Infinity, 負数, 範囲外)
+- キャリブレーション状態の管理
+- 方位変換の静的メソッド検証
+
+**統合テスト** (test/compass.integration.test.ts):
+- 完全なワークフロー（校正 → 回転 → 判定）
+- 8 方位全体の連続判定
+- 境界値での正確な遷移
+- 複数インスタンスの独立動作
+- 連続更新後の一貫性確認
+
 ## CI/CD 統合
 
 ### GitHub Actions

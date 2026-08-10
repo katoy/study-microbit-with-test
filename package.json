@@ -16,7 +16,7 @@
     "integration": "npm run integration:python && npm run integration:ts",
     "integration:python": "cd projects/sample-compass && uv run pytest test/test_simulator.py -v",
     "integration:ts": "cd projects/sample-compass-ts && npm run test:integration",
-    "test:config": "node --test test/",
+    "test:config": "node --test test/config.test.js",
     "test:coverage:ts": "cd projects/sample-compass-ts && npm run test:coverage",
     "test:coverage": "npm run test:coverage:ts",
     "lint": "npm run lint:python && npm run lint:ts",

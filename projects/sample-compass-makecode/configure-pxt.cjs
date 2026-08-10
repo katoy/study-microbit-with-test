@@ -20,7 +20,7 @@ try {
   }
 
   // Create symlinks for pxt-microbit, pxt-core, and pxt-common-packages from root node_modules
-  const rootNodeModules = path.join(projectDirectory, '..', 'node_modules');
+  const rootNodeModules = path.join(projectDirectory, '..', '..', 'node_modules');
   const packagesToLink = ['pxt-microbit', 'pxt-core', 'pxt-common-packages'];
 
   for (const pkg of packagesToLink) {

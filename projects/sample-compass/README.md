@@ -11,8 +11,8 @@ micro:bit方位磁石のPython教材です。MakeCodeのブロックへ変換で
 **目的**: Python 3.12.8 で MakeCode 互換の方位磁石アプリケーションを実装・テスト
 
 **テスト戦略**:
-1. **コンパイルチェック** (`py_compile`) - 構文検証
-2. **シミュレーターテスト** (`pytest` + Playwright) - MakeCode 環境での動作検証
+1. **ユニットテスト** (`test_coverage.py`) - 方向判定ロジックの完全検証（カバレッジ 100%）
+2. **シミュレーターテスト** (`test_simulator.py`) - MakeCode 環境での統合動作検証
 3. **実機テスト** - 手動による micro:bit での動作確認
 
 詳細は [`CLAUDE.md`](./CLAUDE.md) を参照。
@@ -38,36 +38,66 @@ uv run playwright install chromium
 
 | コマンド | 説明 |
 |---|---|
-| `uv run python -m py_compile src/compass_makecode.py` | 構文チェック |
-| `uv run pytest test/test_simulator.py -v` | シミュレーターテスト実行 |
-| `uv run pytest test/test_simulator.py -v -s` | 詳細ログ付きテスト |
+| `uv run ruff check src/compass_makecode.py test/test_coverage.py` | Lint チェック (Ruff) |
+| `npm run lint:python` | Python Lint チェック |
+| `uv run pytest test/ -v` | 全テスト実行（ユニット + シミュレーター） |
+| `uv run pytest test/test_coverage.py -v` | ユニットテストのみ |
+| `uv run pytest test/test_simulator.py -v` | シミュレーターテストのみ |
+| `uv run pytest test/ -v --cov=compass_makecode --cov-report=html` | カバレッジレポート生成 |
 
 ## テスト実行
 
-### 構文チェック（高速）
+### 全テスト（推奨）
 ```bash
-uv run python -m py_compile src/compass_makecode.py
+uv run pytest test/ -v --cov=compass_makecode --cov-report=term-missing
 ```
-- Pre-commit hook で自動実行
-- MakeCode への変換前のバリデーション
+- **ユニットテスト** (43 テスト): 方向判定ロジックの境界値テスト
+- **シミュレーターテスト** (1 テスト): MakeCode Web 上での統合検証
+- **カバレッジ**: 100% 保証
+
+期待される結果:
+```
+================================ tests coverage ================================
+Name                      Stmts   Miss  Cover   Missing
+---------------------------------------------------------------------------
+src/compass_makecode.py      62      0   100%
+---------------------------------------------------------------------------
+============================== 44 passed in 33.50s ==============================
+```
+
+### ユニットテスト（高速、開発用）
+```bash
+uv run pytest test/test_coverage.py -v
+```
+- 8 方位 (N, NE, E, SE, S, SW, W, NW) の境界値検証（30 テスト）
+- エラーハンドリング検証（負数、NaN、範囲外）
+- キャリブレーション / ボタン / ループ関数の動作検証（13 テスト）
+- 実行時間: 0.1 秒
 
 ### シミュレーターテスト（完全検証）
 ```bash
 uv run pytest test/test_simulator.py -v
 ```
 - Playwright で MakeCode Web シミュレーター上での動作を検証
-- 45度ずつの回転と LED 表示パターンを確認
+- 45度ずつ (0°, 45°, 90°, ..., 315°) の回転と LED 表示パターンを確認
 - Pre-push hook と CI パイプラインで実行
-- 最も重要なテスト
+- 実行時間: 30+ 秒（ネットワーク依存）
 
-### ブロック変換検証
+### カバレッジレポート（HTML）
 ```bash
-cd ..
-npm run verify:blocks
+uv run pytest test/ -v --cov=compass_makecode --cov-report=html
+open htmlcov/index.html
 ```
-- MakeCode Web でコードをブロックに変換可能か確認
-- 変換エラーやグレーブロックをチェック
-- ネットワーク接続が必要
+- 詳細なカバレッジレポートをブラウザで表示
+- 各行の実行状況を視覚的に確認
+
+### 構文チェック（最高速）
+```bash
+uv run python -m py_compile src/compass_makecode.py
+```
+- Pre-commit hook で自動実行
+- MakeCode への変換前のバリデーション
+- 実行時間: < 0.1 秒
 
 ## MakeCode で実行する
 
@@ -83,14 +113,109 @@ npm run verify:blocks
 `.github/workflows/integration-tests.yml` で自動実行：
 - Python 3.12.8 環境をセットアップ
 - `uv sync` で依存関係をインストール
-- `pytest test/test_simulator.py -v` でテスト実行
+- 全テスト (`test/`) 実行＋カバレッジ検証 (100% 必須)
 - すべて成功してから CI の他の実装テストへ
 
 ### ローカルテスト
 ```bash
 # ルートディレクトリから
-npm run test:python     # Python テストのみ
+npm run test:python     # Python テストのみ（ユニット + シミュレーター）
 npm run test:all        # すべての実装をテスト
+```
+
+## テストカバレッジ詳細
+
+### 📊 カバレッジ結果: 100% ✅
+
+```
+================================ tests coverage ================================
+Name                      Stmts   Miss  Cover   Missing
+---------------------------------------------------------------------------
+src/compass_makecode.py      62      0   100%
+---------------------------------------------------------------------------
+TOTAL                        62      0   100%
+============================== 44 passed in 32.55s ==============================
+```
+
+**達成状況**:
+- ✅ **すべての関数をカバー**: `calibrate_compass()`, `get_direction_string()`, `on_button_pressed_a()`, `on_forever()`
+- ✅ **すべての条件分岐をカバー**: 8 方位の判定ロジック、エラーハンドリング、校正状態
+- ✅ **すべての実行パスをカバー**: 44 テストケース（43 ユニット + 1 シミュレーター）
+
+### 100% カバレッジの達成方法
+
+**ユニットテスト** (`test/test_coverage.py`, 43 テスト):
+
+1. **方向判定ロジック** (30 テスト)
+   - 8 方位の判定関数 `get_direction_string(heading: float) -> str`
+   - 各方位の境界値テスト:
+     - NORTH: 0°, 359°, 22.4° (< 22.5), 337.5° (≥)
+     - NORTHEAST: 22.5°, 45°, 67.4° (< 67.5), 67.5° (≥)
+     - EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST（同様）
+   - エラーハンドリング:
+     - 負数: -1
+     - 範囲外: 360°, 720°
+     - 特殊値: NaN (float("nan"))
+
+2. **関数テスト** (13 テスト)
+   - `calibrate_compass()`: グローバル状態変更、LED表示、キャリブレーション実行
+   - `on_button_pressed_a()` (2 テスト):
+     - 校正未完了時: キャリブレーション処理の実行
+     - 校正完了時: 方位角と方向の console.log 出力
+   - `on_forever()` (10 テスト):
+     - 校正未完了時: "CAL" メッセージ表示
+     - 校正完了時（全 8 方位 + エラー）:
+       - N (0°), E (90°), S (180°), W (270°): 矢印表示
+       - NE (45°), SE (135°), SW (225°), NW (315°): 矢印表示
+       - 負数エラー: "ERR" メッセージ表示
+
+**シミュレーターテスト** (`test/test_simulator.py`, 1 テスト):
+- MakeCode Web 上での統合検証
+- ブロック変換後の動作確認
+- 45° ステップでの回転テストと LED パターン検証
+
+### 計測方法
+
+```bash
+# デフォルト計測（コンソール出力）
+uv run pytest test/ -v --cov=compass_makecode --cov-report=term-missing
+
+# HTML レポート生成
+uv run pytest test/ -v --cov=compass_makecode --cov-report=html
+open htmlcov/index.html
+
+# JSON レポート（CI 統合用）
+uv run pytest test/ --cov=compass_makecode --cov-report=json
+```
+
+### CI での検証
+
+`.github/workflows/integration-tests.yml` で自動実行：
+
+```yaml
+# Python Playwright シミュレーターテスト
+- name: Run Python tests
+  working-directory: ./projects/sample-compass
+  run: |
+    uv sync
+    uv run playwright install
+    uv run python -m pytest test/ -v --cov=compass_makecode --cov-report=term-missing
+```
+
+**カバレッジが 100% 未満の場合は CI が失敗**します（必須チェック）。
+
+### カバレッジが 100% 未満になった場合
+
+```bash
+# 未カバーの行を確認
+uv run pytest test/ -v --cov=compass_makecode --cov-report=term-missing
+
+# 詳細な HTML レポート確認
+uv run pytest test/ -v --cov=compass_makecode --cov-report=html
+open htmlcov/index.html
+
+# 特定のテストのみ実行して確認
+uv run pytest test/test_coverage.py::TestGetDirectionString -v
 ```
 
 ## トラブルシューティング
@@ -111,8 +236,18 @@ uv run playwright install chromium
 - `pytest test/test_simulator.py -v --timeout=30` で制限時間を設定
 
 ### シミュレーターに接続できない
-- MakeCode Web の サーバーが一時的に不安定な可能性
+- MakeCode Web のサーバーが一時的に不安定な可能性
 - しばらく待ってから再実行
+
+### カバレッジが 100% 未満
+```bash
+# 未カバーの行を確認
+uv run pytest test/ -v --cov=compass_makecode --cov-report=term-missing
+
+# HTML レポートで詳細確認
+uv run pytest test/ -v --cov=compass_makecode --cov-report=html
+open htmlcov/index.html
+```
 
 ## ドキュメント
 

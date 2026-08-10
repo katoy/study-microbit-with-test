@@ -3,19 +3,20 @@
 
 echo "🔍 Git commit 前の lint & テストチェック..."
 
+ROOT_DIR="$(pwd)"
+
 # sample-compass (Python) の変更をチェック
 if git diff --cached --name-only | grep -q "^projects/sample-compass/"; then
   echo "📝 sample-compass のファイルが変更されています"
-  cd projects/sample-compass
+  cd "$ROOT_DIR/projects/sample-compass"
   
-  echo "🔨 Python コンパイルチェックを実行中..."
-  if uv run python -m py_compile src/compass_makecode.py; then
-    echo "✅ Python コンパイル成功！"
+  echo "🔨 Python Lint チェック (Ruff) を実行中..."
+  if uv run ruff check src/compass_makecode.py test/test_coverage.py; then
+    echo "✅ Python Lint チェック成功！"
   else
-    echo "❌ Python コンパイル失敗！commit をキャンセルしました。"
+    echo "❌ Python Lint チェック失敗！commit をキャンセルしました。"
     exit 1
   fi
-  cd ..
 else
   echo "ℹ️ sample-compass に変更がありません"
 fi
@@ -23,7 +24,7 @@ fi
 # sample-compass-ts (TypeScript) の変更をチェック
 if git diff --cached --name-only | grep -q "^projects/sample-compass-ts/"; then
   echo "📝 sample-compass-ts のファイルが変更されています"
-  cd projects/sample-compass-ts
+  cd "$ROOT_DIR/projects/sample-compass-ts"
   
   echo "🔨 TypeScript コンパイルチェックを実行中..."
   if ! npm run build; then
@@ -38,7 +39,6 @@ if git diff --cached --name-only | grep -q "^projects/sample-compass-ts/"; then
     echo "❌ TypeScript テスト失敗！commit をキャンセルしました。"
     exit 1
   fi
-  cd ..
 else
   echo "ℹ️ sample-compass-ts に変更がありません"
 fi
@@ -46,7 +46,7 @@ fi
 # sample-compass-makecode の変更をチェック
 if git diff --cached --name-only | grep -q "^projects/sample-compass-makecode/"; then
   echo "📝 sample-compass-makecode のファイルが変更されています"
-  cd projects/sample-compass-makecode
+  cd "$ROOT_DIR/projects/sample-compass-makecode"
   
   echo "🔨 MakeCode コンパイル・シミュレーターテストを実行中..."
   if npm test; then
@@ -55,9 +55,9 @@ if git diff --cached --name-only | grep -q "^projects/sample-compass-makecode/";
     echo "❌ MakeCode テスト失敗！commit をキャンセルしました。"
     exit 1
   fi
-  cd ..
 else
   echo "ℹ️ sample-compass-makecode に変更がありません"
 fi
 
+cd "$ROOT_DIR"
 echo "✅ Pre-commit チェック完了！"

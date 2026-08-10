@@ -23,7 +23,7 @@ testpaths = ["test"]
 addopts = "-v"
 
 [tool.coverage.run]
-source = ["src/compass_makecode.py"]
+source = ["compass_makecode"]
 omit = []
 
 [tool.coverage.report]
@@ -41,7 +41,12 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "B", "C4"]
-ignore = ["E501"]  # line-length is checked separately
+ignore = [
+    "E501",   # line-length is checked separately
+    "F821",   # MakeCode グローバル変数 (basic, input, console, etc.)
+    "E402",   # Module level import not at top (MakeCode モック初期化のため必須)
+    "F841",   # Local variable assigned but never used (mock patch 設定のため必須)
+]
 
 [tool.ruff.format]
 quote-style = "double"

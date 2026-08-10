@@ -71,10 +71,10 @@ jobs:
     - name: Run Python Playwright tests
       working-directory: ./projects/sample-compass
       run: |
-        echo "🚀 Python Playwright シミュレーターテストを実行中..."
+        echo "🚀 Python テストを実行中 (ユニットテスト + シミュレーターテスト)..."
         uv sync
         uv run playwright install
-        uv run pytest test/test_simulator.py -v
+        uv run python -m pytest test/ -v --cov=compass_makecode --cov-report=term-missing
         echo "✅ Python テスト完了"
 
     # 統合テスト結果のレポート

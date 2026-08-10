@@ -62,6 +62,26 @@ npm run test:all
 **カバレッジ要件:**
 - **Python** (`sample-compass/src/compass_makecode.py`): 100% 以上（100% 未満なら失敗）
 - **TypeScript** (`sample-compass-ts/src/compass.ts`): 100% 以上（branches/functions/lines/statements）
+- **MakeCode** (`sample-compass-makecode`): PXT シミュレーターテストで検証（従来のカバレッジ測定は非対応）
+
+### カバレッジ測定結果
+
+| プロジェクト | テスト | 結果 | 詳細 |
+|---|---|---|---|
+| **sample-compass-ts** | ユニット + 統合 | ✅ **100%** | Statements, Branches, Functions, Lines すべて 100% （74 テスト） |
+| **sample-compass-makecode** | PXT シミュレーター | ✅ **35/35 成功** | ブロック変換・シミュレーター実行の検証完了 |
+
+**カバレッジの確認方法:**
+
+```bash
+# TypeScript カバレッジレポート生成
+cd projects/sample-compass-ts
+npm run test:coverage
+# coverage/lcov-report/index.html をブラウザで開く
+
+# ルートからすべてのテスト実行
+npm run test:all
+```
 
 ## 3つの実装
 
@@ -77,13 +97,14 @@ npm run test:all
 
 | コマンド | 内容 |
 |---|---|
-| `npm run test:all` | ローカルの完全な品質ゲート |
+| `npm run test:all` | ローカルの完全な品質ゲート（テスト + カバレッジ検査） |
 | `npm run test:config` | ルート設定テスト |
 | `npm run test:python` | Pythonユニット／HEX検証テスト |
 | `npm run integration:python` | モックを使うPython統合テスト |
 | `npm run test:ts` | TypeScriptユニットテスト |
 | `npm run integration:ts` | TypeScript統合テスト |
-| `npm run test:makecode` | PXTコンパイルとシミュレーターテスト |
+| `npm run test:makecode` | PXTコンパイルとシミュレーターテスト（35テスト） |
+| `npm run test:coverage:ts` | TypeScript カバレッジレポート生成 |
 | `npm run lint` | Python構文、TypeScript、MakeCodeビルド検査 |
 | `npm run build:hex` | MakeCode版のHEXを生成 |
 

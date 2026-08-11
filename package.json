@@ -27,7 +27,7 @@
     "build:hex:makecode": "cd projects/sample-compass-makecode && npm run build:hex",
     "verify:blocks": "node scripts/generate-blocks-hex.js",
     "clean": "bash scripts/clean.sh",
-    "prepare": "[ -z \"$CI\" ] && husky install || true"
+    "prepare": "[ -z \"$GITHUB_ACTIONS\" ] && husky install || true"
   },
   "devDependencies": {
     "husky": "^8.0.3",

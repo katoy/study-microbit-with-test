@@ -123,7 +123,7 @@ def test_makecode_simulator_rotation():
     print("Starting Playwright simulator rotation test for Python...")
     
     headless_mode = os.getenv("PLAYWRIGHT_HEADLESS", "1").lower() != "0"
-    record_video = os.getenv("RECORD_VIDEO", "1").lower() == "1"
+    record_video = os.getenv("RECORD_VIDEO", "0").lower() == "1"
     
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=headless_mode)

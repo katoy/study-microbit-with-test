@@ -62,15 +62,15 @@ uv run pytest test/test_simulator.py -v -s
 
 #### ビデオ記録の制御
 
-デフォルトではテスト実行時にビデオが記録されます。ビデオ記録を無効にする場合：
+デフォルトではビデオは記録されません。ビデオを記録したい場合：
 
 ```bash
-# ビデオ記録なしでテスト実行
-RECORD_VIDEO=0 uv run pytest test/test_simulator.py -v -s
+# ビデオを記録してテスト実行
+RECORD_VIDEO=1 uv run pytest test/test_simulator.py -v -s
 ```
 
-- `RECORD_VIDEO=1` (デフォルト): ビデオを記録し、GIF に変換
-- `RECORD_VIDEO=0`: ビデオ記録を無効化（テスト実行時間が短縮）
+- `RECORD_VIDEO=0` (デフォルト): ビデオ記録を無効化（テスト実行時間が短い）
+- `RECORD_VIDEO=1`: ビデオを記録し、GIF に変換（実演動画が生成される）
 
 このテストは実際のブラウザで MakeCode シミュレータを起動し、以下の動作を確認します：
 

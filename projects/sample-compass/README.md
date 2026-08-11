@@ -151,14 +151,14 @@ micro:bit の 5×5 LED マトリックスに、現在の方位を示す 8 方向
 
 | 角度 | 方向 | 矢印 | LED パターン（シミュレーター） | ArrowNames 定数 |
 |------|------|------|------|------------|
-| **0°** | **北（N）** | **↑** | ![North](./screenshots/led_000_north.png) | `ArrowNames.NORTH` |
-| **45°** | **北東（NE）** | **↗** | ![Northeast](./screenshots/led_045_northeast.png) | `ArrowNames.NORTH_EAST` |
-| **90°** | **東（E）** | **→** | ![East](./screenshots/led_090_east.png) | `ArrowNames.EAST` |
-| **135°** | **南東（SE）** | **↘** | ![Southeast](./screenshots/led_135_southeast.png) | `ArrowNames.SOUTH_EAST` |
-| **180°** | **南（S）** | **↓** | ![South](./screenshots/led_180_south.png) | `ArrowNames.SOUTH` |
-| **225°** | **南西（SW）** | **↙** | ![Southwest](./screenshots/led_225_southwest.png) | `ArrowNames.SOUTH_WEST` |
-| **270°** | **西（W）** | **←** | ![West](./screenshots/led_270_west.png) | `ArrowNames.WEST` |
-| **315°** | **北西（NW）** | **↖** | ![Northwest](./screenshots/led_315_northwest.png) | `ArrowNames.NORTH_WEST` |
+| **0°** | **北（N）** | **↑** | <img src="./screenshots/led_000_north.png" width="150" alt="North"> | `ArrowNames.NORTH` |
+| **45°** | **北東（NE）** | **↗** | <img src="./screenshots/led_045_northeast.png" width="150" alt="Northeast"> | `ArrowNames.NORTH_EAST` |
+| **90°** | **東（E）** | **→** | <img src="./screenshots/led_090_east.png" width="150" alt="East"> | `ArrowNames.EAST` |
+| **135°** | **南東（SE）** | **↘** | <img src="./screenshots/led_135_southeast.png" width="150" alt="Southeast"> | `ArrowNames.SOUTH_EAST` |
+| **180°** | **南（S）** | **↓** | <img src="./screenshots/led_180_south.png" width="150" alt="South"> | `ArrowNames.SOUTH` |
+| **225°** | **南西（SW）** | **↙** | <img src="./screenshots/led_225_southwest.png" width="150" alt="Southwest"> | `ArrowNames.SOUTH_WEST` |
+| **270°** | **西（W）** | **←** | <img src="./screenshots/led_270_west.png" width="150" alt="West"> | `ArrowNames.WEST` |
+| **315°** | **北西（NW）** | **↖** | <img src="./screenshots/led_315_northwest.png" width="150" alt="Northwest"> | `ArrowNames.NORTH_WEST` |
 
 **実装での使用例**:
 ```python

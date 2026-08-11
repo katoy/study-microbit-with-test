@@ -34,6 +34,52 @@ uv sync
 uv run playwright install chromium
 ```
 
+## 操作デモ
+
+![Compass Demo](./screenshots/demo.gif)
+
+マウスドラッグでシミュレータの向きを回転させると、LED ディスプレイに **8 つの方向** が表示されます。
+
+| 角度 | 方向 | LED パターン |
+|------|------|----------|
+| 0° | 北（N） | ↑ |
+| 45° | 北東（NE） | ↗ |
+| 90° | 東（E） | → |
+| 135° | 南東（SE） | ↘ |
+| 180° | 南（S） | ↓ |
+| 225° | 南西（SW） | ↙ |
+| 270° | 西（W） | ← |
+| 315° | 北西（NW） | ↖ |
+
+### キャリブレーション
+
+初回起動時は「CAL」メッセージが表示されます。この状態で**ボタン A** を押すとキャリブレーションが開始されます。
+
+## LED 表示パターン
+
+各方向に対応する LED 表示パターンを以下に示します。方位磁石がキャリブレーションされ、シミュレーターで向きが回転すると、これらのパターンが 5×5 LED マトリックスに表示されます。
+
+### 方向別 LED パターン一覧
+
+![LED Patterns Grid](./screenshots/led_patterns_grid.png)
+
+### 個別パターン詳細
+
+| 角度 | 方向 | LED パターン | スクリーンショット |
+|------|------|----------|-------------|
+| 0° | 北（N） | ↑ | ![North](./screenshots/led_000_north.png) |
+| 45° | 北東（NE） | ↗ | ![Northeast](./screenshots/led_045_northeast.png) |
+| 90° | 東（E） | → | ![East](./screenshots/led_090_east.png) |
+| 135° | 南東（SE） | ↘ | ![Southeast](./screenshots/led_135_southeast.png) |
+| 180° | 南（S） | ↓ | ![South](./screenshots/led_180_south.png) |
+| 225° | 南西（SW） | ↙ | ![Southwest](./screenshots/led_225_southwest.png) |
+| 270° | 西（W） | ← | ![West](./screenshots/led_270_west.png) |
+| 315° | 北西（NW） | ↖ | ![Northwest](./screenshots/led_315_northwest.png) |
+
+**表示について:**
+- 🔴 **赤色 LED**: 点灯している LED
+- ⚪ **灰色 LED**: 消灯している LED
+
 ## よく使うコマンド
 
 | コマンド | 説明 |

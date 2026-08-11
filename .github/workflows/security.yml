@@ -49,6 +49,32 @@ jobs:
         with:
           sarif_file: trivy-results.sarif
 
+  npm-audit:
+    runs-on: ubuntu-latest
+    name: NPM Dependency Audit
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.23.2'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: |
+          echo "🔍 npm audit を実行中..."
+          npm audit --audit-level=moderate --workspaces
+          echo "✅ npm audit 完了"
+
   python-static-analysis:
     runs-on: ubuntu-latest
     name: Python Static Analysis

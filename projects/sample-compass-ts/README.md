@@ -40,6 +40,49 @@ npm test
 | `npm run test:watch` | ファイル変更時に自動再実行 |
 | `npm run clean` | ビルド成果物を削除 |
 
+## 操作デモ
+
+### テスト実行による動作確認
+
+Node.js 上でテストを実行し、コンパスの動作を確認できます：
+
+```bash
+# 全テスト実行
+npm test
+
+# Watch モードで開発
+npm run test:watch
+
+# 特定のテストのみ実行
+npm test -- --testNamePattern="direction detection"
+```
+
+**検証内容**:
+- ✅ 8 方位の判定（N, NE, E, SE, S, SW, W, NW）
+- ✅ 境界値での正確な判定（22.5°, 67.5° など）
+- ✅ キャリブレーション状態の管理
+- ✅ エラーハンドリング（NaN, 範囲外、負数）
+
+**テスト実行例**:
+```bash
+$ npm test
+
+PASS  test/compass.test.ts (1.2 s)
+PASS  test/compass.integration.test.ts (0.8 s)
+
+Tests:       74 passed, 74 total
+Snapshots:   0 total
+Time:        2.00 s
+
+Coverage summary:
+  Statements   : 100% ( 62/62 )
+  Branches     : 100% ( 48/48 )
+  Functions    : 100% ( 8/8 )
+  Lines        : 100% ( 62/62 )
+```
+
+---
+
 ## API リファレンス
 
 ```typescript

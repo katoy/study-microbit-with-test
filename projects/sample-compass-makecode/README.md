@@ -14,6 +14,100 @@ MakeCodeのブロック、TypeScript、シミュレーター、実機HEXをつ�
 
 実機の方位角は `input.compassHeading()` から取得します。加速度APIは使用しません。
 
+---
+
+## 操作デモ
+
+### シミュレータ画面の実演動画
+
+![Simulator Screencast](./screenshots/simulator-demo.gif)
+
+上の GIF は、ブラウザで実際に動作するシミュレータをスクリーンキャストしたものです。
+
+**デモで確認できる動作**:
+- ✅ コンパスプログラムの実行
+- ✅ 8 方位の自動判定
+- ✅ LED マトリックスへの矢印表示
+- ✅ ボタン操作によるキャリブレーション
+
+### ブラウザウィンドウを表示して実行
+
+```bash
+PLAYWRIGHT_HEADLESS=0 npm run test:simulator
+```
+
+- ✅ ブラウザウィンドウが自動で開く
+- ✅ MakeCode シミュレータの動作をリアルタイムで確認
+- ✅ ボタン操作、LED 表示、キャリブレーション状態を検証
+- ✅ 実行時間: 約 50 秒
+
+### バックグラウンドで実行（ヘッドレスモード）
+
+```bash
+npm run test:simulator
+```
+
+- ✅ ブラウザウィンドウなし
+- ✅ テスト結果をコンソール出力（35/35 成功）
+- ✅ 実行時間: 約 50 秒（PXT シミュレーター含む）
+
+**検証項目**:
+| 検証項目 | 詳細 |
+|---------|------|
+| 📍 コード実行 | compass.ts をシミュレータで実行 |
+| 📐 8方位判定 | 0°～315° の各方向を正確に判定 |
+| 🔴 LED 表示 | 5×5 LED マトリックスに 8 方向の矢印を表示 |
+| 🔧 キャリブレーション | ボタン A で校正開始、校正完了後に方向を表示 |
+| ⚠️ エラーハンドリング | 負数、範囲外、NaN 値を `ERR` で表示 |
+
+---
+
+## LED 表示パターン
+
+micro:bit の 5×5 LED マトリックスに、現在の方位を示す 8 方向の矢印を表示します。
+
+### 方向別 LED パターン
+
+各角度で表示される矢印（MakeCode シミュレーター実際のキャプチャ）:
+
+| 角度 | 方向 | 矢印 | LED パターン（シミュレーター） |
+|------|------|------|------|
+| **0°** | **北（N）** | **↑** | <img src="./screenshots/led_000_north.png" width="150" alt="North"> |
+| **45°** | **北東（NE）** | **↗** | <img src="./screenshots/led_045_northeast.png" width="150" alt="Northeast"> |
+| **90°** | **東（E）** | **→** | <img src="./screenshots/led_090_east.png" width="150" alt="East"> |
+| **135°** | **南東（SE）** | **↘** | <img src="./screenshots/led_135_southeast.png" width="150" alt="Southeast"> |
+| **180°** | **南（S）** | **↓** | <img src="./screenshots/led_180_south.png" width="150" alt="South"> |
+| **225°** | **南西（SW）** | **↙** | <img src="./screenshots/led_225_southwest.png" width="150" alt="Southwest"> |
+| **270°** | **西（W）** | **←** | <img src="./screenshots/led_270_west.png" width="150" alt="West"> |
+| **315°** | **北西（NW）** | **↖** | <img src="./screenshots/led_315_northwest.png" width="150" alt="Northwest"> |
+
+### 実装での使用例
+
+```typescript
+// compass.ts の headingToDirection 関数で方位を判定
+// その結果に応じて LED に矢印を表示
+enum Direction {
+  N = 'N',    // 北（↑）
+  NE = 'NE',  // 北東（↗）
+  E = 'E',    // 東（→）
+  SE = 'SE',  // 南東（↘）
+  S = 'S',    // 南（↓）
+  SW = 'SW',  // 南西（↙）
+  W = 'W',    // 西（←）
+  NW = 'NW'   // 北西（↖）
+}
+
+// main.ts で使用
+if (direction === 'N') {
+  basic.showArrow(ArrowNames.NORTH);    // 北向き矢印を表示
+} else if (direction === 'NE') {
+  basic.showArrow(ArrowNames.NORTH_EAST);  // 北東向き矢印を表示
+}
+// ... 以下 8 方位まで
+```
+
+---
+
 ## セットアップとテスト
 
 ```bash

@@ -36,8 +36,6 @@ jobs:
           format: sarif
           output: trivy-results.sarif
           limit-severities-for-sarif: true
-          version: v0.73.0
-          skip-version-check: true
 
       - name: Upload Trivy results to GitHub Security tab
         if: always()

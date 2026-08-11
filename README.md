@@ -181,7 +181,6 @@ npm run integration:python
 ### 利用可能なスキル
 
 1. **microbit-generate-blocks-hex** — MakeCode Web エディタ経由でブロック表示対応の HEX ファイルを自動生成
-2. **microbit-makecode-recorder** — micro:bit プログラム実行を GIF アニメーションとして記録
 
 詳細は [`skills/README.md`](./skills/README.md) を参照。
 

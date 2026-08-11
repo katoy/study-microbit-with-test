@@ -26,50 +26,6 @@ node ./scripts/generate-blocks-hex.js
 
 ---
 
-### 2. microbit-makecode-recorder
-
-**説明**: micro:bit プログラム実行を MakeCode オンラインエディタで GIF アニメーションとして記録するツールです。
-
-**特徴**:
-- メソッドチェーン形式の流暢な API
-- Playwright による MakeCode の自動制御
-- マウスカーソル可視化 + クリック効果
-- 教育コンテンツ向けの GIF 生成
-
-**インストール**:
-```bash
-pip install -e skills/microbit-makecode-recorder/
-```
-
-**基本的な使用例**:
-```python
-from microbit_makecode_recorder import MicrobotRecorder
-import asyncio
-
-async def record_tutorial():
-    recorder = MicrobotRecorder(hex_file="program.hex")
-    await recorder.open_makecode()
-    
-    await recorder \
-        .wait(2) \
-        .click(100, 200) \
-        .type("Hello") \
-        .record_gif("output.gif")
-    
-    await recorder.close()
-
-asyncio.run(record_tutorial())
-```
-
-**依存関係**:
-- Playwright >= 1.40.0
-- Pillow >= 10.0.0
-- Python 3.9+
-
-**詳細**: [microbit-makecode-recorder/README.md](./microbit-makecode-recorder/README.md)
-
----
-
 ## スキル管理
 
 ### グローバル設定への登録

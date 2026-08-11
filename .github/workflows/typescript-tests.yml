@@ -14,6 +14,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    name: TypeScript Unit & Integration Tests
 
     steps:
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -36,9 +37,26 @@ jobs:
       working-directory: ./projects/sample-compass-ts
       run: npm run build
 
-    - name: Run tests with coverage
+    - name: Run unit tests
       working-directory: ./projects/sample-compass-ts
-      run: npm run test:coverage
+      run: |
+        echo "🧪 TypeScript ユニットテストを実行中..."
+        npm run test:unit
+        echo "✅ ユニットテスト完了"
+
+    - name: Run integration tests
+      working-directory: ./projects/sample-compass-ts
+      run: |
+        echo "🔗 TypeScript 統合テストを実行中..."
+        npm run test:integration -- --verbose
+        echo "✅ 統合テスト完了"
+
+    - name: Generate coverage report
+      working-directory: ./projects/sample-compass-ts
+      run: |
+        echo "📊 カバレッジレポートを生成中..."
+        npm run test:coverage
+        echo "✅ カバレッジレポート完了"
 
     - name: Verify coverage meets 100% threshold
       working-directory: ./projects/sample-compass-ts

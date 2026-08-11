@@ -28,10 +28,35 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Validate shell scripts
+      - name: Validate all shell scripts
         run: |
-          bash -n .devcontainer/setup-dev.sh
-          bash -n sync-ai-skills.sh
+          echo "🔍 Shell スクリプトをバリデーション中..."
+          find .devcontainer scripts -name "*.sh" -type f | while read script; do
+            echo "  ✓ $script"
+            bash -n "$script" || exit 1
+          done
+          echo "✅ Shell スクリプト検証完了"
+
+      - name: Validate package.json files
+        run: |
+          echo "🔍 package.json をバリデーション中..."
+          node -e "
+            const fs = require('fs');
+            const files = ['package.json', 'projects/sample-compass-ts/package.json', 'projects/sample-compass-makecode/package.json'];
+            files.forEach(f => {
+              try {
+                JSON.parse(fs.readFileSync(f, 'utf8'));
+                console.log('  ✓', f);
+              } catch (e) {
+                console.error('  ✗', f, e.message);
+                process.exit(1);
+              }
+            });
+          "
+          echo "✅ package.json 検証完了"
 
       - name: Run repository configuration tests
-        run: npm run test:config
+        run: |
+          echo "🔍 リポジトリ設定テストを実行中..."
+          npm run test:config
+          echo "✅ リポジトリ設定テスト完了"

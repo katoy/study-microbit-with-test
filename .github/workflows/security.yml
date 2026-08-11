@@ -93,5 +93,6 @@ jobs:
           echo "🔍 Python セキュリティチェックを実行中..."
           uvx bandit@1.9.4 \
             projects/sample-compass/src/compass_makecode.py \
+            projects/sample-compass/test/test_coverage.py \
             -f txt -v
           echo "✅ Python セキュリティチェック完了"

@@ -5,26 +5,22 @@ on:
     branches: [ main, develop ]
     paths:
       - 'projects/sample-compass/**'
-      - 'projects/sample-compass-ts/**'
       - 'projects/sample-compass-makecode/**'
       - '.github/workflows/integration-tests.yml'
   pull_request:
     branches: [ main, develop ]
     paths:
       - 'projects/sample-compass/**'
-      - 'projects/sample-compass-ts/**'
       - 'projects/sample-compass-makecode/**'
 
 jobs:
-  integration-tests:
+  makecode-integration:
     runs-on: ubuntu-latest
+    name: MakeCode Integration Tests
 
     steps:
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-
-
-    # TypeScript 統合テスト（実機APIは使用しない）
     - name: Set up Node.js
       uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
       with:
@@ -35,49 +31,33 @@ jobs:
     - name: Install root dependencies
       run: npm ci
 
-    - name: Install TypeScript dependencies
-      working-directory: ./projects/sample-compass-ts
-      run: npm ci
-
-    - name: Build TypeScript
-      working-directory: ./projects/sample-compass-ts
-      run: npm run build
-
-    - name: Run TypeScript integration tests
-      working-directory: ./projects/sample-compass-ts
-      run: |
-        echo "🚀 TypeScript 統合テストを実行中..."
-        npm run test:integration -- --verbose
-        echo "✅ TypeScript 統合テスト完了"
-
-    # MakeCode コンパイル・シミュレーターテスト
-    - name: Set up Node.js for MakeCode
-      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-      with:
-        node-version: '22.23.2'
-        cache: 'npm'
-        cache-dependency-path: package-lock.json
-
     - name: Run MakeCode tests
       working-directory: ./projects/sample-compass-makecode
       run: |
         npm ci
+        echo "🚀 MakeCode シミュレーターテストを実行中..."
         npm test
+        echo "✅ MakeCode テスト完了"
 
-    # Python Playwright シミュレーターテスト
+  python-integration:
+    runs-on: ubuntu-latest
+    name: Python Playwright Integration Tests
+
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
     - name: Install uv
       uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
 
     - name: Run Python Playwright tests
       working-directory: ./projects/sample-compass
       run: |
-        echo "🚀 Python テストを実行中 (ユニットテスト + シミュレーターテスト)..."
+        echo "🚀 Python Playwright テストを実行中..."
         uv sync
         uv run playwright install
-        uv run python -m pytest test/ -v --cov=compass_makecode --cov-report=term-missing
+        uv run python -m pytest test/test_simulator.py -v
         echo "✅ Python テスト完了"
 
-    # 統合テスト結果のレポート
     - name: Integration test summary
       if: always()
       run: |

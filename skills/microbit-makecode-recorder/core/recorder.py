@@ -31,7 +31,14 @@ class Event:
 class MicrobotRecorder:
     """メソッドチェーン形式の MakeCode 操作 API。"""
 
-    def __init__(self, hex_file: str, browser_width: int = 1280, browser_height: int = 800):
+    def __init__(
+        self,
+        hex_file: str,
+        browser_width: int = 1280,
+        browser_height: int = 800,
+        cursor_x: int = 640,
+        cursor_y: int = 400,
+    ):
         """
         初期化
 
@@ -39,10 +46,14 @@ class MicrobotRecorder:
             hex_file: micro:bit hex ファイルのパス
             browser_width: ブラウザ幅
             browser_height: ブラウザ高さ
+            cursor_x: 描画するカーソルの X 座標（デフォルト: 640）
+            cursor_y: 描画するカーソルの Y 座標（デフォルト: 400）
         """
         self.hex_file = hex_file
         self.browser_width = browser_width
         self.browser_height = browser_height
+        self.cursor_x = cursor_x
+        self.cursor_y = cursor_y
         self._events: list[Event] = []
         self._browser: MakeCodeBrowser | None = None
         self._screenshots: list[Image.Image] = []
@@ -124,8 +135,8 @@ class MicrobotRecorder:
         enhanced_screenshots: list[Image.Image] = []
 
         for i, screenshot in enumerate(self._screenshots):
-            # デフォルト位置にカーソルを描画
-            with_cursor = cursor_renderer.draw_cursor(screenshot, 640, 400)
+            # 設定されたカーソル位置に描画
+            with_cursor = cursor_renderer.draw_cursor(screenshot, self.cursor_x, self.cursor_y)
             enhanced_screenshots.append(with_cursor)
 
         # クリック効果を追加（最後のクリック位置に対して）

@@ -51,8 +51,21 @@ asyncio.run(record_tutorial())
 
 #### 初期化
 ```python
-MicrobotRecorder(hex_file: str, browser_width: int = 1280, browser_height: int = 800)
+MicrobotRecorder(
+    hex_file: str,
+    browser_width: int = 1280,
+    browser_height: int = 800,
+    cursor_x: int = 640,
+    cursor_y: int = 400,
+)
 ```
+
+**パラメータ:**
+- `hex_file`: micro:bit HEX ファイルのパス
+- `browser_width`: ブラウザ幅（デフォルト: 1280px）
+- `browser_height`: ブラウザ高さ（デフォルト: 800px）
+- `cursor_x`: GIF に描画するカーソルの X 座標（デフォルト: 640）
+- `cursor_y`: GIF に描画するカーソルの Y 座標（デフォルト: 400）
 
 #### 操作メソッド（チェーン可能）
 - `click(x: int, y: int) -> MicrobotRecorder`: クリック操作

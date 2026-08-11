@@ -105,7 +105,7 @@ class MakeCodeBrowser:
 
     async def click(self, x: int, y: int) -> Image.Image:
         """
-        クリック操作を実行
+        クリック操作を実行（座標ベース）
 
         Args:
             x: X 座標
@@ -113,11 +113,21 @@ class MakeCodeBrowser:
 
         Returns:
             クリック後のスクリーンショット
+
+        Note:
+            座標ベースのマウスクリックを使用します。
+            特定の要素セレクタを使用せずに、画面上の座標を直接クリックします。
         """
         if not self.page:
             raise RuntimeError("Browser not initialized. Call open() first.")
 
-        await self.page.click(f"[data-x='{x}'][data-y='{y}']", force=True)
+        # マウスを指定座標に移動してクリック
+        await self.page.mouse.move(x, y)
+        await self.page.mouse.click(x, y)
+
+        # クリック後のアニメーション完了を待つ
+        await asyncio.sleep(0.3)
+
         return await self.screenshot()
 
     async def type(self, text: str) -> Image.Image:

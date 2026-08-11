@@ -22,9 +22,9 @@ MakeCodeで動きを観察し、PythonとTypeScriptで同じ問題を検証す�
 
 ```bash
 npm ci
-npm --prefix sample-compass-ts ci
-npm --prefix sample-compass-makecode ci
-uv sync --project sample-compass
+npm --prefix projects/sample-compass-ts ci
+npm --prefix projects/sample-compass-makecode ci
+uv sync --project projects/sample-compass
 npm run test:all
 npm run build:hex
 ```
@@ -61,6 +61,15 @@ npm run build:hex
 
 合計90分です。
 
+**⚠️ 時間管理のコツ:**
+
+この時間表は目安です。実運用では以下の調整が効果的です:
+
+- **時間がギチギチな場合**: 30～50分の TypeScript テストを「コピペ」で進行させる（手入力では 2-3分余計にかかる）
+- **80～88分が足りなくなった場合**: 実機校正をスキップして、シミュレーター画面を講師が映して「こう動きます」と説明する
+- **余裕がある場合**: 早めに終わった学習者に「負の値（-1）や 360 度はどうなる？」というテストを追加させる
+- **講師が 110分確保できる場合**: 各セクション最後に質問時間 +5分ずつ追加すると、より深い理解につながります
+
 ## 0〜10分: 導入
 
 ルートREADMEの「方位磁石とは何か」を見せます。
@@ -95,9 +104,9 @@ npm run build:hex
 
 **講師が実演**（学習者はそれを見ていても、自分の PC で一緒に操作してもいい）:
 
-1. [`sample-compass-makecode/src/main.ts`](./sample-compass-makecode/src/main.ts) を MakeCode で開く
+1. [`sample-compass-makecode/src/main.ts`](../../projects/sample-compass-makecode/src/main.ts) を MakeCode で開く
 2. ブロックの中から「A ボタンが押された」「ずっと（forever）」を探す
-3. [`compass.ts`](./sample-compass-makecode/src/compass.ts) の `input.compassHeading()` ブロックを探す
+3. [`compass.ts`](../../projects/sample-compass-makecode/src/compass.ts) の `input.compassHeading()` ブロックを探す
 
 **講師の説明**:
 
@@ -107,7 +116,7 @@ npm run build:hex
 **実行**:
 
 ```bash
-npm --prefix sample-compass-makecode test
+npm --prefix projects/sample-compass-makecode test
 ```
 
 末尾に `MAKECODE_TEST_RESULT: all passed ✓` が出たことを確認します。
@@ -130,7 +139,7 @@ npm --prefix sample-compass-makecode test
 
 **学習者の作業**:
 
-1. [`sample-compass-ts/test/compass.test.ts`](./sample-compass-ts/test/compass.test.ts) を開く
+1. [`sample-compass-ts/test/compass.test.ts`](../../projects/sample-compass-ts/test/compass.test.ts) を開く
 2. 次のコードを探す:
 
 ```typescript
@@ -143,15 +152,15 @@ test('heading from 0 to 89.9...', () => {
 
 ```typescript
 test('67.5 度の直前と境界を判定する', () => {
-  expect(Compass.headingToDirection(67.49)).toBe('E');
-  expect(Compass.headingToDirection(67.5)).toBe('SE');
+  expect(Compass.headingToDirection(67.49)).toBe('NE');  // 22.5 <= 67.49 < 67.5 => NE
+  expect(Compass.headingToDirection(67.5)).toBe('E');    // 67.5 <= 67.5 < 112.5 => E
 });
 ```
 
 4. テストを実行する:
 
 ```bash
-npm --prefix sample-compass-ts test
+npm --prefix projects/sample-compass-ts test
 ```
 
 **何が起こるか**:
@@ -179,8 +188,8 @@ npm --prefix sample-compass-ts test
 
 **比較作業**:
 
-1. [`sample-compass/src/compass_makecode.py`](./sample-compass/src/compass_makecode.py) を開く
-2. [`sample-compass-ts/src/compass.ts`](./sample-compass-ts/src/compass.ts) と並べる
+1. [`sample-compass/src/compass_makecode.py`](../../projects/sample-compass/src/compass_makecode.py) を開く
+2. [`sample-compass-ts/src/compass.ts`](../../projects/sample-compass-ts/src/compass.ts) と並べる
 3. 差を探す：
 
 - Python: `return "N"` （文字列）
@@ -194,7 +203,7 @@ npm --prefix sample-compass-ts test
 **ビルド**:
 
 ```bash
-npm --prefix sample-compass-ts run build
+npm --prefix projects/sample-compass-ts run build
 ```
 
 ビルド成功 = TypeScript の型チェック OK
@@ -214,12 +223,12 @@ npm --prefix sample-compass-ts run build
 git checkout -b practice/test-failure
 ```
 
-2. [`sample-compass-ts/test/compass.test.ts`](./sample-compass-ts/test/compass.test.ts) で、さっき追加したテストの期待値を一時的に間違える:
+2. [`../../projects/sample-compass-ts/test/compass.test.ts`](../../projects/sample-compass-ts/test/compass.test.ts) で、さっき追加したテストの期待値を一時的に間違える:
 
 ```typescript
 test('67.5 度の直前と境界を判定する', () => {
-  expect(Compass.headingToDirection(67.49)).toBe('SE'); // ← 意図的に間違える（E ではなく SE）
-  expect(Compass.headingToDirection(67.5)).toBe('SE');
+  expect(Compass.headingToDirection(67.49)).toBe('E');   // ← 意図的に間違える（NE ではなく E）
+  expect(Compass.headingToDirection(67.5)).toBe('E');
 });
 ```
 
@@ -233,8 +242,8 @@ npm run test:all
 
 ```
 FAIL: 67.5 度の直前と境界を判定する
-Expected: SE
-Received: E
+Expected: E
+Received: NE
 ```
 
 ❌ テストが失敗します。
@@ -247,8 +256,8 @@ Received: E
 
 ```typescript
 test('67.5 度の直前と境界を判定する', () => {
-  expect(Compass.headingToDirection(67.49)).toBe('E');  // ← 正しい値に戻す
-  expect(Compass.headingToDirection(67.5)).toBe('SE');
+  expect(Compass.headingToDirection(67.49)).toBe('NE');  // ← 正しい値に戻す
+  expect(Compass.headingToDirection(67.5)).toBe('E');
 });
 ```
 

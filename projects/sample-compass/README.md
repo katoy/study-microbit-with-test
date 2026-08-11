@@ -147,18 +147,18 @@ micro:bit の 5×5 LED マトリックスに、現在の方位を示す 8 方向
 
 ### 方向別 LED パターン
 
-各角度で表示される矢印：
+各角度で表示される矢印（MakeCode シミュレーター実際のキャプチャ）：
 
-| 角度範囲 | 方向 | 矢印 | ArrowNames 定数 |
-|---------|------|------|------------|
-| **0° ± 22.5°** | **北（N）** | **↑** | `ArrowNames.NORTH` |
-| **45° ± 22.5°** | **北東（NE）** | **↗** | `ArrowNames.NORTH_EAST` |
-| **90° ± 22.5°** | **東（E）** | **→** | `ArrowNames.EAST` |
-| **135° ± 22.5°** | **南東（SE）** | **↘** | `ArrowNames.SOUTH_EAST` |
-| **180° ± 22.5°** | **南（S）** | **↓** | `ArrowNames.SOUTH` |
-| **225° ± 22.5°** | **南西（SW）** | **↙** | `ArrowNames.SOUTH_WEST` |
-| **270° ± 22.5°** | **西（W）** | **←** | `ArrowNames.WEST` |
-| **315° ± 22.5°** | **北西（NW）** | **↖** | `ArrowNames.NORTH_WEST` |
+| 角度 | 方向 | 矢印 | LED パターン（シミュレーター） | ArrowNames 定数 |
+|------|------|------|------|------------|
+| **0°** | **北（N）** | **↑** | ![North](./screenshots/led_000_north.png) | `ArrowNames.NORTH` |
+| **45°** | **北東（NE）** | **↗** | ![Northeast](./screenshots/led_045_northeast.png) | `ArrowNames.NORTH_EAST` |
+| **90°** | **東（E）** | **→** | ![East](./screenshots/led_090_east.png) | `ArrowNames.EAST` |
+| **135°** | **南東（SE）** | **↘** | ![Southeast](./screenshots/led_135_southeast.png) | `ArrowNames.SOUTH_EAST` |
+| **180°** | **南（S）** | **↓** | ![South](./screenshots/led_180_south.png) | `ArrowNames.SOUTH` |
+| **225°** | **南西（SW）** | **↙** | ![Southwest](./screenshots/led_225_southwest.png) | `ArrowNames.SOUTH_WEST` |
+| **270°** | **西（W）** | **←** | ![West](./screenshots/led_270_west.png) | `ArrowNames.WEST` |
+| **315°** | **北西（NW）** | **↖** | ![Northwest](./screenshots/led_315_northwest.png) | `ArrowNames.NORTH_WEST` |
 
 **実装での使用例**:
 ```python

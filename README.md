@@ -174,6 +174,37 @@ npm run integration:python
 
 詳細は [`./sync-ai-skills.sh`](./sync-ai-skills.sh) の内部コメントと [`docs/README.md`](./docs/README.md) を参照。
 
+## カスタムスキル管理
+
+このプロジェクトには、micro:bit 教育コンテンツを作成・管理するためのカスタムスキルが [`skills/`](./skills/) ディレクトリに含まれています。
+
+### 利用可能なスキル
+
+1. **microbit-generate-blocks-hex** — MakeCode Web エディタ経由でブロック表示対応の HEX ファイルを自動生成
+2. **microbit-makecode-recorder** — micro:bit プログラム実行を GIF アニメーションとして記録
+
+詳細は [`skills/README.md`](./skills/README.md) を参照。
+
+### グローバル設定への登録
+
+カスタムスキルを claude, agy, codex, copilot のグローバル設定に登録・削除します：
+
+```bash
+# claude に登録
+./scripts/manage-global-skills.sh add claude
+
+# 複数のエージェントに登録
+./scripts/manage-global-skills.sh add claude agy codex copilot
+
+# エージェントから削除
+./scripts/manage-global-skills.sh remove claude
+
+# ステータス確認
+./scripts/manage-global-skills.sh status
+```
+
+詳細は [`scripts/manage-global-skills.sh`](./scripts/manage-global-skills.sh) を参照。
+
 ## CIと安全性
 
 GitHub ActionsはPython、TypeScript、MakeCode、統合テスト、リポジトリ設定、依存関係監査を分けて実行します。ローカルhooksは変更されたサブプロジェクトのテストをcommit/push前に実行します。CIを通すためだけにテスト失敗を無視する構成にはしていません。

@@ -1,6 +1,7 @@
 """MakeCode エディタを Playwright で自動操作するモジュール。"""
 
 import asyncio
+from io import BytesIO
 from pathlib import Path
 from PIL import Image
 
@@ -76,9 +77,31 @@ class MakeCodeBrowser:
         await self._load_hex_file(hex_path)
 
     async def _load_hex_file(self, hex_path: Path) -> None:
-        """hex ファイルをロードする（内部メソッド）。"""
-        # TODO: Implement hex file loading via drag & drop or upload
-        pass
+        """hex ファイルをロードする（内部メソッド）。
+
+        ファイルアップロード UI、またはドラッグ&ドロップでファイルをロードします。
+
+        Args:
+            hex_path: ロードする hex ファイルのパス
+        """
+        if not hex_path.exists():
+            raise HexFileNotFoundError(str(hex_path))
+
+        # MakeCode エディタがファイルアップロードを受け付けるまで待機
+        await asyncio.sleep(2)
+
+        # ファイル入力要素を探してアップロード
+        file_input_selector = 'input[type="file"]'
+        try:
+            # ファイル入力要素にファイルをセット
+            await self.page.locator(file_input_selector).set_input_files(str(hex_path))
+
+            # ファイルロード完了まで待機
+            await self.page.wait_for_load_state("networkidle")
+        except Exception as e:
+            raise MakeCodeLoadError(
+                f"Failed to load hex file via file upload: {str(e)}"
+            )
 
     async def click(self, x: int, y: int) -> Image.Image:
         """
@@ -158,9 +181,7 @@ class MakeCodeBrowser:
         for attempt in range(self.MAX_SCREENSHOT_RETRIES):
             try:
                 screenshot_bytes = await self.page.screenshot()
-                return Image.frombytes(
-                    "RGB", (self.width, self.height), screenshot_bytes
-                )
+                return Image.open(BytesIO(screenshot_bytes))
             except Exception as e:
                 if attempt == self.MAX_SCREENSHOT_RETRIES - 1:
                     raise ScreenshotError(

@@ -1,0 +1,49 @@
+# pxt-microbit and pxt-core dependencies
+# These packages are build-time dependencies used only for compiling MakeCode blocks
+# They do not ship to the micro:bit device
+
+# adm-zip: ZipSlip/memory exhaustion - only used during trusted MakeCode build
+GHSA-xcpc-8h2w-3j85
+
+# image-size: ICNS and JXL parser DoS - parsers not shipped to device
+GHSA-w3rx-r6r6-pgpr
+GHSA-5p2g-fcmc-qvqq
+
+# postcss: XSS and path traversal in source map handling - only used during build
+GHSA-qx2v-qp2m-jg93
+GHSA-6g55-p6wh-862q
+GHSA-r28c-9q8g-f849
+GHSA-fxqj-rqcc-2cmp
+
+# dompurify: XSS vulnerabilities - build-time only
+GHSA-v2wj-7wpq-c8vv
+GHSA-h7mw-gpvr-xq4m
+GHSA-crv5-9vww-q3g8
+GHSA-v9jr-rg53-9pgp
+GHSA-hpcv-96wg-7vj8
+GHSA-r47g-fvhr-h676
+GHSA-rp9w-3fw7-7cwq
+GHSA-c2j3-45gr-mqc4
+GHSA-cmwh-pvxp-8882
+GHSA-vxr8-fq34-vvx9
+GHSA-gvmj-g25r-r7wr
+GHSA-x4vx-rjvf-j5p4
+GHSA-76mc-f452-cxcm
+GHSA-39q2-94rc-95cp
+GHSA-cjmm-f4jc-qw8r
+GHSA-cj63-jhhr-wcxv
+GHSA-h8r8-wccr-v5f2
+GHSA-55q2-fjhq-7xh7
+
+# sanitize-html: URI scheme validation bypass - build-time only
+GHSA-vccv-cmxp-4j9h
+
+# serialize-javascript: RCE via RegExp and CPU exhaustion - build-time only
+GHSA-5c6j-r48x-rmvq
+GHSA-qj8w-gfj5-8c6v
+
+# less: inherits image-size dependency
+# mocha: transitively depends on vulnerable packages
+
+# elliptic: Risky cryptographic implementation - build tool dependency
+GHSA-848j-6mx2-7j84

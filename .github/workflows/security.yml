@@ -25,6 +25,9 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Run Trivy vulnerability scanner
+        # Note: Known vulnerabilities in pxt-microbit/pxt-core build dependencies
+        # are whitelisted in .trivyignore. These are build-time only and do not
+        # ship to the micro:bit device.
         uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # v0.35.0
         env:
           TRIVY_SKIP_VERSION_CHECK: 'true'
@@ -48,6 +51,8 @@ jobs:
   python-static-analysis:
     runs-on: ubuntu-latest
     name: Python Static Analysis
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout code
@@ -57,4 +62,9 @@ jobs:
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
 
       - name: Run Bandit security check
-        run: uvx bandit@1.9.4 projects/sample-compass/src/compass_makecode.py
+        run: |
+          echo "🔍 Python セキュリティチェックを実行中..."
+          uvx bandit@1.9.4 \
+            projects/sample-compass/src/compass_makecode.py \
+            -f txt -v
+          echo "✅ Python セキュリティチェック完了"

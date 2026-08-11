@@ -143,29 +143,28 @@ RECORD_VIDEO=1 uv run pytest test/test_simulator.py -v -s
 
 ## LED 表示パターン
 
-### 8 方向の LED マトリックス表示
+micro:bit の 5×5 LED マトリックスに、現在の方位を示す 8 方向の矢印を表示します。
 
-![LED Patterns Grid](./screenshots/led_patterns_grid.png)
+### 方向別 LED パターン
 
-### 方向別 LED パターン詳細
+各角度で表示される矢印：
 
-各角度で LED マトリックスに表示される矢印パターン：
+| 角度範囲 | 方向 | 矢印 | ArrowNames 定数 |
+|---------|------|------|------------|
+| **0° ± 22.5°** | **北（N）** | **↑** | `ArrowNames.NORTH` |
+| **45° ± 22.5°** | **北東（NE）** | **↗** | `ArrowNames.NORTH_EAST` |
+| **90° ± 22.5°** | **東（E）** | **→** | `ArrowNames.EAST` |
+| **135° ± 22.5°** | **南東（SE）** | **↘** | `ArrowNames.SOUTH_EAST` |
+| **180° ± 22.5°** | **南（S）** | **↓** | `ArrowNames.SOUTH` |
+| **225° ± 22.5°** | **南西（SW）** | **↙** | `ArrowNames.SOUTH_WEST` |
+| **270° ± 22.5°** | **西（W）** | **←** | `ArrowNames.WEST` |
+| **315° ± 22.5°** | **北西（NW）** | **↖** | `ArrowNames.NORTH_WEST` |
 
-| 角度 | 方向 | 矢印 | LED パターン | スクリーンショット |
-|------|------|------|----------|-------------|
-| **0°** | **北（N）** | **↑** | 上向き矢印 | ![North](./screenshots/led_000_north.png) |
-| **45°** | **北東（NE）** | **↗** | 右上向き矢印 | ![Northeast](./screenshots/led_045_northeast.png) |
-| **90°** | **東（E）** | **→** | 右向き矢印 | ![East](./screenshots/led_090_east.png) |
-| **135°** | **南東（SE）** | **↘** | 右下向き矢印 | ![Southeast](./screenshots/led_135_southeast.png) |
-| **180°** | **南（S）** | **↓** | 下向き矢印 | ![South](./screenshots/led_180_south.png) |
-| **225°** | **南西（SW）** | **↙** | 左下向き矢印 | ![Southwest](./screenshots/led_225_southwest.png) |
-| **270°** | **西（W）** | **←** | 左向き矢印 | ![West](./screenshots/led_270_west.png) |
-| **315°** | **北西（NW）** | **↖** | 左上向き矢印 | ![Northwest](./screenshots/led_315_northwest.png) |
-
-**LED 表示について**:
-- 🔴 **赤色 LED**: 点灯している LED
-- ⚪ **灰色 LED**: 消灯している LED
-- `#` で点灯、`.` で消灯を表現
+**実装での使用例**:
+```python
+if direction == "N":
+    basic.show_arrow(ArrowNames.NORTH)  # 北向き矢印を表示
+```
 
 ### キャリブレーションフロー
 

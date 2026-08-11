@@ -68,22 +68,84 @@ MicrobotRecorder(
 - `cursor_y`: GIF に描画するカーソルの Y 座標（デフォルト: 400）
 
 #### 操作メソッド（チェーン可能）
-- `click(x: int, y: int) -> MicrobotRecorder`: クリック操作
-- `type(text: str) -> MicrobotRecorder`: テキスト入力
-- `key(key_name: str) -> MicrobotRecorder`: キー入力
-- `wait(seconds: float) -> MicrobotRecorder`: 待機
-- `screenshot(label: str = "") -> MicrobotRecorder`: スクリーンショット
 
-#### 最終化メソッド
-- `async open_makecode() -> MicrobotRecorder`: MakeCode 起動
-- `async record_gif(output_path: str, fps: int = 10) -> None`: GIF 記録
-- `async close() -> None`: クローズ
+すべてのメソッドは `MicrobotRecorder` を返すため、メソッドチェーンが可能です。
+
+| メソッド | 説明 | 戻り値 |
+|---------|------|--------|
+| `click(x, y)` | 座標 (x, y) をクリック | `MicrobotRecorder` |
+| `type(text)` | テキストを入力 | `MicrobotRecorder` |
+| `key(key_name)` | キーを入力（"Enter", "Escape" など） | `MicrobotRecorder` |
+| `wait(seconds)` | 指定秒数待機 | `MicrobotRecorder` |
+| `screenshot(label)` | スクリーンショットを取得 | `MicrobotRecorder` |
+
+#### 初期化・終了メソッド
+
+| メソッド | 説明 | 戻り値 |
+|---------|------|--------|
+| `await open_makecode()` | MakeCode エディタを起動し HEX ファイルをロード | `MicrobotRecorder` |
+| `await record_gif(output_path, fps)` | イベントを実行し GIF を記録・保存 | `None` |
+| `await close()` | ブラウザをクローズしリソースを解放 | `None` |
+
+## 高度な使用方法
+
+### カスタムカーソル位置
+
+```python
+# ブラウザの中央ではなく、左上のコーナーにカーソルを表示
+recorder = MicrobotRecorder(
+    hex_file="program.hex",
+    cursor_x=100,
+    cursor_y=50
+)
+```
+
+### エラーハンドリング
+
+```python
+from microbit_makecode_recorder import MicrobotRecorder
+from core.errors import HexFileNotFoundError, MakeCodeLoadError, ScreenshotError
+
+try:
+    recorder = MicrobotRecorder(hex_file="nonexistent.hex")
+    await recorder.open_makecode()
+except HexFileNotFoundError as e:
+    print(f"HEX ファイルが見つかりません: {e}")
+except MakeCodeLoadError as e:
+    print(f"MakeCode の読み込みに失敗しました: {e}")
+```
 
 ## 依存関係
 
 - Playwright >= 1.40.0
 - Pillow >= 10.0.0
 - Python 3.9+
+
+## トラブルシューティング
+
+### Q: "Browser not initialized" エラーが出る
+
+**A:** `open_makecode()` を呼び出してからクリック操作を実行してください。
+
+```python
+recorder = MicrobotRecorder(hex_file="program.hex")
+await recorder.open_makecode()  # ← これを忘れずに
+await recorder.click(100, 200).record_gif("output.gif")
+```
+
+### Q: HEX ファイルがロードされない
+
+**A:** ファイルパスが正しいこと、ファイルが存在することを確認してください。
+
+```python
+from pathlib import Path
+hex_path = Path("program.hex")
+assert hex_path.exists(), f"File not found: {hex_path}"
+```
+
+### Q: スクリーンショットがぼやけている
+
+**A:** `browser_width`, `browser_height` を調整してください。高解像度の場合は 1920x1440 などを指定してください。
 
 ## ライセンス
 

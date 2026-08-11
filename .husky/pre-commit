@@ -1,7 +1,7 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-echo "🔍 Git commit 前の lint & テストチェック..."
+echo "🔍 Git commit 前の構文チェック..."
 
 ROOT_DIR="$(pwd)"
 
@@ -10,11 +10,11 @@ if git diff --cached --name-only | grep -q "^projects/sample-compass/"; then
   echo "📝 sample-compass のファイルが変更されています"
   cd "$ROOT_DIR/projects/sample-compass"
   
-  echo "🔨 Python Lint チェック (Ruff) を実行中..."
-  if uv run ruff check src/compass_makecode.py test/test_coverage.py; then
-    echo "✅ Python Lint チェック成功！"
+  echo "✓ Python 構文チェック中..."
+  if uv run python -m py_compile src/compass_makecode.py; then
+    echo "✅ Python 構文チェック成功！"
   else
-    echo "❌ Python Lint チェック失敗！commit をキャンセルしました。"
+    echo "❌ Python 構文チェック失敗！commit をキャンセルしました。"
     exit 1
   fi
 else
@@ -26,19 +26,12 @@ if git diff --cached --name-only | grep -q "^projects/sample-compass-ts/"; then
   echo "📝 sample-compass-ts のファイルが変更されています"
   cd "$ROOT_DIR/projects/sample-compass-ts"
   
-  echo "🔨 TypeScript コンパイルチェックを実行中..."
+  echo "✓ TypeScript コンパイルチェック中..."
   if ! npm run build; then
     echo "❌ TypeScript コンパイル失敗！commit をキャンセルしました。"
     exit 1
   fi
-  
-  echo "🔨 TypeScript テストを実行中..."
-  if npm test -- --runInBand; then
-    echo "✅ TypeScript テスト成功！"
-  else
-    echo "❌ TypeScript テスト失敗！commit をキャンセルしました。"
-    exit 1
-  fi
+  echo "✅ TypeScript コンパイル成功！"
 else
   echo "ℹ️ sample-compass-ts に変更がありません"
 fi
@@ -48,16 +41,15 @@ if git diff --cached --name-only | grep -q "^projects/sample-compass-makecode/";
   echo "📝 sample-compass-makecode のファイルが変更されています"
   cd "$ROOT_DIR/projects/sample-compass-makecode"
   
-  echo "🔨 MakeCode コンパイル・シミュレーターテストを実行中..."
-  if npm test; then
-    echo "✅ MakeCode テスト成功！"
-  else
-    echo "❌ MakeCode テスト失敗！commit をキャンセルしました。"
+  echo "✓ MakeCode 構文チェック中..."
+  if ! npm run build; then
+    echo "❌ MakeCode ビルド失敗！commit をキャンセルしました。"
     exit 1
   fi
+  echo "✅ MakeCode ビルド成功！"
 else
   echo "ℹ️ sample-compass-makecode に変更がありません"
 fi
 
 cd "$ROOT_DIR"
-echo "✅ Pre-commit チェック完了！"
+echo "✅ Pre-commit チェック完了！（テストは pre-push で実行します）"

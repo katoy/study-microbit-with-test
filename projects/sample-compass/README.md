@@ -36,9 +36,11 @@ uv run playwright install chromium
 
 ## 操作デモ
 
-![Compass Demo](./screenshots/demo.gif)
+### シミュレータ画面の実演動画
 
-上のアニメーションは方向変化を視覚的に示したデモです。**実際の MakeCode シミュレータで動作を確認したい場合**は、以下のテストコマンドを実行してください。
+![Simulator Screencast](./screenshots/simulator-demo.gif)
+
+上の GIF はブラウザで実際に動作するシミュレータをスクリーンキャストしたものです。以下のコマンドを実行すると、同様の動画が自動的に記録・生成されます。
 
 ### 実際のシミュレータで確認
 
@@ -46,6 +48,7 @@ uv run playwright install chromium
 
 ```bash
 # ブラウザウィンドウを表示してシミュレーターテストを実行
+# テスト完了後、自動的に simulator-demo.gif が生成されます
 PLAYWRIGHT_HEADLESS=0 uv run pytest test/test_simulator.py -v -s
 ```
 
@@ -53,8 +56,21 @@ PLAYWRIGHT_HEADLESS=0 uv run pytest test/test_simulator.py -v -s
 
 ```bash
 # ヘッドレスモード（バックグラウンド実行）
+# テスト完了後、自動的に simulator-demo.gif が生成されます
 uv run pytest test/test_simulator.py -v -s
 ```
+
+#### ビデオ記録の制御
+
+デフォルトではテスト実行時にビデオが記録されます。ビデオ記録を無効にする場合：
+
+```bash
+# ビデオ記録なしでテスト実行
+RECORD_VIDEO=0 uv run pytest test/test_simulator.py -v -s
+```
+
+- `RECORD_VIDEO=1` (デフォルト): ビデオを記録し、GIF に変換
+- `RECORD_VIDEO=0`: ビデオ記録を無効化（テスト実行時間が短縮）
 
 このテストは実際のブラウザで MakeCode シミュレータを起動し、以下の動作を確認します：
 
@@ -62,6 +78,7 @@ uv run pytest test/test_simulator.py -v -s
 2. ✅ **方向判定**: 0°～315° の各方向を正確に判定
 3. ✅ **LED 表示**: 5×5 LED マトリックスに矢印パターンを表示
 4. ✅ **キャリブレーション**: ボタン操作による校正機能
+5. ✅ **動画記録**: テスト実行がスクリーンキャストとして GIF に自動保存（制御可能）
 
 **実行時間**: 約 30～40 秒（インターネット接続が必要）
 

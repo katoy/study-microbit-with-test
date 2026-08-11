@@ -123,13 +123,28 @@ def test_makecode_simulator_rotation():
     print("Starting Playwright simulator rotation test for Python...")
     
     headless_mode = os.getenv("PLAYWRIGHT_HEADLESS", "1").lower() != "0"
+    record_video = os.getenv("RECORD_VIDEO", "1").lower() == "1"
     
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=headless_mode)
-        context = browser.new_context(
-            locale="ja-JP",
-            accept_downloads=True
-        )
+        
+        # ビデオ記録の設定
+        context_opts = {
+            "locale": "ja-JP",
+            "accept_downloads": True,
+        }
+        
+        if record_video:
+            # ビデオ記録用ディレクトリ（sample-compass 配下）
+            sample_compass_dir = os.path.join(project_root, "sample-compass")
+            video_dir = os.path.join(sample_compass_dir, ".video-temp")
+            os.makedirs(video_dir, exist_ok=True)
+            context_opts["record_video_dir"] = video_dir
+            print("🎬 Video recording enabled")
+        else:
+            print("⏭️  Video recording disabled")
+        
+        context = browser.new_context(**context_opts)
         page = context.new_page()
         
         # ブラウザ側のコンソールログを出力
@@ -260,7 +275,31 @@ def test_makecode_simulator_rotation():
             print("Python Rotation Test failed. Saved screenshot to:", error_screenshot_path)
             raise e
         finally:
+            # ビデオ確定のため context と browser を閉じる
+            context.close()
             browser.close()
+            
+            # ビデオが確定されるまで少し待つ
+            time.sleep(3)
+            
+            # デバッグ：ビデオディレクトリの確認
+            sample_compass_dir = os.path.join(project_root, "sample-compass")
+            video_temp = os.path.join(sample_compass_dir, ".video-temp")
+            print(f"\n📁 Video temp dir: {video_temp}")
+            print(f"📁 Video temp dir exists: {os.path.exists(video_temp)}")
+            if os.path.exists(video_temp):
+                files = os.listdir(video_temp)
+                print(f"📁 Files in video temp: {files}")
+            
+            # ビデオを GIF に変換
+            print("\n🎬 Converting video to GIF...")
+            import subprocess
+            import sys
+            convert_script = os.path.join(project_root, "sample-compass/scripts/convert_video_to_gif.py")
+            result = subprocess.run([sys.executable, convert_script], cwd=project_root, capture_output=True, text=True)
+            print(result.stdout)
+            if result.stderr:
+                print(result.stderr)
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "-s"])

@@ -122,8 +122,10 @@ def test_makecode_simulator_rotation():
     
     print("Starting Playwright simulator rotation test for Python...")
     
+    headless_mode = os.getenv("PLAYWRIGHT_HEADLESS", "1").lower() != "0"
+    
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browser = p.chromium.launch(headless=headless_mode)
         context = browser.new_context(
             locale="ja-JP",
             accept_downloads=True

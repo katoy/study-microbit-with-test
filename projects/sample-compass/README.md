@@ -42,8 +42,17 @@ uv run playwright install chromium
 
 ### 実際のシミュレータで確認
 
+ブラウザウィンドウにシミュレータを表示しながら、テストを実行します：
+
 ```bash
-# シミュレーターテストを実行（MakeCode Web上で動作を確認）
+# ブラウザウィンドウを表示してシミュレーターテストを実行
+PLAYWRIGHT_HEADLESS=0 uv run pytest test/test_simulator.py -v -s
+```
+
+または、ブラウザウィンドウを表示しない場合：
+
+```bash
+# ヘッドレスモード（バックグラウンド実行）
 uv run pytest test/test_simulator.py -v -s
 ```
 

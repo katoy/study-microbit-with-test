@@ -8,6 +8,7 @@
 |---|---|
 | 全体像とセットアップ | [ルートREADME](../README.md) |
 | 3環境の比較自習 | [複数言語ガイド](../MULTILANGUAGE_GUIDE.md) |
+| **180分ワークショップ** | [カリキュラム](../docs/tutorials/WORKSHOP_TEMPLATE_180min.md) <br/> [講師スライド](../docs/tutorials/INSTRUCTOR_SLIDES_180min.md) <br/> [スライド使用ガイド](../docs/tutorials/SLIDES_README.md) |
 | 90分授業 | [ワークショップ](../WORKSHOP_TEMPLATE.md) |
 | 動画収録 | [動画台本](../VIDEO_TUTORIAL_SCRIPT.md) |
 | Python | [Python版README](../sample-compass/README.md) |

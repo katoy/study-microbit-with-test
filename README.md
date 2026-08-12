@@ -140,10 +140,21 @@ npm run integration:python
 
 ## 教材・運用文書
 
+### ワークショップと講師資料
+
+| 形式 | 時間 | 教材 | 講師資料 |
+|---|---|---|---|
+| **フルサイズ** | 180分 | [WORKSHOP_TEMPLATE_180min.md](./docs/tutorials/WORKSHOP_TEMPLATE_180min.md) | [INSTRUCTOR_SLIDES_180min.md](./docs/tutorials/INSTRUCTOR_SLIDES_180min.md) <br/> [スライド使用ガイド](./docs/tutorials/SLIDES_README.md) |
+| **標準** | 90分 | [WORKSHOP_TEMPLATE.md](./WORKSHOP_TEMPLATE.md) | — |
+
+### 学習者向けガイド
+
 - [複数言語学習ガイド](./MULTILANGUAGE_GUIDE.md)
-- [90分ワークショップ](./WORKSHOP_TEMPLATE.md)
 - [動画収録台本](./VIDEO_TUTORIAL_SCRIPT.md)
 - [Git hooksガイド](./GIT_HOOKS_GUIDE.md)
+
+### ドキュメント索引
+
 - [文書索引と過去レビュー](./docs/README.md)
 
 過去の評価レポートに書かれたテスト件数は作成時点のスナップショットです。現在の状態は `npm run test:all` の実行結果を正とします。
